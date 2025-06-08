@@ -113,9 +113,9 @@ export default {
     
     currentHeaderImage() {
       const imageMap = {
-        'administration': require('@/assets/header-image-1.png'),
-        'scoring': require('@/assets/header-image-2.png'),
-        'leaderboards': require('@/assets/header-image-1.png')
+        'administration': require('@/assets/parkland-header.png'),
+        'scoring': require('@/assets/heathland-header.png'),
+        'leaderboards': require('@/assets/moorland-header.png')
       };
       return imageMap[this.activeSection] || null;
     },
