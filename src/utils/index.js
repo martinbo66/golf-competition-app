@@ -110,10 +110,10 @@ export const validateScore = (score) => {
     };
   }
   
-  if (scoreValue < 18 || scoreValue > 150) {
+  if (scoreValue < 0 || scoreValue > 72) {
     return {
       isValid: false,
-      error: 'Score must be between 18 and 150'
+      error: 'Score must be between 0 and 72'
     };
   }
   
