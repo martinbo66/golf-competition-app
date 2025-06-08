@@ -12,8 +12,15 @@ class MockStore {
     // Initialize module states (each module exports its state as a function or object)
     Object.keys(modules).forEach(key => {
       const module = modules[key];
-      // Handle state as function or object
-      this.state[key] = typeof module.state === 'function' ? module.state() : { ...module.state };
+      // Always create fresh state for each test
+      if (key === 'teams') {
+        this.state[key] = { teams: [] };
+      } else if (key === 'players') {
+        this.state[key] = { players: [] };
+      } else {
+        // Handle state as function or object
+        this.state[key] = typeof module.state === 'function' ? module.state() : { ...module.state };
+      }
       
       // Bind getters (they receive the module state as first param)
       Object.keys(module.getters).forEach(getterKey => {
@@ -85,10 +92,92 @@ describe('Teams Module - Generate Teams and Player Assignment', () => {
   let store;
 
   beforeEach(() => {
+    // Create completely fresh store for each test
     store = new MockStore({
-      teams: teamsModule,
-      players: playersModule
+      teams: { ...teamsModule },
+      players: { ...playersModule }
     });
+  });
+
+  test('teams should be balanced with approximately equal players', async () => {
+    // Test with 8 players and 4 teams - should be exactly 2 players per team
+    const testPlayers = [
+      { name: 'Player A1', talentRating: 'A', entryFee: 100 },
+      { name: 'Player A2', talentRating: 'A', entryFee: 100 },
+      { name: 'Player B1', talentRating: 'B', entryFee: 100 },
+      { name: 'Player B2', talentRating: 'B', entryFee: 100 },
+      { name: 'Player C1', talentRating: 'C', entryFee: 100 },
+      { name: 'Player C2', talentRating: 'C', entryFee: 100 },
+      { name: 'Player D1', talentRating: 'D', entryFee: 100 },
+      { name: 'Player D2', talentRating: 'D', entryFee: 100 }
+    ];
+
+    // Add players to the store
+    for (const player of testPlayers) {
+      await store.dispatch('players/addPlayer', player);
+    }
+
+    // Generate 4 teams
+    const teamIds = await store.dispatch('teams/generateTeams', 4);
+
+    // Check team balance
+    const teamPlayerCounts = teamIds.map(teamId => {
+      const playersByTeamGetter = store.getters['players/playersByTeam'];
+      return playersByTeamGetter(store.state.players)(teamId).length;
+    });
+
+    // With 8 players and 4 teams, each team should have exactly 2 players
+    expect(teamPlayerCounts).toEqual([2, 2, 2, 2]);
+
+    // Verify each team has at least one player and no team is empty
+    teamPlayerCounts.forEach(count => {
+      expect(count).toBeGreaterThan(0);
+    });
+  });
+
+  test('teams should be balanced with uneven player division', async () => {
+    // Test with 10 players and 3 teams - should be 3, 3, 4 or 4, 3, 3
+    const testPlayers = [
+      { name: 'Player A1', talentRating: 'A', entryFee: 100 },
+      { name: 'Player A2', talentRating: 'A', entryFee: 100 },
+      { name: 'Player A3', talentRating: 'A', entryFee: 100 },
+      { name: 'Player B1', talentRating: 'B', entryFee: 100 },
+      { name: 'Player B2', talentRating: 'B', entryFee: 100 },
+      { name: 'Player C1', talentRating: 'C', entryFee: 100 },
+      { name: 'Player C2', talentRating: 'C', entryFee: 100 },
+      { name: 'Player D1', talentRating: 'D', entryFee: 100 },
+      { name: 'Player D2', talentRating: 'D', entryFee: 100 },
+      { name: 'Player D3', talentRating: 'D', entryFee: 100 }
+    ];
+
+    // Add players to the store
+    for (const player of testPlayers) {
+      await store.dispatch('players/addPlayer', player);
+    }
+
+    // Generate 3 teams
+    const teamIds = await store.dispatch('teams/generateTeams', 3);
+
+    // Check team balance
+    const teamPlayerCounts = teamIds.map(teamId => {
+      const playersByTeamGetter = store.getters['players/playersByTeam'];
+      return playersByTeamGetter(store.state.players)(teamId).length;
+    });
+
+    // With 10 players and 3 teams, the difference should be at most 1
+    const maxPlayers = Math.max(...teamPlayerCounts);
+    const minPlayers = Math.min(...teamPlayerCounts);
+    expect(maxPlayers - minPlayers).toBeLessThanOrEqual(1);
+
+    // Each team should have 3 or 4 players (10/3 = 3.33, so distribution should be 3,3,4 or 4,3,3)
+    teamPlayerCounts.forEach(count => {
+      expect(count).toBeGreaterThanOrEqual(3);
+      expect(count).toBeLessThanOrEqual(4);
+    });
+
+    // Total should be 10
+    const totalPlayers = teamPlayerCounts.reduce((sum, count) => sum + count, 0);
+    expect(totalPlayers).toBe(10);
   });
 
   test('full generateTeams workflow', async () => {

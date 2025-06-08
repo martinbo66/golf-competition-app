@@ -82,27 +82,13 @@ const actions = {
       return talentPoints[b.talentRating] - talentPoints[a.talentRating];
     });
     
-    // Assign players using snake draft pattern
-    let teamIndex = 0;
-    let direction = 1; // 1 for forward, -1 for backward
-    
-    sortedPlayers.forEach(player => {
+    // Use a simple round-robin assignment to ensure balanced teams
+    sortedPlayers.forEach((player, index) => {
+      const teamIndex = index % teamIds.length;
       dispatch('players/assignPlayerToTeam', { 
         playerId: player.id, 
         teamId: teamIds[teamIndex] 
       }, { root: true });
-      
-      // Move to next team (snake pattern)
-      teamIndex += direction;
-      
-      // Reverse direction if we hit the end
-      if (teamIndex >= teamIds.length) {
-        teamIndex = teamIds.length - 2;
-        direction = -1;
-      } else if (teamIndex < 0) {
-        teamIndex = 1;
-        direction = 1;
-      }
     });
   },
   uploadTeamLogo({ commit }, { teamId, logoUrl }) {
