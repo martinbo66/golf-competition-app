@@ -53,12 +53,16 @@ After starting the development server, open your browser and navigate to `http:/
 3. **Enter Scores**: Use the Scoring section to enter scores for each course
 4. **View Leaderboards**: Check the Leaderboards section to see team and individual rankings
 
-For detailed instructions, please refer to the [User Guide](./user-guide.md).
+For detailed instructions, please refer to the [User Guide](./doc/user-guide.md).
 
 ## Project Structure
 
 ```
 golf-competition-app/
+├── doc/                    # Documentation files
+│   ├── final-delivery.md   # Final delivery documentation
+│   ├── test-plan.md        # Test plan
+│   └── user-guide.md       # User guide
 ├── public/                 # Static files
 ├── src/                    # Source files
 │   ├── assets/             # Assets (images, styles)
@@ -78,8 +82,6 @@ golf-competition-app/
 ├── .gitignore              # Git ignore file
 ├── package.json            # Package configuration
 ├── README.md               # Project documentation
-├── test-plan.md            # Test plan
-├── user-guide.md           # User guide
 └── vue.config.js           # Vue CLI configuration
 ```
 
@@ -93,7 +95,7 @@ golf-competition-app/
 
 ## Testing
 
-A comprehensive test plan is available in the [Test Plan](./test-plan.md) document.
+A comprehensive test plan is available in the [Test Plan](./doc/test-plan.md) document.
 
 ## Data Persistence
 
