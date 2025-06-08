@@ -207,7 +207,7 @@ export default {
       if (scoredPlayers.length === 0) return 'N/A';
       
       const scores = scoredPlayers.map(player => this.getPlayerScore(player.id));
-      return Math.min(...scores);
+      return Math.max(...scores);
     },
     
     worstScore() {
@@ -215,7 +215,7 @@ export default {
       if (scoredPlayers.length === 0) return 'N/A';
       
       const scores = scoredPlayers.map(player => this.getPlayerScore(player.id));
-      return Math.max(...scores);
+      return Math.min(...scores);
     }
   },
   created() {

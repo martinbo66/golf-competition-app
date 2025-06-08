@@ -29,6 +29,13 @@
             </div>
             
             <div class="team-stats">
+              <div class="team-logo">
+                <div class="logo-placeholder" v-if="!team.logoUrl">
+                  {{ getTeamInitials(team.name) }}
+                </div>
+                <img v-else :src="team.logoUrl" :alt="team.name + ' logo'" class="logo-image" @error="onLogoError($event, team)">
+              </div>
+              
               <div class="stat-item">
                 <div class="stat-label">Players</div>
                 <div class="stat-value">{{ getTeamPlayers(team.id).length }}</div>
@@ -166,6 +173,33 @@ export default {
     },
     getPlayerCountByTalent(teamId, talentRating) {
       return this.getTeamPlayers(teamId).filter(player => player.talentRating === talentRating).length;
+    },
+    getTeamInitials(teamName) {
+      if (!teamName) return 'TM';
+      
+      // Split by spaces and apostrophes, then take first letter of each word
+      const words = teamName.split(/[\s']+/).filter(word => word.length > 0);
+      
+      if (words.length === 1) {
+        // Single word: take first two letters
+        return words[0].substring(0, 2).toUpperCase();
+      } else {
+        // Multiple words: take first letter of each word (up to 3)
+        return words.slice(0, 3).map(word => word.charAt(0)).join('').toUpperCase();
+      }
+    },
+    onLogoError(event, team) {
+      // Hide the broken image and show initials instead
+      event.target.style.display = 'none';
+      
+      // Find the team logo container and add initials fallback
+      const logoContainer = event.target.parentElement;
+      if (!logoContainer.querySelector('.logo-placeholder')) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'logo-placeholder';
+        placeholder.textContent = this.getTeamInitials(team.name);
+        logoContainer.appendChild(placeholder);
+      }
     },
     editTeam(team) {
       this.editingTeam = { ...team };
@@ -361,8 +395,46 @@ export default {
 
 .team-stats {
   display: flex;
+  align-items: center;
   padding: 15px;
   border-bottom: 1px solid var(--card-border);
+  gap: 15px;
+}
+
+.team-logo {
+  flex-shrink: 0;
+}
+
+.logo-placeholder {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary-color, #007bff) 0%, var(--primary-dark, #0056b3) 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.logo-placeholder:hover {
+  transform: scale(1.05);
+}
+
+.logo-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.logo-image:hover {
+  transform: scale(1.05);
 }
 
 .stat-item {
