@@ -241,7 +241,7 @@ export default {
 .empty-state {
   text-align: center;
   padding: 40px 0;
-  color: #666;
+  color: var(--text-muted, #666);
 }
 
 .assignment-controls {
@@ -268,19 +268,21 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
-  background-color: #f8f9fa;
+  background-color: var(--card-bg, #f8f9fa);
+  color: var(--card-text, #333);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
+  border: 1px solid var(--card-border, #e9ecef);
 }
 
 .player-card:hover {
-  background-color: #e9ecef;
+  background-color: var(--hover-bg, #e9ecef);
 }
 
 .player-card.selected {
-  background-color: #d1ecf1;
-  border-left: 3px solid #17a2b8;
+  background-color: var(--selected-bg, #d1ecf1);
+  border-left: 3px solid var(--accent-color, #17a2b8);
 }
 
 .player-info {
@@ -307,11 +309,11 @@ export default {
 
 .player-team {
   font-size: 0.9rem;
-  color: #6c757d;
+  color: var(--text-muted, #6c757d);
 }
 
 .assignment-actions {
-  background-color: #f8f9fa;
+  background-color: var(--card-header-bg, #f8f9fa);
   border-radius: 4px;
   padding: 15px;
   margin-top: 20px;
@@ -319,6 +321,7 @@ export default {
   flex-wrap: wrap;
   gap: 15px;
   align-items: center;
+  border: 1px solid var(--card-border, #e9ecef);
 }
 
 .current-selection {
@@ -392,6 +395,33 @@ export default {
   .team-selection label {
     margin-bottom: 5px;
   }
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .player-assignment {
+    --card-bg: #2d3748;
+    --card-text: #e2e8f0;
+    --card-header-bg: #1a202c;
+    --card-border: #4a5568;
+    --text-muted: #a0aec0;
+    --hover-bg: #4a5568;
+    --selected-bg: #2b6cb0;
+    --accent-color: #4299e1;
+  }
+}
+
+/* Force dark mode styles for apps that use dark class */
+.dark .player-assignment,
+[data-theme="dark"] .player-assignment {
+  --card-bg: #2d3748;
+  --card-text: #e2e8f0;
+  --card-header-bg: #1a202c;
+  --card-border: #4a5568;
+  --text-muted: #a0aec0;
+  --hover-bg: #4a5568;
+  --selected-bg: #2b6cb0;
+  --accent-color: #4299e1;
 }
 </style>
 

@@ -28,13 +28,6 @@
               </div>
             </div>
             
-            <div class="team-logo" v-if="team.logoUrl">
-              <img :src="team.logoUrl" :alt="team.name + ' logo'" />
-            </div>
-            <div class="team-logo placeholder" v-else>
-              <span>{{ team.name.charAt(0) }}</span>
-            </div>
-            
             <div class="team-stats">
               <div class="stat-item">
                 <div class="stat-label">Players</div>
@@ -268,12 +261,14 @@ export default {
 }
 
 .team-card {
-  background-color: #fff;
+  background-color: var(--card-bg, #fff);
+  color: var(--card-text, #333);
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--card-border, #e9ecef);
 }
 
 .team-header {
@@ -281,8 +276,8 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background-color: var(--card-header-bg, #f8f9fa);
+  border-bottom: 1px solid var(--card-border, #e9ecef);
 }
 
 .team-header h3 {
@@ -300,46 +295,21 @@ export default {
   background: none;
   border: none;
   font-size: 1rem;
-  color: #6c757d;
+  color: var(--text-muted, #6c757d);
   cursor: pointer;
   padding: 5px;
   border-radius: 4px;
 }
 
 .btn-icon:hover {
-  background-color: #e9ecef;
-  color: #495057;
-}
-
-.team-logo {
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-  background-color: #f8f9fa;
-}
-
-.team-logo img {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
-}
-
-.team-logo.placeholder {
-  background-color: #e9ecef;
-}
-
-.team-logo.placeholder span {
-  font-size: 3rem;
-  font-weight: bold;
-  color: #6c757d;
+  background-color: var(--hover-bg, #e9ecef);
+  color: var(--text-primary, #495057);
 }
 
 .team-stats {
   display: flex;
   padding: 15px;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--card-border, #e9ecef);
 }
 
 .stat-item {
@@ -349,7 +319,7 @@ export default {
 
 .stat-label {
   font-size: 0.9rem;
-  color: #6c757d;
+  color: var(--text-muted, #6c757d);
   margin-bottom: 5px;
 }
 
@@ -412,7 +382,7 @@ export default {
 
 .team-players li {
   padding: 8px 0;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--card-border, #e9ecef);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -423,7 +393,7 @@ export default {
 }
 
 .no-players {
-  color: #6c757d;
+  color: var(--text-muted, #6c757d);
   font-style: italic;
 }
 
@@ -493,6 +463,31 @@ export default {
   margin-top: 5px;
   font-size: 0.875rem;
   color: #6c757d;
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .team-list {
+    --card-bg: #2d3748;
+    --card-text: #e2e8f0;
+    --card-header-bg: #1a202c;
+    --card-border: #4a5568;
+    --text-muted: #a0aec0;
+    --text-primary: #e2e8f0;
+    --hover-bg: #4a5568;
+  }
+}
+
+/* Force dark mode styles for apps that use dark class */
+.dark .team-list,
+[data-theme="dark"] .team-list {
+  --card-bg: #2d3748;
+  --card-text: #e2e8f0;
+  --card-header-bg: #1a202c;
+  --card-border: #4a5568;
+  --text-muted: #a0aec0;
+  --text-primary: #e2e8f0;
+  --hover-bg: #4a5568;
 }
 </style>
 

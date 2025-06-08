@@ -322,7 +322,7 @@ export default {
 .empty-state {
   text-align: center;
   padding: 40px 0;
-  color: #666;
+  color: var(--text-muted, #666);
 }
 
 .score-filters {
@@ -381,9 +381,11 @@ export default {
   flex-wrap: wrap;
   gap: 15px;
   margin-top: 20px;
-  background-color: #f8f9fa;
+  background-color: var(--card-header-bg, #f8f9fa);
+  color: var(--card-text, #333);
   border-radius: 4px;
   padding: 15px;
+  border: 1px solid var(--card-border, #e9ecef);
 }
 
 .summary-item {
@@ -394,7 +396,7 @@ export default {
 
 .summary-label {
   font-size: 0.9rem;
-  color: #6c757d;
+  color: var(--text-muted, #6c757d);
   margin-bottom: 5px;
 }
 
@@ -423,6 +425,25 @@ export default {
     flex-direction: column;
     align-items: stretch;
   }
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .score-entry {
+    --card-text: #e2e8f0;
+    --card-header-bg: #1a202c;
+    --card-border: #4a5568;
+    --text-muted: #a0aec0;
+  }
+}
+
+/* Force dark mode styles for apps that use dark class */
+.dark .score-entry,
+[data-theme="dark"] .score-entry {
+  --card-text: #e2e8f0;
+  --card-header-bg: #1a202c;
+  --card-border: #4a5568;
+  --text-muted: #a0aec0;
 }
 </style>
 

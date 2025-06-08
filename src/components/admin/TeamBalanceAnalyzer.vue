@@ -74,33 +74,6 @@
             </tbody>
           </table>
         </div>
-        
-        <div class="talent-distribution-chart">
-          <h4>Talent Distribution by Team</h4>
-          <div class="chart-container">
-            <div class="chart-labels">
-              <div v-for="team in teamMetrics" :key="team.teamId" class="chart-label">
-                {{ team.teamName }}
-              </div>
-            </div>
-            <div class="chart-content">
-              <div v-for="rating in ['A', 'B', 'C', 'D']" :key="rating" class="chart-row">
-                <div class="rating-label" :class="'talent-' + rating.toLowerCase()">{{ rating }}</div>
-                <div class="rating-bars">
-                  <div v-for="team in teamMetrics" :key="team.teamId" class="rating-bar-container">
-                    <div 
-                      class="rating-bar" 
-                      :class="'talent-' + rating.toLowerCase()"
-                      :style="{ height: (team.talentCounts[rating] * 20) + 'px' }"
-                    >
-                      <span v-if="team.talentCounts[rating] > 0">{{ team.talentCounts[rating] }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -316,75 +289,6 @@ export default {
 
 .talent-d {
   background-color: #dc3545;
-}
-
-.talent-distribution-chart {
-  margin-top: 30px;
-}
-
-.chart-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.chart-labels {
-  display: flex;
-  margin-left: 50px;
-}
-
-.chart-label {
-  flex: 1;
-  text-align: center;
-  font-weight: 500;
-  padding-bottom: 10px;
-}
-
-.chart-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.chart-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.rating-label {
-  width: 50px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  border-radius: 4px;
-}
-
-.rating-bars {
-  display: flex;
-  flex: 1;
-  height: 100px;
-}
-
-.rating-bar-container {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0 5px;
-}
-
-.rating-bar {
-  width: 30px;
-  min-height: 1px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 0.8rem;
-  transition: height 0.3s ease;
 }
 </style>
 

@@ -310,4 +310,6 @@ body.dark-mode .alert-danger {
 .fa-moon::before { content: "🌙"; }
 .fa-download::before { content: "⬇️"; }
 .fa-upload::before { content: "⬆️"; }
+.fa-edit::before { content: "✏️"; }
+.fa-trash::before { content: "🗑️"; }
 
