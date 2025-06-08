@@ -4,6 +4,21 @@
       <h3>Course Scorecard: {{ courseData.name }}</h3>
     </div>
     <div class="card-body">
+      <!-- Scorecard Image Section -->
+      <div class="scorecard-image-section">
+        <div class="scorecard-image">
+          <img 
+            :src="scorecardImagePath" 
+            :alt="courseData.name + ' Scorecard'"
+            @error="handleImageError"
+            v-if="scorecardImagePath"
+          />
+          <div v-else class="scorecard-placeholder">
+            <p>Scorecard not available</p>
+          </div>
+        </div>
+      </div>
+      
       <div v-if="!teams.length" class="empty-state">
         <p>No teams available. Create teams in the Team Management section first.</p>
       </div>
@@ -85,6 +100,26 @@ export default {
     
     hasAnyScores() {
       return this.scoresByCourse(this.courseId).length > 0;
+    },
+    
+    scorecardImagePath() {
+      if (!this.courseData.name) return null;
+      
+      // Convert course name to the image filename format
+      const imageName = this.courseData.name.toLowerCase().replace(/\s+/g, '-') + '-scorecard.png';
+      
+      try {
+        return require(`@/assets/${imageName}`);
+      } catch (error) {
+        console.warn(`Scorecard image not found for course: ${this.courseData.name}`);
+        return null;
+      }
+    }
+  },
+  
+  methods: {
+    handleImageError() {
+      console.warn(`Failed to load scorecard image for course: ${this.courseData.name}`);
     }
   }
 };
@@ -93,6 +128,32 @@ export default {
 <style scoped>
 .course-scorecard {
   margin-bottom: 20px;
+}
+
+.scorecard-image-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.scorecard-image {
+  text-align: center;
+}
+
+.scorecard-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.scorecard-placeholder {
+  background-color: #f8f9fa;
+  border: 2px dashed #e9ecef;
+  border-radius: 4px;
+  padding: 40px 20px;
+  text-align: center;
+  color: #6c757d;
 }
 
 .empty-state {
