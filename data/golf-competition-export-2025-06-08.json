@@ -1,0 +1,222 @@
+{
+  "players": [
+    {
+      "id": "77a03e13-115f-44dc-932c-4bfd7dcc7137",
+      "name": "James Anderson",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:28:14.865Z",
+      "updatedAt": "2025-06-08T20:28:14.865Z"
+    },
+    {
+      "id": "b4926a25-5da6-4e7d-abcd-1995ddb210dc",
+      "name": "Sarah Mitchell",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:29:37.129Z",
+      "updatedAt": "2025-06-08T20:29:37.129Z"
+    },
+    {
+      "id": "90bc4280-b369-4a3f-b902-072fa6f099f9",
+      "name": "Michael Thompson",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:01.608Z",
+      "updatedAt": "2025-06-08T20:30:01.608Z"
+    },
+    {
+      "id": "295b7800-df70-4ddf-b890-04bcace87d0a",
+      "name": "Emily Rodriguez",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:12.562Z",
+      "updatedAt": "2025-06-08T20:30:12.562Z"
+    },
+    {
+      "id": "c1790d42-0742-4ec1-a39b-128ad44ff8a5",
+      "name": "David Wilson",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:13.566Z",
+      "updatedAt": "2025-06-08T20:30:13.566Z"
+    },
+    {
+      "id": "16580f82-9a7e-4a82-9f62-3b2a2ead930c",
+      "name": "Jessica Chen",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:14.571Z",
+      "updatedAt": "2025-06-08T20:30:14.571Z"
+    },
+    {
+      "id": "a323ffc0-3b79-46df-b43a-2b662de4ac7d",
+      "name": "Robert Johnson",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:15.576Z",
+      "updatedAt": "2025-06-08T20:30:15.576Z"
+    },
+    {
+      "id": "c8efdcc5-4c2e-4b15-98f2-68b339b4c7dd",
+      "name": "Amanda Davis",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:16.581Z",
+      "updatedAt": "2025-06-08T20:30:16.581Z"
+    },
+    {
+      "id": "98091cef-38a8-4de1-a342-29aa429b64ea",
+      "name": "Christopher Lee",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:17.588Z",
+      "updatedAt": "2025-06-08T20:30:17.588Z"
+    },
+    {
+      "id": "9bd74cf5-6a7e-4ca4-97ce-932a9f3effb4",
+      "name": "Nicole Brown",
+      "talentRating": "D",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:18.592Z",
+      "updatedAt": "2025-06-08T20:30:18.592Z"
+    },
+    {
+      "id": "2c318052-f3b7-4582-9c42-943e16df526e",
+      "name": "Matthew Garcia",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:19.596Z",
+      "updatedAt": "2025-06-08T20:30:19.596Z"
+    },
+    {
+      "id": "74324972-0409-47e6-b62d-faa3dc3f21de",
+      "name": "Lauren Martinez",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:20.600Z",
+      "updatedAt": "2025-06-08T20:30:20.600Z"
+    },
+    {
+      "id": "5e252d27-68a6-4ac4-8ab7-64372e8716fe",
+      "name": "Daniel Taylor",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:21.604Z",
+      "updatedAt": "2025-06-08T20:30:21.604Z"
+    },
+    {
+      "id": "b7e1b263-fd9e-400c-8736-7aba1294dac4",
+      "name": "Stephanie White",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:22.609Z",
+      "updatedAt": "2025-06-08T20:30:22.609Z"
+    },
+    {
+      "id": "4a3204f2-62ca-44b6-a442-ad943e99701a",
+      "name": "Kevin Anderson",
+      "talentRating": "D",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:23.615Z",
+      "updatedAt": "2025-06-08T20:30:23.615Z"
+    },
+    {
+      "id": "dfabcfdb-2397-465d-b89a-f84fcdd93d60",
+      "name": "Rachel Thomas",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:24.619Z",
+      "updatedAt": "2025-06-08T20:30:24.619Z"
+    },
+    {
+      "id": "e439cd5f-a503-4fb5-8917-eadf8253c0d6",
+      "name": "Brian Jackson",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:25.623Z",
+      "updatedAt": "2025-06-08T20:30:25.623Z"
+    },
+    {
+      "id": "8c10921e-0c7f-4c1f-8d10-ee4ee7fabc85",
+      "name": "Ashley Harris",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:26.628Z",
+      "updatedAt": "2025-06-08T20:30:26.628Z"
+    },
+    {
+      "id": "6b8c3646-c8f6-4c0c-9317-0b9e8f56c656",
+      "name": "Justin Clark",
+      "talentRating": "D",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": null,
+      "createdAt": "2025-06-08T20:30:27.632Z",
+      "updatedAt": "2025-06-08T20:30:27.632Z"
+    }
+  ],
+  "teams": [],
+  "scores": [],
+  "courses": [
+    {
+      "id": "a9154851-e157-403d-bb60-0778207f6b61",
+      "name": "Parkland",
+      "order": 1
+    },
+    {
+      "id": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "name": "Heathland",
+      "order": 2
+    },
+    {
+      "id": "7447f0e0-fc30-4663-a35e-93118fa73409",
+      "name": "Heritage Club",
+      "order": 3
+    },
+    {
+      "id": "85f002a7-a41c-4e60-8019-bd5a76f08b86",
+      "name": "Moorland",
+      "order": 4
+    }
+  ],
+  "appMetadata": {
+    "version": "1.0.0",
+    "exportDate": "2025-06-08T20:30:58.130Z"
+  }
+}
