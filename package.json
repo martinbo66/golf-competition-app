@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test": "jest"
   },
   "dependencies": {
     "uuid": "^9.0.0",
@@ -14,12 +15,18 @@
     "vuex": "^3.6.2"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.27.2",
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/vue2-jest": "^29.2.6",
     "babel-eslint": "^10.1.0",
+    "babel-jest": "^30.0.0-beta.3",
     "eslint": "^8.57.1",
     "eslint-plugin-vue": "^9.15.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.0.0-beta.3",
     "webpack": "^5.76.0",
     "webpack-cli": "^5.0.1"
   },
@@ -43,4 +50,3 @@
     "not dead"
   ]
 }
-
