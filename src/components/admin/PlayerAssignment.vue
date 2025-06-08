@@ -235,13 +235,34 @@ export default {
 
 <style scoped>
 .player-assignment {
+  /* Define CSS variables for proper light/dark mode support */
+  --card-bg: var(--card-bg, #ffffff);
+  --card-text: var(--text-color, #2c3e50);
+  --card-header-bg: var(--background-color, #f8f9fa);
+  --card-border: var(--border-color, #e9ecef);
+  --text-muted: var(--text-muted, #6c757d);
+  --text-primary: var(--text-color, #2c3e50);
+  --hover-bg: var(--sidebar-hover, #e9ecef);
+  --selected-bg: rgba(23, 162, 184, 0.1);
+  --accent-color: var(--info-color, #17a2b8);
+  --empty-state-color: var(--text-muted, #6c757d);
+  
   margin-bottom: 20px;
 }
 
 .empty-state {
   text-align: center;
-  padding: 40px 0;
-  color: var(--text-muted, #666);
+  padding: 40px 20px;
+  color: var(--empty-state-color);
+  background-color: var(--card-header-bg);
+  border-radius: 8px;
+  border: 2px dashed var(--card-border);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .assignment-controls {
@@ -254,45 +275,57 @@ export default {
   flex: 1;
 }
 
+.assignment-controls .form-group label {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
 .player-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
   margin-bottom: 20px;
   max-height: 400px;
   overflow-y: auto;
+  padding: 5px;
 }
 
 .player-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 15px;
-  background-color: var(--card-bg, #f8f9fa);
-  color: var(--card-text, #333);
-  border-radius: 4px;
+  padding: 12px 16px;
+  background-color: var(--card-bg);
+  color: var(--card-text);
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid var(--card-border, #e9ecef);
+  transition: all 0.3s ease;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .player-card:hover {
-  background-color: var(--hover-bg, #e9ecef);
+  background-color: var(--hover-bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 .player-card.selected {
-  background-color: var(--selected-bg, #d1ecf1);
-  border-left: 3px solid var(--accent-color, #17a2b8);
+  background-color: var(--selected-bg);
+  border-color: var(--accent-color);
+  border-width: 2px;
+  box-shadow: 0 2px 8px rgba(23, 162, 184, 0.2);
 }
 
 .player-info {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .player-name {
-  margin-right: 10px;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .player-talent {
@@ -309,24 +342,30 @@ export default {
 
 .player-team {
   font-size: 0.9rem;
-  color: var(--text-muted, #6c757d);
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .assignment-actions {
-  background-color: var(--card-header-bg, #f8f9fa);
-  border-radius: 4px;
-  padding: 15px;
+  background-color: var(--card-header-bg);
+  border-radius: 8px;
+  padding: 20px;
   margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 20px;
   align-items: center;
-  border: 1px solid var(--card-border, #e9ecef);
+  border: 1px solid var(--card-border);
 }
 
 .current-selection {
   flex: 1;
   min-width: 200px;
+  color: var(--text-primary);
+}
+
+.current-selection strong {
+  color: var(--text-primary);
 }
 
 .team-selection {
@@ -340,6 +379,8 @@ export default {
 .team-selection label {
   margin-bottom: 0;
   white-space: nowrap;
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .action-buttons {
@@ -374,7 +415,22 @@ export default {
   font-size: 0.8rem;
   font-weight: bold;
   color: white;
-  margin-left: 5px;
+  margin-left: 8px;
+}
+
+/* Dark mode overrides */
+body.dark-mode .player-assignment,
+[data-theme="dark"] .player-assignment {
+  --card-bg: #34495e;
+  --card-text: #ecf0f1;
+  --card-header-bg: #2c3e50;
+  --card-border: #4b6584;
+  --text-muted: #b2bec3;
+  --text-primary: #ecf0f1;
+  --hover-bg: #4a5568;
+  --selected-bg: rgba(66, 153, 225, 0.2);
+  --accent-color: #4299e1;
+  --empty-state-color: #b2bec3;
 }
 
 @media (max-width: 768px) {
@@ -382,46 +438,29 @@ export default {
     flex-direction: column;
   }
   
+  .player-list {
+    grid-template-columns: 1fr;
+  }
+  
   .assignment-actions {
     flex-direction: column;
     align-items: stretch;
+    gap: 15px;
   }
   
   .team-selection {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
   }
   
-  .team-selection label {
-    margin-bottom: 5px;
+  .action-buttons {
+    justify-content: stretch;
   }
-}
-
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-  .player-assignment {
-    --card-bg: #2d3748;
-    --card-text: #e2e8f0;
-    --card-header-bg: #1a202c;
-    --card-border: #4a5568;
-    --text-muted: #a0aec0;
-    --hover-bg: #4a5568;
-    --selected-bg: #2b6cb0;
-    --accent-color: #4299e1;
+  
+  .action-buttons button {
+    flex: 1;
   }
-}
-
-/* Force dark mode styles for apps that use dark class */
-.dark .player-assignment,
-[data-theme="dark"] .player-assignment {
-  --card-bg: #2d3748;
-  --card-text: #e2e8f0;
-  --card-header-bg: #1a202c;
-  --card-border: #4a5568;
-  --text-muted: #a0aec0;
-  --hover-bg: #4a5568;
-  --selected-bg: #2b6cb0;
-  --accent-color: #4299e1;
 }
 </style>
 

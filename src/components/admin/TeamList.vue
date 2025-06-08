@@ -229,18 +229,38 @@ export default {
 
 <style scoped>
 .team-list {
-  width: 100%;
+  /* Define CSS variables for proper light/dark mode support */
+  --card-bg: var(--card-bg, #ffffff);
+  --card-text: var(--text-color, #2c3e50);
+  --card-header-bg: rgba(0, 0, 0, 0.03);
+  --card-border: var(--border-color, #e9ecef);
+  --text-muted: var(--text-muted, #6c757d);
+  --text-primary: var(--text-color, #2c3e50);
+  --hover-bg: var(--sidebar-hover, #e9ecef);
+  --empty-state-bg: var(--background-color, #f8f9fa);
+  --empty-state-color: var(--text-muted, #6c757d);
+}
+
+.card {
+  background-color: var(--card-bg);
+  color: var(--card-text);
+  border: 1px solid var(--card-border);
 }
 
 .card-header {
+  background-color: var(--card-header-bg);
+  border-bottom: 1px solid var(--card-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  padding: 15px 20px;
 }
 
 .card-header h2 {
   margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .card-actions {
@@ -248,42 +268,59 @@ export default {
   gap: 10px;
 }
 
+.card-body {
+  padding: 20px;
+}
+
 .empty-state {
   text-align: center;
-  padding: 40px 0;
-  color: #666;
+  padding: 60px 20px;
+  background-color: var(--empty-state-bg);
+  border-radius: 8px;
+  border: 2px dashed var(--card-border);
+  color: var(--empty-state-color);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .teams-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 20px;
 }
 
 .team-card {
-  background-color: var(--card-bg, #fff);
-  color: var(--card-text, #333);
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--card-border, #e9ecef);
+  transition: box-shadow 0.3s ease;
+}
+
+.team-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .team-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  background-color: var(--card-header-bg, #f8f9fa);
-  border-bottom: 1px solid var(--card-border, #e9ecef);
+  padding: 15px 20px;
+  background-color: var(--card-header-bg);
+  border-bottom: 1px solid var(--card-border);
 }
 
 .team-header h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .team-actions {
@@ -291,25 +328,41 @@ export default {
   gap: 5px;
 }
 
+.btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: var(--primary-dark);
+}
+
 .btn-icon {
   background: none;
   border: none;
   font-size: 1rem;
-  color: var(--text-muted, #6c757d);
+  color: var(--text-muted);
   cursor: pointer;
   padding: 5px;
   border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .btn-icon:hover {
-  background-color: var(--hover-bg, #e9ecef);
-  color: var(--text-primary, #495057);
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .team-stats {
   display: flex;
   padding: 15px;
-  border-bottom: 1px solid var(--card-border, #e9ecef);
+  border-bottom: 1px solid var(--card-border);
 }
 
 .stat-item {
@@ -319,13 +372,14 @@ export default {
 
 .stat-label {
   font-size: 0.9rem;
-  color: var(--text-muted, #6c757d);
+  color: var(--text-muted);
   margin-bottom: 5px;
 }
 
 .stat-value {
   font-size: 1.2rem;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .talent-distribution {
@@ -372,6 +426,7 @@ export default {
   margin: 0 0 10px 0;
   font-size: 1rem;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .team-players ul {
@@ -382,10 +437,11 @@ export default {
 
 .team-players li {
   padding: 8px 0;
-  border-bottom: 1px solid var(--card-border, #e9ecef);
+  border-bottom: 1px solid var(--card-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: var(--text-primary);
 }
 
 .team-players li:last-child {
@@ -393,8 +449,9 @@ export default {
 }
 
 .no-players {
-  color: var(--text-muted, #6c757d);
+  color: var(--text-muted);
   font-style: italic;
+  margin: 0;
 }
 
 .modal {
@@ -411,13 +468,14 @@ export default {
 }
 
 .modal-content {
-  background-color: white;
-  border-radius: 4px;
+  background-color: #ffffff;
+  color: #2c3e50;
+  border-radius: 8px;
   width: 500px;
   max-width: 90%;
   max-height: 90%;
   overflow-y: auto;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 .modal-header {
@@ -425,15 +483,47 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #f8f9fa;
 }
 
 .modal-header h3 {
   margin: 0;
+  color: #2c3e50;
+  font-weight: 600;
 }
 
 .modal-body {
   padding: 20px;
+  color: #2c3e50;
+  background-color: #ffffff;
+}
+
+.modal-body p {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.modal-body .form-group {
+  margin-bottom: 20px;
+}
+
+.modal-body .form-group label {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.modal-body .form-control {
+  background-color: #ffffff;
+  color: #2c3e50;
+  border: 1px solid #ced4da;
+}
+
+.modal-body .form-text {
+  color: #6c757d;
 }
 
 .close-btn {
@@ -441,53 +531,150 @@ export default {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #999;
+  color: #6c757d;
+  transition: color 0.3s ease;
 }
 
 .close-btn:hover {
-  color: #333;
+  color: #2c3e50;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
   margin-top: 20px;
 }
 
-.form-actions button {
-  margin-left: 10px;
+.form-actions .btn {
+  min-width: 100px;
+  font-weight: 500;
+}
+
+.form-actions .btn-secondary {
+  background-color: var(--text-muted);
+  color: white;
+  border: 1px solid var(--text-muted);
+}
+
+.form-actions .btn-secondary:hover {
+  background-color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 
 .form-text {
   display: block;
   margin-top: 5px;
   font-size: 0.875rem;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-  .team-list {
-    --card-bg: #2d3748;
-    --card-text: #e2e8f0;
-    --card-header-bg: #1a202c;
-    --card-border: #4a5568;
-    --text-muted: #a0aec0;
-    --text-primary: #e2e8f0;
-    --hover-bg: #4a5568;
-  }
+.alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
 }
 
-/* Force dark mode styles for apps that use dark class */
-.dark .team-list,
+.alert-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-color: rgba(255, 193, 7, 0.3);
+  color: #856404;
+}
+
+.alert-warning strong {
+  color: #856404;
+}
+
+/* Dark mode overrides */
+body.dark-mode .team-list,
 [data-theme="dark"] .team-list {
-  --card-bg: #2d3748;
-  --card-text: #e2e8f0;
-  --card-header-bg: #1a202c;
-  --card-border: #4a5568;
-  --text-muted: #a0aec0;
-  --text-primary: #e2e8f0;
+  --card-bg: #34495e;
+  --card-text: #ecf0f1;
+  --card-header-bg: rgba(255, 255, 255, 0.05);
+  --card-border: #4b6584;
+  --text-muted: #b2bec3;
+  --text-primary: #ecf0f1;
   --hover-bg: #4a5568;
+  --empty-state-bg: #2c3e50;
+  --empty-state-color: #b2bec3;
+}
+
+body.dark-mode .alert-warning,
+[data-theme="dark"] .alert-warning {
+  background-color: rgba(241, 196, 15, 0.15);
+  border-color: rgba(241, 196, 15, 0.3);
+  color: #f4d03f;
+}
+
+body.dark-mode .alert-warning strong,
+[data-theme="dark"] .alert-warning strong {
+  color: #f4d03f;
+}
+
+body.dark-mode .form-actions .btn-secondary,
+[data-theme="dark"] .form-actions .btn-secondary {
+  background-color: #4a5568;
+  border-color: #4a5568;
+}
+
+body.dark-mode .form-actions .btn-secondary:hover,
+[data-theme="dark"] .form-actions .btn-secondary:hover {
+  background-color: #6b7280;
+  border-color: #6b7280;
+}
+
+/* Dark mode modal overrides */
+body.dark-mode .modal-content,
+[data-theme="dark"] .modal-content {
+  background-color: #34495e !important;
+  color: #ecf0f1 !important;
+}
+
+body.dark-mode .modal-header,
+[data-theme="dark"] .modal-header {
+  background-color: #2c3e50 !important;
+  border-bottom-color: #4b6584 !important;
+}
+
+body.dark-mode .modal-header h3,
+[data-theme="dark"] .modal-header h3 {
+  color: #ecf0f1 !important;
+}
+
+body.dark-mode .modal-body,
+[data-theme="dark"] .modal-body {
+  background-color: #34495e !important;
+  color: #ecf0f1 !important;
+}
+
+body.dark-mode .modal-body p,
+[data-theme="dark"] .modal-body p,
+body.dark-mode .modal-body .form-group label,
+[data-theme="dark"] .modal-body .form-group label {
+  color: #ecf0f1 !important;
+}
+
+body.dark-mode .modal-body .form-control,
+[data-theme="dark"] .modal-body .form-control {
+  background-color: #2c3e50 !important;
+  color: #ecf0f1 !important;
+  border-color: #4b6584 !important;
+}
+
+body.dark-mode .modal-body .form-text,
+[data-theme="dark"] .modal-body .form-text {
+  color: #b2bec3 !important;
+}
+
+body.dark-mode .close-btn,
+[data-theme="dark"] .close-btn {
+  color: #b2bec3 !important;
+}
+
+body.dark-mode .close-btn:hover,
+[data-theme="dark"] .close-btn:hover {
+  color: #ecf0f1 !important;
 }
 </style>
 
