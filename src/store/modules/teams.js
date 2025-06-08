@@ -26,7 +26,7 @@ const actions = {
       updatedAt: new Date().toISOString()
     };
     commit('ADD_TEAM', newTeam);
-    return newTeam.id;
+    return Promise.resolve(newTeam.id);
   },
   updateTeam({ commit }, { id, updates }) {
     commit('UPDATE_TEAM', { id, updates });
@@ -49,23 +49,23 @@ const actions = {
       commit('DELETE_TEAM', team.id);
     });
   },
-  generateTeams({ commit, dispatch, rootGetters }, numberOfTeams) {
+  async generateTeams({ commit, dispatch, rootGetters }, numberOfTeams) {
     // Get all players
     const players = rootGetters['players/allPlayers'];
     
     // Delete existing teams
-    dispatch('deleteAllTeams');
+    await dispatch('deleteAllTeams');
     
     // Create new teams
     const teamIds = [];
     for (let i = 0; i < numberOfTeams; i++) {
       const teamName = `Team ${i + 1}`;
-      const teamId = dispatch('addTeam', { name: teamName });
+      const teamId = await dispatch('addTeam', { name: teamName });
       teamIds.push(teamId);
     }
     
     // Implement team formation algorithm
-    dispatch('assignPlayersToTeams', { players, teamIds });
+    await dispatch('assignPlayersToTeams', { players, teamIds });
     
     return teamIds;
   },
