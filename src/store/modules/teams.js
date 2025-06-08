@@ -13,7 +13,7 @@ const getters = {
 };
 
 const actions = {
-  fetchTeams({ commit }) {
+  fetchTeams() {
     // In a real app, this would be an API call
     // For now, data is loaded from localStorage in the persistence plugin
   },
@@ -49,7 +49,7 @@ const actions = {
       commit('DELETE_TEAM', team.id);
     });
   },
-  async generateTeams({ commit, dispatch, rootGetters }, numberOfTeams) {
+  async generateTeams({ dispatch, rootGetters }, numberOfTeams) {
     // Get all players
     const players = rootGetters['players/allPlayers'];
     

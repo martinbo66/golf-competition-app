@@ -115,7 +115,7 @@ const getters = {
 };
 
 const actions = {
-  fetchScores({ commit }) {
+  fetchScores() {
     // In a real app, this would be an API call
     // For now, data is loaded from localStorage in the persistence plugin
   },

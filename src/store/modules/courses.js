@@ -19,7 +19,7 @@ const getters = {
 
 const actions = {
   // Courses are predefined, so we only need basic actions
-  fetchCourses({ commit }) {
+  fetchCourses() {
     // In a real app, this might be an API call
     // For now, we use the predefined courses
   }

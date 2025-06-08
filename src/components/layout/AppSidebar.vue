@@ -51,8 +51,9 @@
       
       <div class="sidebar-footer">
         <div class="app-info">
-          <p>Golf Competition App</p>
+          <p class="app-name">Golf Competition App</p>
           <p class="version">Version 1.0.0</p>
+          <p class="updated-date">Updated: June 7, 2025</p>
         </div>
       </div>
     </nav>
@@ -164,8 +165,21 @@ export default {
   font-size: 0.9rem;
 }
 
+.app-name {
+  font-weight: 500;
+  color: var(--primary-color);
+  margin-bottom: 4px !important;
+}
+
 .version {
   font-size: 0.8rem;
+  margin-bottom: 2px !important;
+}
+
+.updated-date {
+  font-size: 0.75rem;
+  font-style: italic;
+  opacity: 0.8;
 }
 
 @media (max-width: 768px) {

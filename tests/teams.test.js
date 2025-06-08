@@ -34,7 +34,7 @@ class MockStore {
     });
   }
 
-  dispatch(actionPath, payload, options = {}) {
+  dispatch(actionPath, payload) {
     const action = this.actions[actionPath];
     if (!action) {
       throw new Error(`Action ${actionPath} not found`);
@@ -213,7 +213,6 @@ describe('Teams Module - Generate Teams and Player Assignment', () => {
     expect(allTeams).toHaveLength(4);
 
     // Check that all players have been assigned to teams
-    const playersAfterAssignment = store.getGetter('players/allPlayers');
     const unassignedPlayers = store.getGetter('players/unassignedPlayers');
 
     // Assertions
