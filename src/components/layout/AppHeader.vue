@@ -1,14 +1,20 @@
 <template>
   <header class="app-header">
-    <!-- Header Image Section -->
-    <div class="header-image-section" v-if="currentHeaderImage">
-      <img :src="currentHeaderImage" :alt="currentSection" class="header-image" />
+    <!-- Header Image and Logo Section -->
+    <div class="header-main-section" v-if="currentHeaderImage">
+      <div class="logo-section">
+        <router-link to="/" class="logo-link">
+          <img src="@/assets/logo.png" alt="Bathe Golf Competition" class="logo-img" />
+        </router-link>
+      </div>
+      <div class="header-image-section">
+        <img :src="currentHeaderImage" :alt="currentSection" class="header-image" />
+      </div>
     </div>
     
     <div class="header-content">
-      <div class="logo">
+      <div class="site-title">
         <router-link to="/">
-          <img src="@/assets/logo.png" alt="Bathe Golf Competition" class="logo-img" />
           <h1>Bathe Golf Competition</h1>
         </router-link>
       </div>
@@ -197,8 +203,40 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.header-main-section {
+  display: flex;
+  align-items: stretch;
+  height: 120px;
+}
+
+.logo-section {
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--header-text);
+}
+
+.logo-img {
+  height: 120px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+  transform: scale(1.05);
+}
+
 .header-image-section {
-  width: 100%;
+  flex: 1;
   height: 120px;
   overflow: hidden;
   position: relative;
@@ -219,24 +257,16 @@ export default {
   height: 60px;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
+.site-title {
+  flex: 1;
 }
 
-.logo a {
-  display: flex;
-  align-items: center;
+.site-title a {
   text-decoration: none;
   color: var(--header-text);
 }
 
-.logo-img {
-  height: 36px;
-  margin-right: 10px;
-}
-
-.logo h1 {
+.site-title h1 {
   font-size: 1.5rem;
   font-weight: 500;
   margin: 0;
@@ -365,6 +395,22 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .header-main-section {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .logo-section {
+    width: 100%;
+    height: 80px;
+    padding: 15px;
+    justify-content: center;
+  }
+  
+  .logo-img {
+    height: 70px;
+  }
+  
   .header-image-section {
     height: 80px;
   }
@@ -375,10 +421,10 @@ export default {
     padding: 10px;
   }
   
-  .logo {
+  .site-title {
     margin-bottom: 10px;
     width: 100%;
-    justify-content: center;
+    text-align: center;
   }
   
   .top-nav {
