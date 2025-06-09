@@ -49,6 +49,11 @@
         </ul>
       </div>
       
+      <!-- Thumbnail Image Section -->
+      <div class="sidebar-thumbnail" v-if="currentThumbnailImage">
+        <img :src="currentThumbnailImage" :alt="activeSection" class="thumbnail-image" />
+      </div>
+      
       <div class="sidebar-footer">
         <div class="app-info">
           <p class="app-name">Golf Competition App</p>
@@ -78,6 +83,15 @@ export default {
     ...mapGetters('courses', ['allCourses']),
     courses() {
       return this.allCourses;
+    },
+    
+    currentThumbnailImage() {
+      const imageMap = {
+        'administration': require('@/assets/bathe-head-1.png'),
+        'scoring': require('@/assets/bathe-head-2.png'),
+        'leaderboards': require('@/assets/bathe-head-3.png')
+      };
+      return imageMap[this.activeSection] || null;
     }
   },
   methods: {
@@ -180,6 +194,25 @@ export default {
   font-size: 0.75rem;
   font-style: italic;
   opacity: 0.8;
+}
+
+.sidebar-thumbnail {
+  margin: 20px 15px;
+  text-align: center;
+}
+
+.thumbnail-image {
+  max-width: 100%;
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.thumbnail-image:hover {
+  transform: scale(1.05);
 }
 
 @media (max-width: 768px) {
