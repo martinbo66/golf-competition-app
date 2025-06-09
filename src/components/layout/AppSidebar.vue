@@ -57,8 +57,8 @@
       <div class="sidebar-footer">
         <div class="app-info">
           <p class="app-name">Golf Competition App</p>
-          <p class="version">Version 1.0.0</p>
-          <p class="updated-date">Updated: June 7, 2025</p>
+          <p class="version">Version 1.1.0</p>
+          <p class="updated-date">Updated: June 8, 2025</p>
         </div>
       </div>
     </nav>
