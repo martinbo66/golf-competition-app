@@ -79,7 +79,7 @@ export default {
   name: 'CourseScorecard',
   props: {
     courseId: {
-      type: String,
+      type: String, // UUID for the course
       required: true
     }
   },

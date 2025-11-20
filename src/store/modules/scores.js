@@ -84,6 +84,61 @@ const getters = {
       return a.name.localeCompare(b.name);
     });
   },
+  playerMoneyLeaderboard: (state, getters, rootState, rootGetters) => {
+    const players = rootGetters['players/allPlayers'];
+    
+    return players.map(player => {
+      return {
+        id: player.id,
+        name: player.name,
+        talentRating: player.talentRating,
+        teamId: player.teamId,
+        teamName: player.teamId ? rootGetters['teams/teamById'](player.teamId).name : null,
+        entryFee: player.entryFee || 0,
+        winnings: player.winnings || 0,
+        netWinnings: (player.winnings || 0) - (player.entryFee || 0)
+      };
+    }).sort((a, b) => {
+      // Sort by winnings (highest first), then by net winnings, then by name
+      const winningsDiff = (b.winnings || 0) - (a.winnings || 0);
+      if (winningsDiff !== 0) return winningsDiff;
+      
+      const netWinningsDiff = (b.netWinnings || 0) - (a.netWinnings || 0);
+      if (netWinningsDiff !== 0) return netWinningsDiff;
+      
+      return a.name.localeCompare(b.name);
+    });
+  },
+  teamMoneyLeaderboard: (state, getters, rootState, rootGetters) => {
+    const teams = rootGetters['teams/allTeams'];
+    
+    return teams.map(team => {
+      const teamPlayers = rootGetters['players/playersByTeam'](team.id);
+      
+      const totalEntryFees = teamPlayers.reduce((total, player) => total + (player.entryFee || 0), 0);
+      const totalWinnings = teamPlayers.reduce((total, player) => total + (player.winnings || 0), 0);
+      const netWinnings = totalWinnings - totalEntryFees;
+      
+      return {
+        id: team.id,
+        name: team.name,
+        logoUrl: team.logoUrl,
+        playerCount: teamPlayers.length,
+        totalEntryFees,
+        totalWinnings,
+        netWinnings
+      };
+    }).sort((a, b) => {
+      // Sort by total winnings (highest first), then by net winnings, then by name
+      const winningsDiff = (b.totalWinnings || 0) - (a.totalWinnings || 0);
+      if (winningsDiff !== 0) return winningsDiff;
+      
+      const netWinningsDiff = (b.netWinnings || 0) - (a.netWinnings || 0);
+      if (netWinningsDiff !== 0) return netWinningsDiff;
+      
+      return a.name.localeCompare(b.name);
+    });
+  },
   courseScoresByTeam: (state, getters, rootState, rootGetters) => courseId => {
     const teams = rootGetters['teams/allTeams'];
     

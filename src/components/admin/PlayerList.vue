@@ -305,7 +305,7 @@ th {
 }
 
 th:hover {
-  background-color: #f0f0f0;
+  background-color: var(--border-color);
 }
 </style>
 
