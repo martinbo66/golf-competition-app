@@ -14,30 +14,24 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { useCoursesStore } from '@/stores/courses';
 import ScoreEntry from '@/components/scoring/ScoreEntry.vue';
 import CourseScorecard from '@/components/scoring/CourseScorecard.vue';
 
-export default {
-  name: 'CourseScoring',
-  components: {
-    ScoreEntry,
-    CourseScorecard
-  },
-  props: {
-    courseId: {
-      type: String,
-      required: true
-    }
-  },
-  computed: {
-    ...mapGetters('courses', ['courseById']),
-    courseData() {
-      return this.courseById(this.courseId) || { name: 'Unknown Course', id: this.courseId };
-    }
+const props = defineProps({
+  courseId: {
+    type: String,
+    required: true
   }
-};
+});
+
+const coursesStore = useCoursesStore();
+
+const courseData = computed(() => {
+  return coursesStore.courseById(props.courseId) || { name: 'Unknown Course', id: props.courseId };
+});
 </script>
 
 <style scoped>

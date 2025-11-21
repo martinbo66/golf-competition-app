@@ -48,29 +48,24 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { useCoursesStore } from '@/stores/courses';
+import { useScoresStore } from '@/stores/scores';
 
-export default {
-  name: 'TeamLeaderboard',
-  computed: {
-    ...mapGetters('teams', ['allTeams']),
-    ...mapGetters('courses', ['allCourses']),
-    ...mapGetters('scores', ['teamLeaderboard', 'allScores']),
-    
-    teams() {
-      return this.allTeams;
-    },
-    
-    courses() {
-      return this.allCourses;
-    },
-    
-    hasAnyScores() {
-      return this.allScores.length > 0;
-    }
-  }
-};
+const teamsStore = useTeamsStore();
+const coursesStore = useCoursesStore();
+const scoresStore = useScoresStore();
+
+const teams = computed(() => teamsStore.allTeams);
+const courses = computed(() => coursesStore.allCourses);
+const allScores = computed(() => scoresStore.allScores);
+const teamLeaderboard = computed(() => scoresStore.teamLeaderboard);
+
+const hasAnyScores = computed(() => {
+  return allScores.value.length > 0;
+});
 </script>
 
 <style scoped>

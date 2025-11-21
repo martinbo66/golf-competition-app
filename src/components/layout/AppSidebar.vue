@@ -75,38 +75,34 @@
   </aside>
 </template>
 
-<script>
-import { mapGetters, mapActions } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { useUiStore } from '@/stores/ui';
+import { useCoursesStore } from '@/stores/courses';
 
-export default {
-  name: 'AppSidebar',
-  data() {
-    return {
-      adminItems: [
-        { id: 'players', label: 'Players', route: '/admin/players', icon: 'fas fa-users' },
-        { id: 'teams', label: 'Teams', route: '/admin/teams', icon: 'fas fa-user-friends' }
-      ]
-    };
-  },
-  computed: {
-    ...mapGetters('ui', ['activeSection', 'activeSidebarItem']),
-    ...mapGetters('courses', ['allCourses']),
-    courses() {
-      return this.allCourses;
-    },
-    
-    currentThumbnailImage() {
-      const imageMap = {
-        'administration': require('@/assets/bathe-head-1.png'),
-        'scoring': require('@/assets/bathe-head-2.png'),
-        'leaderboards': require('@/assets/bathe-head-3.png')
-      };
-      return imageMap[this.activeSection] || null;
-    }
-  },
-  methods: {
-    ...mapActions('ui', ['setActiveSidebarItem'])
-  }
+const uiStore = useUiStore();
+const coursesStore = useCoursesStore();
+
+const adminItems = [
+  { id: 'players', label: 'Players', route: '/admin/players', icon: 'fas fa-users' },
+  { id: 'teams', label: 'Teams', route: '/admin/teams', icon: 'fas fa-user-friends' }
+];
+
+const activeSection = computed(() => uiStore.activeSection);
+const activeSidebarItem = computed(() => uiStore.activeSidebarItem);
+const courses = computed(() => coursesStore.allCourses);
+
+const currentThumbnailImage = computed(() => {
+  const imageMap = {
+    'administration': require('@/assets/bathe-head-1.png'),
+    'scoring': require('@/assets/bathe-head-2.png'),
+    'leaderboards': require('@/assets/bathe-head-3.png')
+  };
+  return imageMap[activeSection.value] || null;
+});
+
+const setActiveSidebarItem = (itemId) => {
+  uiStore.setActiveSidebarItem(itemId);
 };
 </script>
 

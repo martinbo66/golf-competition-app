@@ -59,7 +59,7 @@
                     :class="{ 'is-invalid': scoreErrors[player.id] }"
                     min="18"
                     max="150"
-                    @change="validateScore(player.id)"
+                    @change="validateScoreInput(player.id)"
                   >
                   <div v-if="scoreErrors[player.id]" class="invalid-feedback">
                     {{ scoreErrors[player.id] }}
@@ -110,206 +110,200 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { usePlayersStore } from '@/stores/players';
+import { useCoursesStore } from '@/stores/courses';
+import { useScoresStore } from '@/stores/scores';
 import { validateScore } from '@/utils';
-import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
 
-export default {
-  name: 'ScoreEntry',
-  props: {
-    courseId: {
-      type: String, // UUID for the course
-      required: true
+const props = defineProps({
+  courseId: {
+    type: String,
+    required: true
+  }
+});
+
+const teamsStore = useTeamsStore();
+const playersStore = usePlayersStore();
+const coursesStore = useCoursesStore();
+const scoresStore = useScoresStore();
+
+const scores = ref({});
+const scoreErrors = ref({});
+const isSaving = ref({});
+const filterTeam = ref('');
+const filterScored = ref('all');
+
+const courseData = computed(() => {
+  return coursesStore.courseById(props.courseId) || { name: 'Unknown Course' };
+});
+
+const teams = computed(() => teamsStore.allTeams);
+
+const getPlayerScore = (playerId) => {
+  const score = scoresStore.scoreByPlayerAndCourse({ playerId, courseId: props.courseId });
+  return score ? score.value : null;
+};
+
+const hasScore = (playerId) => {
+  return getPlayerScore(playerId) !== null;
+};
+
+const players = computed(() => {
+  return playersStore.allPlayers.map(player => ({
+    ...player,
+    teamName: player.teamId ? teamsStore.teamById(player.teamId)?.name : null,
+    score: getPlayerScore(player.id)
+  }));
+});
+
+const filteredPlayers = computed(() => {
+  let result = [...players.value];
+  
+  // Apply team filter
+  if (filterTeam.value) {
+    if (filterTeam.value === 'unassigned') {
+      result = result.filter(player => !player.teamId);
+    } else {
+      result = result.filter(player => player.teamId === filterTeam.value);
     }
-  },
-  data() {
-    return {
-      scores: {},
-      scoreErrors: {},
-      isSaving: {},
-      filterTeam: '',
-      filterScored: 'all'
-    };
-  },
-  computed: {
-    ...mapGetters('teams', ['allTeams', 'teamById']),
-    ...mapGetters('players', ['allPlayers']),
-    ...mapGetters('courses', ['courseById']),
-    ...mapGetters('scores', ['scoreByPlayerAndCourse']),
-    
-    courseData() {
-      return this.courseById(this.courseId) || { name: 'Unknown Course' };
-    },
-    
-    teams() {
-      return this.allTeams;
-    },
-    
-    players() {
-      return this.allPlayers.map(player => ({
-        ...player,
-        teamName: player.teamId ? this.teamById(player.teamId).name : null,
-        score: this.getPlayerScore(player.id)
-      }));
-    },
-    
-    filteredPlayers() {
-      let result = [...this.players];
-      
-      // Apply team filter
-      if (this.filterTeam) {
-        if (this.filterTeam === 'unassigned') {
-          result = result.filter(player => !player.teamId);
-        } else {
-          result = result.filter(player => player.teamId === this.filterTeam);
-        }
-      }
-      
-      // Apply scored filter
-      if (this.filterScored === 'scored') {
-        result = result.filter(player => this.hasScore(player.id));
-      } else if (this.filterScored === 'unscored') {
-        result = result.filter(player => !this.hasScore(player.id));
-      }
-      
-      // Sort by team, then by name
-      result.sort((a, b) => {
-        if (a.teamName === b.teamName) {
-          return a.name.localeCompare(b.name);
-        }
-        if (!a.teamName) return 1;
-        if (!b.teamName) return -1;
-        return a.teamName.localeCompare(b.teamName);
-      });
-      
-      return result;
-    },
-    
-    scoredCount() {
-      return this.filteredPlayers.filter(player => this.hasScore(player.id)).length;
-    },
-    
-    averageScore() {
-      const scoredPlayers = this.filteredPlayers.filter(player => this.hasScore(player.id));
-      if (scoredPlayers.length === 0) return 'N/A';
-      
-      const sum = scoredPlayers.reduce((total, player) => {
-        return total + this.getPlayerScore(player.id);
-      }, 0);
-      
-      return (sum / scoredPlayers.length).toFixed(1);
-    },
-    
-    bestScore() {
-      const scoredPlayers = this.filteredPlayers.filter(player => this.hasScore(player.id));
-      if (scoredPlayers.length === 0) return 'N/A';
-      
-      const scores = scoredPlayers.map(player => this.getPlayerScore(player.id));
-      return Math.max(...scores);
-    },
-    
-    worstScore() {
-      const scoredPlayers = this.filteredPlayers.filter(player => this.hasScore(player.id));
-      if (scoredPlayers.length === 0) return 'N/A';
-      
-      const scores = scoredPlayers.map(player => this.getPlayerScore(player.id));
-      return Math.min(...scores);
+  }
+  
+  // Apply scored filter
+  if (filterScored.value === 'scored') {
+    result = result.filter(player => hasScore(player.id));
+  } else if (filterScored.value === 'unscored') {
+    result = result.filter(player => !hasScore(player.id));
+  }
+  
+  // Sort by team, then by name
+  result.sort((a, b) => {
+    if (a.teamName === b.teamName) {
+      return a.name.localeCompare(b.name);
     }
-  },
-  created() {
-    this.loadScores();
-  },
-  methods: {
-    loadScores() {
-      this.players.forEach(player => {
-        const score = this.scoreByPlayerAndCourse(player.id, this.courseId);
-        if (score) {
-          this.$set(this.scores, player.id, score.value);
-        } else {
-          this.$set(this.scores, player.id, '');
-        }
-        this.$set(this.scoreErrors, player.id, null);
-        this.$set(this.isSaving, player.id, false);
-      });
-    },
-    
-    getPlayerScore(playerId) {
-      const score = this.scoreByPlayerAndCourse(playerId, this.courseId);
-      return score ? score.value : null;
-    },
-    
-    hasScore(playerId) {
-      return this.getPlayerScore(playerId) !== null;
-    },
-    
-    validateScore(playerId) {
-      const scoreValue = this.scores[playerId];
-      
-      if (scoreValue === '') {
-        this.$set(this.scoreErrors, playerId, null);
-        return true;
-      }
-      
-      const validation = validateScore(scoreValue);
-      
-      if (!validation.isValid) {
-        this.$set(this.scoreErrors, playerId, validation.error);
-        return false;
-      }
-      
-      this.$set(this.scoreErrors, playerId, null);
-      return true;
-    },
-    
-    isScoreValid(playerId) {
-      return this.scores[playerId] !== '' && !this.scoreErrors[playerId];
-    },
-    
-    async saveScore(playerId) {
-      if (!this.isScoreValid(playerId)) return;
-      
-      this.$set(this.isSaving, playerId, true);
-      
-      try {
-        await DataService.updateScore(playerId, this.courseId, this.scores[playerId]);
-        NotificationService.success('Score saved successfully');
-      } catch (error) {
-        NotificationService.error(`Error saving score: ${error.message}`);
-      } finally {
-        this.$set(this.isSaving, playerId, false);
-      }
-    },
-    
-    async clearScore(playerId) {
-      const player = this.players.find(p => p.id === playerId);
-      if (!player) return;
-      
-      if (!confirm(`Are you sure you want to clear the score for ${player.name}?`)) {
-        return;
-      }
-      
-      this.$set(this.isSaving, playerId, true);
-      
-      try {
-        // Delete the score by setting it to null
-        const score = this.scoreByPlayerAndCourse(playerId, this.courseId);
-        if (score) {
-          await DataService.deleteScore(score.id);
-        }
-        
-        // Clear the input
-        this.$set(this.scores, playerId, '');
-        this.$set(this.scoreErrors, playerId, null);
-        
-        NotificationService.success('Score cleared successfully');
-      } catch (error) {
-        NotificationService.error(`Error clearing score: ${error.message}`);
-      } finally {
-        this.$set(this.isSaving, playerId, false);
-      }
+    if (!a.teamName) return 1;
+    if (!b.teamName) return -1;
+    return a.teamName.localeCompare(b.teamName);
+  });
+  
+  return result;
+});
+
+const scoredCount = computed(() => {
+  return filteredPlayers.value.filter(player => hasScore(player.id)).length;
+});
+
+const averageScore = computed(() => {
+  const scoredPlayers = filteredPlayers.value.filter(player => hasScore(player.id));
+  if (scoredPlayers.length === 0) return 'N/A';
+  
+  const sum = scoredPlayers.reduce((total, player) => {
+    return total + getPlayerScore(player.id);
+  }, 0);
+  
+  return (sum / scoredPlayers.length).toFixed(1);
+});
+
+const bestScore = computed(() => {
+  const scoredPlayers = filteredPlayers.value.filter(player => hasScore(player.id));
+  if (scoredPlayers.length === 0) return 'N/A';
+  
+  const scoresList = scoredPlayers.map(player => getPlayerScore(player.id));
+  return Math.max(...scoresList);
+});
+
+const worstScore = computed(() => {
+  const scoredPlayers = filteredPlayers.value.filter(player => hasScore(player.id));
+  if (scoredPlayers.length === 0) return 'N/A';
+  
+  const scoresList = scoredPlayers.map(player => getPlayerScore(player.id));
+  return Math.min(...scoresList);
+});
+
+const loadScores = () => {
+  players.value.forEach(player => {
+    const score = scoresStore.scoreByPlayerAndCourse({ playerId: player.id, courseId: props.courseId });
+    if (score) {
+      scores.value[player.id] = score.value;
+    } else {
+      scores.value[player.id] = '';
     }
+    scoreErrors.value[player.id] = null;
+    isSaving.value[player.id] = false;
+  });
+};
+
+onMounted(() => {
+  loadScores();
+});
+
+const validateScoreInput = (playerId) => {
+  const scoreValue = scores.value[playerId];
+  
+  if (scoreValue === '' || scoreValue === null || scoreValue === undefined) {
+    scoreErrors.value[playerId] = null;
+    return true;
+  }
+  
+  const validation = validateScore(scoreValue);
+  
+  if (!validation.isValid) {
+    scoreErrors.value[playerId] = validation.error;
+    return false;
+  }
+  
+  scoreErrors.value[playerId] = null;
+  return true;
+};
+
+const isScoreValid = (playerId) => {
+  return scores.value[playerId] !== '' && scores.value[playerId] !== null && !scoreErrors.value[playerId];
+};
+
+const saveScore = async (playerId) => {
+  if (!isScoreValid(playerId)) return;
+  
+  isSaving.value[playerId] = true;
+  
+  try {
+    await scoresStore.updateScore({ playerId, courseId: props.courseId, score: scores.value[playerId] });
+    NotificationService.success('Score saved successfully');
+  } catch (error) {
+    NotificationService.error(`Error saving score: ${error.message}`);
+  } finally {
+    isSaving.value[playerId] = false;
+  }
+};
+
+const clearScore = async (playerId) => {
+  const player = players.value.find(p => p.id === playerId);
+  if (!player) return;
+  
+  if (!confirm(`Are you sure you want to clear the score for ${player.name}?`)) {
+    return;
+  }
+  
+  isSaving.value[playerId] = true;
+  
+  try {
+    // Delete the score by setting it to null
+    const score = scoresStore.scoreByPlayerAndCourse({ playerId, courseId: props.courseId });
+    if (score) {
+      await scoresStore.deleteScore(score.id);
+    }
+    
+    // Clear the input
+    scores.value[playerId] = '';
+    scoreErrors.value[playerId] = null;
+    
+    NotificationService.success('Score cleared successfully');
+  } catch (error) {
+    NotificationService.error(`Error clearing score: ${error.message}`);
+  } finally {
+    isSaving.value[playerId] = false;
   }
 };
 </script>

@@ -72,54 +72,53 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { useCoursesStore } from '@/stores/courses';
+import { useScoresStore } from '@/stores/scores';
 
-export default {
-  name: 'CourseScorecard',
-  props: {
-    courseId: {
-      type: String, // UUID for the course
-      required: true
-    }
-  },
-  computed: {
-    ...mapGetters('teams', ['allTeams']),
-    ...mapGetters('courses', ['courseById']),
-    ...mapGetters('scores', ['courseScoresByTeam', 'scoresByCourse']),
-    
-    courseData() {
-      return this.courseById(this.courseId) || { name: 'Unknown Course' };
-    },
-    
-    teams() {
-      return this.allTeams;
-    },
-    
-    hasAnyScores() {
-      return this.scoresByCourse(this.courseId).length > 0;
-    },
-    
-    scorecardImagePath() {
-      if (!this.courseData.name) return null;
-      
-      // Convert course name to the image filename format
-      const imageName = this.courseData.name.toLowerCase().replace(/\s+/g, '-') + '-scorecard.png';
-      
-      try {
-        return require(`@/assets/${imageName}`);
-      } catch (error) {
-        console.warn(`Scorecard image not found for course: ${this.courseData.name}`);
-        return null;
-      }
-    }
-  },
-  
-  methods: {
-    handleImageError() {
-      console.warn(`Failed to load scorecard image for course: ${this.courseData.name}`);
-    }
+const props = defineProps({
+  courseId: {
+    type: String,
+    required: true
   }
+});
+
+const teamsStore = useTeamsStore();
+const coursesStore = useCoursesStore();
+const scoresStore = useScoresStore();
+
+const courseData = computed(() => {
+  return coursesStore.courseById(props.courseId) || { name: 'Unknown Course' };
+});
+
+const teams = computed(() => teamsStore.allTeams);
+
+const hasAnyScores = computed(() => {
+  return scoresStore.scoresByCourse(props.courseId).length > 0;
+});
+
+const scorecardImagePath = computed(() => {
+  if (!courseData.value.name) return null;
+  
+  // Convert course name to the image filename format
+  const imageName = courseData.value.name.toLowerCase().replace(/\s+/g, '-') + '-scorecard.png';
+  
+  try {
+    return require(`@/assets/${imageName}`);
+  } catch (error) {
+    console.warn(`Scorecard image not found for course: ${courseData.value.name}`);
+    return null;
+  }
+});
+
+const courseScoresByTeam = computed(() => {
+  return scoresStore.courseScoresByTeam(props.courseId);
+});
+
+const handleImageError = () => {
+  console.warn(`Failed to load scorecard image for course: ${courseData.value.name}`);
 };
 </script>
 

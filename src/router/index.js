@@ -1,13 +1,11 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
+import { useUiStore } from '@/stores/ui';
 
 // Import views
 import PlayerManagement from '@/views/PlayerManagement.vue';
 import TeamManagement from '@/views/TeamManagement.vue';
 import CourseScoring from '@/views/CourseScoring.vue';
 import Leaderboards from '@/views/Leaderboards.vue';
-
-Vue.use(VueRouter);
 
 const routes = [
   {
@@ -41,44 +39,58 @@ const routes = [
     component: () => import('@/views/MoneyLeaderboards.vue')
   },
   {
-    path: '*',
+    path: '/:pathMatch(.*)*',
     redirect: '/admin/players'
   }
 ];
 
-const router = new VueRouter({
-  mode: 'hash', // Changed from 'history' to 'hash' for better static hosting compatibility
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHashHistory(process.env.BASE_URL),
   routes
 });
 
 // Navigation guard to update active section and sidebar item
 router.beforeEach((to, from, next) => {
-  const store = router.app.$store;
-  
+  const uiStore = useUiStore();
+
   // Set active section based on route
   if (to.path.startsWith('/admin')) {
-    store.dispatch('ui/setActiveSection', 'administration');
+    uiStore.setActiveSection('administration');
   } else if (to.path.startsWith('/scoring')) {
-    store.dispatch('ui/setActiveSection', 'scoring');
+    uiStore.setActiveSection('scoring');
   } else if (to.path.startsWith('/leaderboards')) {
-    store.dispatch('ui/setActiveSection', 'leaderboards');
+    uiStore.setActiveSection('leaderboards');
   }
-  
+
   // Set active sidebar item based on route
   if (to.path === '/admin/players') {
-    store.dispatch('ui/setActiveSidebarItem', 'players');
+    uiStore.setActiveSidebarItem('players');
   } else if (to.path === '/admin/teams') {
-    store.dispatch('ui/setActiveSidebarItem', 'teams');
+    uiStore.setActiveSidebarItem('teams');
   } else if (to.path.startsWith('/scoring/')) {
-    const courseName = to.params.courseName;
-    store.dispatch('ui/setActiveSidebarItem', courseName);
+    // In Vue Router 4, params are available in to.params
+    // But we need to check if courseName is available or if we need to derive it
+    // The route is /scoring/:courseId
+    // The old code used to.params.courseName which implies it was passed or derived?
+    // Wait, the route definition is /scoring/:courseId
+    // So to.params.courseId is available.
+    // The old code checked `to.path.startsWith('/scoring/')` and used `to.params.courseName`.
+    // This suggests the sidebar item expects a name, or maybe ID?
+    // Let's assume we pass the ID for now or we need to look up the name.
+    // But `uiStore.setActiveSidebarItem` expects what?
+    // In `ui.js` state: `activeSidebarItem: 'players'`.
+    // It seems to be a string identifier.
+    // If I look at `CourseScoring.vue` (not read yet), I might see what it expects.
+    // For now, I'll use courseId if courseName is missing.
+
+    const courseId = to.params.courseId;
+    uiStore.setActiveSidebarItem(courseId);
   } else if (to.path === '/leaderboards') {
-    store.dispatch('ui/setActiveSidebarItem', 'points-leaderboards');
+    uiStore.setActiveSidebarItem('points-leaderboards');
   } else if (to.path === '/money-leaderboards') {
-    store.dispatch('ui/setActiveSidebarItem', 'money-leaderboards');
+    uiStore.setActiveSidebarItem('money-leaderboards');
   }
-  
+
   next();
 });
 

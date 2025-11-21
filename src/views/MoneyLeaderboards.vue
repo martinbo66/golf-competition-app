@@ -64,45 +64,35 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { usePlayersStore } from '@/stores/players';
+import { useScoresStore } from '@/stores/scores';
 import { formatCurrency } from '@/utils';
 import TeamMoneyLeaderboard from '@/components/scoring/TeamMoneyLeaderboard.vue';
 import PlayerMoneyLeaderboard from '@/components/scoring/PlayerMoneyLeaderboard.vue';
 
-export default {
-  name: 'MoneyLeaderboards',
-  components: {
-    TeamMoneyLeaderboard,
-    PlayerMoneyLeaderboard
-  },
-  computed: {
-    ...mapGetters('teams', ['allTeams']),
-    ...mapGetters('players', ['allPlayers', 'totalEntryFees', 'totalWinnings']),
-    ...mapGetters('scores', ['playerMoneyLeaderboard']),
-    
-    teams() {
-      return this.allTeams;
-    },
-    
-    players() {
-      return this.allPlayers;
-    },
-    
-    balance() {
-      return this.totalEntryFees - this.totalWinnings;
-    },
-    
-    topMoneyWinners() {
-      return this.playerMoneyLeaderboard
-        .filter(player => player.winnings > 0)
-        .slice(0, 5);
-    }
-  },
-  methods: {
-    formatCurrency
-  }
-};
+const teamsStore = useTeamsStore();
+const playersStore = usePlayersStore();
+const scoresStore = useScoresStore();
+
+const teams = computed(() => teamsStore.allTeams);
+const players = computed(() => playersStore.allPlayers);
+
+const totalEntryFees = computed(() => playersStore.totalEntryFees);
+const totalWinnings = computed(() => playersStore.totalWinnings);
+const playerMoneyLeaderboard = computed(() => scoresStore.playerMoneyLeaderboard);
+
+const balance = computed(() => {
+  return totalEntryFees.value - totalWinnings.value;
+});
+
+const topMoneyWinners = computed(() => {
+  return playerMoneyLeaderboard.value
+    .filter(player => player.winnings > 0)
+    .slice(0, 5);
+});
 </script>
 
 <style scoped>
