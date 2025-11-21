@@ -25,7 +25,7 @@ const routes = [
     component: TeamManagement
   },
   {
-    path: '/scoring/:courseName',
+    path: '/scoring/:courseId',
     name: 'CourseScoring',
     component: CourseScoring,
     props: true
@@ -34,6 +34,11 @@ const routes = [
     path: '/leaderboards',
     name: 'Leaderboards',
     component: Leaderboards
+  },
+  {
+    path: '/money-leaderboards',
+    name: 'MoneyLeaderboards',
+    component: () => import('@/views/MoneyLeaderboards.vue')
   },
   {
     path: '*',
@@ -69,7 +74,9 @@ router.beforeEach((to, from, next) => {
     const courseName = to.params.courseName;
     store.dispatch('ui/setActiveSidebarItem', courseName);
   } else if (to.path === '/leaderboards') {
-    store.dispatch('ui/setActiveSidebarItem', 'leaderboards');
+    store.dispatch('ui/setActiveSidebarItem', 'points-leaderboards');
+  } else if (to.path === '/money-leaderboards') {
+    store.dispatch('ui/setActiveSidebarItem', 'money-leaderboards');
   }
   
   next();

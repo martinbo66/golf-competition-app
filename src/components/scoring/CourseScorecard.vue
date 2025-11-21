@@ -23,9 +23,7 @@
         <p>No teams available. Create teams in the Team Management section first.</p>
       </div>
       
-      <div v-else-if="!hasAnyScores" class="empty-state">
-        <p>No scores recorded yet. Enter scores in the Score Entry section.</p>
-      </div>
+
       
       <div v-else>
         <div class="scorecard-container">
@@ -81,7 +79,7 @@ export default {
   name: 'CourseScorecard',
   props: {
     courseId: {
-      type: String,
+      type: String, // UUID for the course
       required: true
     }
   },

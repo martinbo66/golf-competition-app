@@ -26,18 +26,15 @@ export default {
     CourseScorecard
   },
   props: {
-    courseName: {
+    courseId: {
       type: String,
       required: true
     }
   },
   computed: {
-    ...mapGetters('courses', ['courseByName']),
+    ...mapGetters('courses', ['courseById']),
     courseData() {
-      return this.courseByName(this.courseName.replace('-', ' ')) || { name: this.courseName, id: null };
-    },
-    courseId() {
-      return this.courseData.id;
+      return this.courseById(this.courseId) || { name: 'Unknown Course', id: this.courseId };
     }
   }
 };

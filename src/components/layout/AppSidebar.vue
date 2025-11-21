@@ -22,9 +22,9 @@
         <ul>
           <li v-for="course in courses" :key="course.id">
             <router-link 
-              :to="`/scoring/${course.name.toLowerCase().replace(' ', '-')}`" 
-              :class="{ active: activeSidebarItem === course.name.toLowerCase().replace(' ', '-') }"
-              @click.native="setActiveSidebarItem(course.name.toLowerCase().replace(' ', '-'))"
+              :to="`/scoring/${course.id}`" 
+              :class="{ active: activeSidebarItem === course.id }"
+              @click.native="setActiveSidebarItem(course.id)"
             >
               <i class="fas fa-flag"></i>
               {{ course.name }}
@@ -39,11 +39,21 @@
           <li>
             <router-link 
               to="/leaderboards" 
-              :class="{ active: activeSidebarItem === 'leaderboards' }"
-              @click.native="setActiveSidebarItem('leaderboards')"
+              :class="{ active: activeSidebarItem === 'points-leaderboards' }"
+              @click.native="setActiveSidebarItem('points-leaderboards')"
             >
               <i class="fas fa-trophy"></i>
-              Combined Leaderboards
+              Points Leaderboards
+            </router-link>
+          </li>
+          <li>
+            <router-link 
+              to="/money-leaderboards" 
+              :class="{ active: activeSidebarItem === 'money-leaderboards' }"
+              @click.native="setActiveSidebarItem('money-leaderboards')"
+            >
+              <i class="fas fa-dollar-sign"></i>
+              Money Leaderboards
             </router-link>
           </li>
         </ul>
