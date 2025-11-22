@@ -59,6 +59,7 @@
                     :class="{ 'is-invalid': scoreErrors[player.id] }"
                     min="18"
                     max="150"
+                    :data-player-id="player.id"
                     @change="validateScoreInput(player.id)"
                   >
                   <div v-if="scoreErrors[player.id]" class="invalid-feedback">
@@ -269,7 +270,7 @@ const saveScore = async (playerId) => {
   isSaving.value[playerId] = true;
   
   try {
-    await scoresStore.updateScore({ playerId, courseId: props.courseId, score: scores.value[playerId] });
+    await scoresStore.updateScore({ playerId, courseId: props.courseId, value: scores.value[playerId] });
     NotificationService.success('Score saved successfully');
   } catch (error) {
     NotificationService.error(`Error saving score: ${error.message}`);
