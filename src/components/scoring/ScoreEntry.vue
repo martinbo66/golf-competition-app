@@ -1,8 +1,5 @@
 <template>
   <div class="score-entry card">
-    <div class="card-header">
-      <h3>Score Entry: {{ courseData.name }}</h3>
-    </div>
     <div class="card-body">
       <div v-if="!players.length" class="empty-state">
         <p>No players available. Add players in the Player Management section first.</p>
@@ -112,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useTeamsStore } from '@/stores/teams';
 import { usePlayersStore } from '@/stores/players';
 import { useCoursesStore } from '@/stores/courses';
@@ -225,8 +222,28 @@ const worstScore = computed(() => {
 });
 
 const loadScores = () => {
+  console.log('Loading scores for course:', props.courseId);
+  // Reset local state
+  scores.value = {};
+  scoreErrors.value = {};
+  isSaving.value = {};
+  
   players.value.forEach(player => {
+    console.log(`ScoreEntry: loadScores called for player ${player.name}. CourseId: ${props.courseId}, PlayerId:`, player.id);
+    if (typeof player.id === 'object') {
+        console.error('ScoreEntry: Player ID is an object!', player);
+    }
+    
+    if (!props.courseId) {
+        console.warn('ScoreEntry: No courseId provided to loadScores');
+        // Decide how to handle this case, maybe skip loading for this player or set a default
+        scoreErrors.value[player.id] = 'No course ID provided.';
+        return;
+    }
+    
     const score = scoresStore.scoreByPlayerAndCourse({ playerId: player.id, courseId: props.courseId });
+    console.log(`ScoreEntry: Loaded score for ${player.name}:`, score);
+    
     if (score) {
       scores.value[player.id] = score.value;
     } else {
@@ -235,9 +252,14 @@ const loadScores = () => {
     scoreErrors.value[player.id] = null;
     isSaving.value[player.id] = false;
   });
+  console.log('Scores loaded:', scores.value);
 };
 
 onMounted(() => {
+  loadScores();
+});
+
+watch(() => props.courseId, () => {
   loadScores();
 });
 

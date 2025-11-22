@@ -97,16 +97,23 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useUiStore } from '@/stores/ui';
+import { useCoursesStore } from '@/stores/courses';
 import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
 
 const uiStore = useUiStore();
+const coursesStore = useCoursesStore();
 
-const navItems = [
+const scoringRoute = computed(() => {
+  const firstCourse = coursesStore.allCourses[0];
+  return firstCourse ? `/scoring/${firstCourse.id}` : '/scoring';
+});
+
+const navItems = computed(() => [
   { id: 'administration', label: 'Administration', route: '/admin/players', icon: 'fas fa-users-cog' },
-  { id: 'scoring', label: 'Scoring', route: '/scoring/parkland', icon: 'fas fa-golf-ball' },
+  { id: 'scoring', label: 'Scoring', route: scoringRoute.value, icon: 'fas fa-golf-ball' },
   { id: 'leaderboards', label: 'Leaderboards', route: '/leaderboards', icon: 'fas fa-trophy' }
-];
+]);
 
 const showExportModal = ref(false);
 const showImportModal = ref(false);

@@ -29,11 +29,25 @@ const routes = [
     props: true
   },
   {
-    path: '/leaderboards',
-    name: 'Leaderboards',
-    component: Leaderboards
+    path: '/scoring',
+    redirect: to => {
+      try {
+        const { useCoursesStore } = require('@/stores/courses');
+        const coursesStore = useCoursesStore();
+        const firstCourse = coursesStore.allCourses[0];
+        if (firstCourse) {
+          return `/scoring/${firstCourse.id}`;
+        }
+        return '/admin/players';
+      } catch (e) {
+        console.error('Error in scoring redirect:', e);
+        return '/admin/players';
+      }
+    }
   },
   {
+    path: '/leaderboards',
+    name: 'Leaderboards',
     path: '/money-leaderboards',
     name: 'MoneyLeaderboards',
     component: () => import('@/views/MoneyLeaderboards.vue')
