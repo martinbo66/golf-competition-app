@@ -97,139 +97,138 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
-import DataService from '@/services/DataService';
+<script setup>
+import { ref, computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { usePlayersStore } from '@/stores/players';
 import NotificationService from '@/services/NotificationService';
 
-export default {
-  name: 'PlayerAssignment',
-  data() {
-    return {
-      filterTalent: '',
-      filterTeam: '',
-      sortBy: 'name',
-      selectedPlayer: null,
-      selectedTeam: ''
-    };
-  },
-  computed: {
-    ...mapGetters('teams', ['allTeams', 'teamById']),
-    ...mapGetters('players', ['allPlayers', 'playerById']),
-    teams() {
-      return this.allTeams;
-    },
-    players() {
-      return this.allPlayers.map(player => ({
-        ...player,
-        teamName: player.teamId ? this.teamById(player.teamId).name : null
-      }));
-    },
-    filteredSortedPlayers() {
-      let result = [...this.players];
-      
-      // Apply talent filter
-      if (this.filterTalent) {
-        result = result.filter(player => player.talentRating === this.filterTalent);
-      }
-      
-      // Apply team filter
-      if (this.filterTeam) {
-        if (this.filterTeam === 'unassigned') {
-          result = result.filter(player => !player.teamId);
-        } else {
-          result = result.filter(player => player.teamId === this.filterTeam);
-        }
-      }
-      
-      // Apply sorting
-      result.sort((a, b) => {
-        if (this.sortBy === 'name') {
-          return a.name.localeCompare(b.name);
-        } else if (this.sortBy === 'talentRating') {
-          // Sort by talent rating (A > B > C > D)
-          const talentOrder = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
-          return talentOrder[a.talentRating] - talentOrder[b.talentRating];
-        } else if (this.sortBy === 'teamName') {
-          // Sort by team name, with unassigned at the end
-          if (!a.teamName && !b.teamName) return 0;
-          if (!a.teamName) return 1;
-          if (!b.teamName) return -1;
-          return a.teamName.localeCompare(b.teamName);
-        }
-        return 0;
-      });
-      
-      return result;
-    },
-    canAssign() {
-      if (!this.selectedPlayer) return false;
-      
-      const player = this.playerById(this.selectedPlayer);
-      // Can assign if team is different from current team
-      return player.teamId !== this.selectedTeam;
-    },
-    assignButtonText() {
-      if (!this.selectedPlayer) return 'Assign';
-      
-      const player = this.playerById(this.selectedPlayer);
-      if (!this.selectedTeam) {
-        return 'Unassign Player';
-      } else if (!player.teamId) {
-        return 'Assign to Team';
-      } else {
-        return 'Change Team';
-      }
-    }
-  },
-  methods: {
-    selectPlayer(playerId) {
-      this.selectedPlayer = playerId;
-      
-      // Set the selected team to the player's current team
-      const player = this.playerById(playerId);
-      this.selectedTeam = player.teamId || '';
-    },
-    getPlayerName(playerId) {
-      const player = this.playerById(playerId);
-      return player ? player.name : '';
-    },
-    getPlayerTalent(playerId) {
-      const player = this.playerById(playerId);
-      return player ? player.talentRating : '';
-    },
-    assignPlayer() {
-      try {
-        const player = this.playerById(this.selectedPlayer);
-        const oldTeamId = player.teamId;
-        const newTeamId = this.selectedTeam || null;
-        
-        // Assign player to team
-        DataService.assignPlayerToTeam(this.selectedPlayer, newTeamId);
-        
-        // Show success notification
-        if (!newTeamId) {
-          NotificationService.success(`${player.name} has been unassigned.`);
-        } else if (!oldTeamId) {
-          const team = this.teamById(newTeamId);
-          NotificationService.success(`${player.name} has been assigned to ${team.name}.`);
-        } else {
-          const oldTeam = this.teamById(oldTeamId);
-          const newTeam = this.teamById(newTeamId);
-          NotificationService.success(`${player.name} has been moved from ${oldTeam.name} to ${newTeam.name}.`);
-        }
-        
-        // Reset selection
-        this.cancelSelection();
-      } catch (error) {
-        NotificationService.error(`Error assigning player: ${error.message}`);
-      }
-    },
-    cancelSelection() {
-      this.selectedPlayer = null;
-      this.selectedTeam = '';
+const teamsStore = useTeamsStore();
+const playersStore = usePlayersStore();
+
+const filterTalent = ref('');
+const filterTeam = ref('');
+const sortBy = ref('name');
+const selectedPlayer = ref(null);
+const selectedTeam = ref('');
+
+const teams = computed(() => teamsStore.allTeams);
+
+const players = computed(() => {
+  return playersStore.allPlayers.map(player => ({
+    ...player,
+    teamName: player.teamId ? teamsStore.teamById(player.teamId)?.name : null
+  }));
+});
+
+const filteredSortedPlayers = computed(() => {
+  let result = [...players.value];
+  
+  // Apply talent filter
+  if (filterTalent.value) {
+    result = result.filter(player => player.talentRating === filterTalent.value);
+  }
+  
+  // Apply team filter
+  if (filterTeam.value) {
+    if (filterTeam.value === 'unassigned') {
+      result = result.filter(player => !player.teamId);
+    } else {
+      result = result.filter(player => player.teamId === filterTeam.value);
     }
   }
+  
+  // Apply sorting
+  result.sort((a, b) => {
+    if (sortBy.value === 'name') {
+      return a.name.localeCompare(b.name);
+    } else if (sortBy.value === 'talentRating') {
+      // Sort by talent rating (A > B > C > D)
+      const talentOrder = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+      return talentOrder[a.talentRating] - talentOrder[b.talentRating];
+    } else if (sortBy.value === 'teamName') {
+      // Sort by team name, with unassigned at the end
+      if (!a.teamName && !b.teamName) return 0;
+      if (!a.teamName) return 1;
+      if (!b.teamName) return -1;
+      return a.teamName.localeCompare(b.teamName);
+    }
+    return 0;
+  });
+  
+  return result;
+});
+
+const canAssign = computed(() => {
+  if (!selectedPlayer.value) return false;
+  
+  const player = playersStore.playerById(selectedPlayer.value);
+  // Can assign if team is different from current team
+  return player.teamId !== selectedTeam.value;
+});
+
+const assignButtonText = computed(() => {
+  if (!selectedPlayer.value) return 'Assign';
+  
+  const player = playersStore.playerById(selectedPlayer.value);
+  if (!selectedTeam.value) {
+    return 'Unassign Player';
+  } else if (!player.teamId) {
+    return 'Assign to Team';
+  } else {
+    return 'Change Team';
+  }
+});
+
+const selectPlayer = (playerId) => {
+  selectedPlayer.value = playerId;
+  
+  // Set the selected team to the player's current team
+  const player = playersStore.playerById(playerId);
+  selectedTeam.value = player.teamId || '';
+};
+
+const getPlayerName = (playerId) => {
+  const player = playersStore.playerById(playerId);
+  return player ? player.name : '';
+};
+
+const getPlayerTalent = (playerId) => {
+  const player = playersStore.playerById(playerId);
+  return player ? player.talentRating : '';
+};
+
+const assignPlayer = () => {
+  try {
+    const player = playersStore.playerById(selectedPlayer.value);
+    const oldTeamId = player.teamId;
+    const newTeamId = selectedTeam.value || null;
+    
+    // Assign player to team
+    playersStore.assignPlayerToTeam({ playerId: selectedPlayer.value, teamId: newTeamId });
+    
+    // Show success notification
+    if (!newTeamId) {
+      NotificationService.success(`${player.name} has been unassigned.`);
+    } else if (!oldTeamId) {
+      const team = teamsStore.teamById(newTeamId);
+      NotificationService.success(`${player.name} has been assigned to ${team.name}.`);
+    } else {
+      const oldTeam = teamsStore.teamById(oldTeamId);
+      const newTeam = teamsStore.teamById(newTeamId);
+      NotificationService.success(`${player.name} has been moved from ${oldTeam.name} to ${newTeam.name}.`);
+    }
+    
+    // Reset selection
+    cancelSelection();
+  } catch (error) {
+    NotificationService.error(`Error assigning player: ${error.message}`);
+  }
+};
+
+const cancelSelection = () => {
+  selectedPlayer.value = null;
+  selectedTeam.value = '';
 };
 </script>
 

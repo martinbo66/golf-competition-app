@@ -5,208 +5,230 @@
  * between localStorage and a backend database in the future.
  */
 
-import store from '@/store';
+/**
+ * Data Service for the Golf Competition App
+ * 
+ * This service abstracts the data storage operations, allowing for easy switching
+ * between localStorage and a backend database in the future.
+ */
+
+import { usePlayersStore } from '@/stores/players';
+import { useTeamsStore } from '@/stores/teams';
+import { useScoresStore } from '@/stores/scores';
+import { useCoursesStore } from '@/stores/courses';
 import { exportDataToJson, parseImportedJson } from '@/utils';
 
 class DataService {
+  // Helper to get stores
+  get playersStore() { return usePlayersStore(); }
+  get teamsStore() { return useTeamsStore(); }
+  get scoresStore() { return useScoresStore(); }
+  get coursesStore() { return useCoursesStore(); }
+
   /**
    * Player Methods
    */
-  
+
   // Get all players
   getPlayers() {
-    return store.getters['players/allPlayers'];
+    return this.playersStore.allPlayers;
   }
-  
+
   // Get a player by ID
   getPlayerById(id) {
-    return store.getters['players/playerById'](id);
+    return this.playersStore.playerById(id);
   }
-  
+
   // Get players by team ID
   getPlayersByTeam(teamId) {
-    return store.getters['players/playersByTeam'](teamId);
+    return this.playersStore.playersByTeam(teamId);
   }
-  
+
   // Get unassigned players
   getUnassignedPlayers() {
-    return store.getters['players/unassignedPlayers'];
+    return this.playersStore.unassignedPlayers;
   }
-  
+
   // Create a new player
   createPlayer(player) {
-    return store.dispatch('players/addPlayer', player);
+    return this.playersStore.addPlayer(player);
   }
-  
+
   // Update a player
   updatePlayer(id, updates) {
-    return store.dispatch('players/updatePlayer', { id, updates });
+    return this.playersStore.updatePlayer({ id, updates });
   }
-  
+
   // Delete a player
   deletePlayer(id) {
-    return store.dispatch('players/deletePlayer', id);
+    return this.playersStore.deletePlayer(id);
   }
-  
+
   // Assign a player to a team
   assignPlayerToTeam(playerId, teamId) {
-    return store.dispatch('players/assignPlayerToTeam', { playerId, teamId });
+    return this.playersStore.assignPlayerToTeam({ playerId, teamId });
   }
-  
+
   /**
    * Team Methods
    */
-  
+
   // Get all teams
   getTeams() {
-    return store.getters['teams/allTeams'];
+    return this.teamsStore.allTeams;
   }
-  
+
   // Get a team by ID
   getTeamById(id) {
-    return store.getters['teams/teamById'](id);
+    return this.teamsStore.teamById(id);
   }
-  
+
   // Create a new team
   createTeam(team) {
-    return store.dispatch('teams/addTeam', team);
+    return this.teamsStore.addTeam(team);
   }
-  
+
   // Update a team
   updateTeam(id, updates) {
-    return store.dispatch('teams/updateTeam', { id, updates });
+    return this.teamsStore.updateTeam({ id, updates });
   }
-  
+
   // Delete a team
   deleteTeam(id) {
-    return store.dispatch('teams/deleteTeam', id);
+    return this.teamsStore.deleteTeam(id);
   }
-  
+
   // Generate teams
   generateTeams(numberOfTeams) {
-    return store.dispatch('teams/generateTeams', numberOfTeams);
+    return this.teamsStore.generateTeams(numberOfTeams);
   }
-  
+
   // Upload a team logo
   uploadTeamLogo(teamId, logoUrl) {
-    return store.dispatch('teams/uploadTeamLogo', { teamId, logoUrl });
+    return this.teamsStore.uploadTeamLogo({ teamId, logoUrl });
   }
-  
+
   /**
    * Score Methods
    */
-  
+
   // Get all scores
   getScores() {
-    return store.getters['scores/allScores'];
+    return this.scoresStore.allScores;
   }
-  
+
   // Get scores by player
   getScoresByPlayer(playerId) {
-    return store.getters['scores/scoresByPlayer'](playerId);
+    return this.scoresStore.scoresByPlayer(playerId);
   }
-  
+
   // Get scores by course
   getScoresByCourse(courseId) {
-    return store.getters['scores/scoresByCourse'](courseId);
+    return this.scoresStore.scoresByCourse(courseId);
   }
-  
+
   // Get a score by player and course
   getScoreByPlayerAndCourse(playerId, courseId) {
-    return store.getters['scores/scoreByPlayerAndCourse'](playerId, courseId);
+    return this.scoresStore.scoreByPlayerAndCourse(playerId, courseId);
   }
-  
+
   // Update a score
   updateScore(playerId, courseId, value) {
-    return store.dispatch('scores/updateScore', { playerId, courseId, value });
+    return this.scoresStore.updateScore({ playerId, courseId, value });
   }
-  
+
   // Get player total score
   getPlayerTotalScore(playerId) {
-    return store.getters['scores/playerTotalScore'](playerId);
+    return this.scoresStore.playerTotalScore(playerId);
   }
-  
+
   // Get team total score
   getTeamTotalScore(teamId) {
-    return store.getters['scores/teamTotalScore'](teamId);
+    return this.scoresStore.teamTotalScore(teamId);
   }
-  
+
   /**
    * Course Methods
    */
-  
+
   // Get all courses
   getCourses() {
-    return store.getters['courses/allCourses'];
+    return this.coursesStore.allCourses;
   }
-  
+
   // Get a course by ID
   getCourseById(id) {
-    return store.getters['courses/courseById'](id);
+    return this.coursesStore.courseById(id);
   }
-  
+
   // Get a course by name
   getCourseByName(name) {
-    return store.getters['courses/courseByName'](name);
+    return this.coursesStore.courseByName(name);
   }
-  
+
   /**
    * Leaderboard Methods
    */
-  
+
   // Get player leaderboard
   getPlayerLeaderboard() {
-    return store.getters['scores/playerLeaderboard'];
+    return this.scoresStore.playerLeaderboard;
   }
-  
+
   // Get team leaderboard
   getTeamLeaderboard() {
-    return store.getters['scores/teamLeaderboard'];
+    return this.scoresStore.teamLeaderboard;
   }
-  
+
   // Get course scores by team
   getCourseScoresByTeam(courseId) {
-    return store.getters['scores/courseScoresByTeam'](courseId);
+    return this.scoresStore.courseScoresByTeam(courseId);
   }
-  
+
   /**
    * Data Import/Export Methods
    */
-  
+
   // Export data
   exportData() {
     const data = {
-      players: store.getters['players/allPlayers'],
-      teams: store.getters['teams/allTeams'],
-      scores: store.getters['scores/allScores'],
-      courses: store.getters['courses/allCourses'],
+      players: this.playersStore.allPlayers,
+      teams: this.teamsStore.allTeams,
+      scores: this.scoresStore.allScores,
+      courses: this.coursesStore.allCourses,
       appMetadata: {
         version: '1.0.0',
         exportDate: new Date().toISOString()
       }
     };
-    
+
     return exportDataToJson(data);
   }
-  
+
   // Import data
   importData(jsonData) {
     const data = parseImportedJson(jsonData);
-    
+
     if (!data) {
       throw new Error('Invalid data format');
     }
-    
+
     // Update store with imported data
-    store.commit('players/SET_PLAYERS', data.players);
-    store.commit('teams/SET_TEAMS', data.teams);
-    store.commit('scores/SET_SCORES', data.scores);
-    
+    // Note: In Pinia we can patch the state directly or use actions
+    // Here we'll assume we can patch the state if the stores expose it, 
+    // or we might need to add specific actions for bulk update if not.
+    // For now, let's assume we can use $patch or specific setters if available.
+    // Since we don't have explicit SET mutations in Pinia, we'll use $patch.
+
+    if (data.players) this.playersStore.$patch({ players: data.players });
+    if (data.teams) this.teamsStore.$patch({ teams: data.teams });
+    if (data.scores) this.scoresStore.$patch({ scores: data.scores });
+
     // Only update courses if they exist and match the expected format
     if (data.courses && data.courses.length === 4) {
-      store.commit('courses/SET_COURSES', data.courses);
+      this.coursesStore.$patch({ courses: data.courses });
     }
-    
+
     return true;
   }
 }

@@ -6,17 +6,9 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import PlayerList from '@/components/admin/PlayerList.vue';
 import PlayerStats from '@/components/admin/PlayerStats.vue';
-
-export default {
-  name: 'PlayerManagement',
-  components: {
-    PlayerList,
-    PlayerStats
-  }
-};
 </script>
 
 <style scoped>

@@ -4,9 +4,18 @@
  * This service provides methods for displaying notifications to the user.
  */
 
-import store from '@/store';
+/**
+ * Notification Service for the Golf Competition App
+ * 
+ * This service provides methods for displaying notifications to the user.
+ */
+
+import { useUiStore } from '@/stores/ui';
 
 class NotificationService {
+  // Helper to get store
+  get uiStore() { return useUiStore(); }
+
   /**
    * Show a success notification
    * @param {string} message - The notification message
@@ -20,7 +29,7 @@ class NotificationService {
       timeout
     });
   }
-  
+
   /**
    * Show an error notification
    * @param {string} message - The notification message
@@ -34,7 +43,7 @@ class NotificationService {
       timeout
     });
   }
-  
+
   /**
    * Show a warning notification
    * @param {string} message - The notification message
@@ -48,7 +57,7 @@ class NotificationService {
       timeout
     });
   }
-  
+
   /**
    * Show an info notification
    * @param {string} message - The notification message
@@ -62,15 +71,15 @@ class NotificationService {
       timeout
     });
   }
-  
+
   /**
    * Remove a notification by ID
    * @param {number} id - The notification ID
    */
   remove(id) {
-    store.dispatch('ui/removeNotification', id);
+    this.uiStore.removeNotification(id);
   }
-  
+
   /**
    * Show a notification
    * @private
@@ -78,7 +87,7 @@ class NotificationService {
    * @returns {number} The notification ID
    */
   _showNotification(notification) {
-    return store.dispatch('ui/addNotification', notification);
+    return this.uiStore.addNotification(notification);
   }
 }
 

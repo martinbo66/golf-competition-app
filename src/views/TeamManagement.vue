@@ -15,19 +15,10 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import TeamList from '@/components/admin/TeamList.vue';
 import TeamBalanceAnalyzer from '@/components/admin/TeamBalanceAnalyzer.vue';
 import PlayerAssignment from '@/components/admin/PlayerAssignment.vue';
-
-export default {
-  name: 'TeamManagement',
-  components: {
-    TeamList,
-    TeamBalanceAnalyzer,
-    PlayerAssignment
-  }
-};
 </script>
 
 <style scoped>

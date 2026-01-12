@@ -19,26 +19,26 @@
   </div>
 </template>
 
-<script>
-import { mapGetters, mapActions } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { useUiStore } from '@/stores/ui';
 
-export default {
-  name: 'Notifications',
-  computed: {
-    ...mapGetters('ui', ['notifications'])
-  },
-  methods: {
-    ...mapActions('ui', ['removeNotification']),
-    getIconClass(type) {
-      const icons = {
-        success: 'fas fa-check-circle',
-        error: 'fas fa-exclamation-circle',
-        warning: 'fas fa-exclamation-triangle',
-        info: 'fas fa-info-circle'
-      };
-      return icons[type] || icons.info;
-    }
-  }
+const uiStore = useUiStore();
+
+const notifications = computed(() => uiStore.notifications);
+
+const removeNotification = (id) => {
+  uiStore.removeNotification(id);
+};
+
+const getIconClass = (type) => {
+  const icons = {
+    success: 'fas fa-check-circle',
+    error: 'fas fa-exclamation-circle',
+    warning: 'fas fa-exclamation-triangle',
+    info: 'fas fa-info-circle'
+  };
+  return icons[type] || icons.info;
 };
 </script>
 

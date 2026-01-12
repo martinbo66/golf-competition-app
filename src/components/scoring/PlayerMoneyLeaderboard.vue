@@ -72,59 +72,48 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { ref, computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { usePlayersStore } from '@/stores/players';
+import { useScoresStore } from '@/stores/scores';
 import { formatCurrency } from '@/utils';
 
-export default {
-  name: 'PlayerMoneyLeaderboard',
-  data() {
-    return {
-      filterTeam: '',
-      filterTalent: ''
-    };
-  },
-  computed: {
-    ...mapGetters('teams', ['allTeams']),
-    ...mapGetters('players', ['allPlayers', 'totalWinnings']),
-    ...mapGetters('scores', ['playerMoneyLeaderboard']),
-    
-    teams() {
-      return this.allTeams;
-    },
-    
-    players() {
-      return this.allPlayers;
-    },
-    
-    hasAnyWinnings() {
-      return this.totalWinnings > 0;
-    },
-    
-    filteredLeaderboard() {
-      let result = [...this.playerMoneyLeaderboard];
-      
-      // Apply team filter
-      if (this.filterTeam) {
-        if (this.filterTeam === 'unassigned') {
-          result = result.filter(player => !player.teamId);
-        } else {
-          result = result.filter(player => player.teamId === this.filterTeam);
-        }
-      }
-      
-      // Apply talent filter
-      if (this.filterTalent) {
-        result = result.filter(player => player.talentRating === this.filterTalent);
-      }
-      
-      return result;
+const teamsStore = useTeamsStore();
+const playersStore = usePlayersStore();
+const scoresStore = useScoresStore();
+
+const filterTeam = ref('');
+const filterTalent = ref('');
+
+const teams = computed(() => teamsStore.allTeams);
+const players = computed(() => playersStore.allPlayers);
+const totalWinnings = computed(() => playersStore.totalWinnings);
+const playerMoneyLeaderboard = computed(() => scoresStore.playerMoneyLeaderboard);
+
+const hasAnyWinnings = computed(() => {
+  return totalWinnings.value > 0;
+});
+
+const filteredLeaderboard = computed(() => {
+  let result = [...playerMoneyLeaderboard.value];
+  
+  // Apply team filter
+  if (filterTeam.value) {
+    if (filterTeam.value === 'unassigned') {
+      result = result.filter(player => !player.teamId);
+    } else {
+      result = result.filter(player => player.teamId === filterTeam.value);
     }
-  },
-  methods: {
-    formatCurrency
   }
-};
+  
+  // Apply talent filter
+  if (filterTalent.value) {
+    result = result.filter(player => player.talentRating === filterTalent.value);
+  }
+  
+  return result;
+});
 </script>
 
 <style scoped>

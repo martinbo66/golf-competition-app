@@ -70,60 +70,50 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { ref, computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { usePlayersStore } from '@/stores/players';
+import { useCoursesStore } from '@/stores/courses';
+import { useScoresStore } from '@/stores/scores';
 
-export default {
-  name: 'PlayerLeaderboard',
-  data() {
-    return {
-      filterTeam: '',
-      filterTalent: ''
-    };
-  },
-  computed: {
-    ...mapGetters('teams', ['allTeams']),
-    ...mapGetters('players', ['allPlayers']),
-    ...mapGetters('courses', ['allCourses']),
-    ...mapGetters('scores', ['playerLeaderboard', 'allScores']),
-    
-    teams() {
-      return this.allTeams;
-    },
-    
-    players() {
-      return this.allPlayers;
-    },
-    
-    courses() {
-      return this.allCourses;
-    },
-    
-    hasAnyScores() {
-      return this.allScores.length > 0;
-    },
-    
-    filteredLeaderboard() {
-      let result = [...this.playerLeaderboard];
-      
-      // Apply team filter
-      if (this.filterTeam) {
-        if (this.filterTeam === 'unassigned') {
-          result = result.filter(player => !player.teamId);
-        } else {
-          result = result.filter(player => player.teamId === this.filterTeam);
-        }
-      }
-      
-      // Apply talent filter
-      if (this.filterTalent) {
-        result = result.filter(player => player.talentRating === this.filterTalent);
-      }
-      
-      return result;
+const teamsStore = useTeamsStore();
+const playersStore = usePlayersStore();
+const coursesStore = useCoursesStore();
+const scoresStore = useScoresStore();
+
+const filterTeam = ref('');
+const filterTalent = ref('');
+
+const teams = computed(() => teamsStore.allTeams);
+const players = computed(() => playersStore.allPlayers);
+const courses = computed(() => coursesStore.allCourses);
+const allScores = computed(() => scoresStore.allScores);
+const playerLeaderboard = computed(() => scoresStore.playerLeaderboard);
+
+const hasAnyScores = computed(() => {
+  return allScores.value.length > 0;
+});
+
+const filteredLeaderboard = computed(() => {
+  let result = [...playerLeaderboard.value];
+  
+  // Apply team filter
+  if (filterTeam.value) {
+    if (filterTeam.value === 'unassigned') {
+      result = result.filter(player => !player.teamId);
+    } else {
+      result = result.filter(player => player.teamId === filterTeam.value);
     }
   }
-};
+  
+  // Apply talent filter
+  if (filterTalent.value) {
+    result = result.filter(player => player.talentRating === filterTalent.value);
+  }
+  
+  return result;
+});
 </script>
 
 <style scoped>

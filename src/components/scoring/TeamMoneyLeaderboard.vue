@@ -50,29 +50,24 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { usePlayersStore } from '@/stores/players';
+import { useScoresStore } from '@/stores/scores';
 import { formatCurrency } from '@/utils';
 
-export default {
-  name: 'TeamMoneyLeaderboard',
-  computed: {
-    ...mapGetters('teams', ['allTeams']),
-    ...mapGetters('players', ['allPlayers', 'totalWinnings']),
-    ...mapGetters('scores', ['teamMoneyLeaderboard']),
-    
-    teams() {
-      return this.allTeams;
-    },
-    
-    hasAnyWinnings() {
-      return this.totalWinnings > 0;
-    }
-  },
-  methods: {
-    formatCurrency
-  }
-};
+const teamsStore = useTeamsStore();
+const playersStore = usePlayersStore();
+const scoresStore = useScoresStore();
+
+const teams = computed(() => teamsStore.allTeams);
+const totalWinnings = computed(() => playersStore.totalWinnings);
+const teamMoneyLeaderboard = computed(() => scoresStore.teamMoneyLeaderboard);
+
+const hasAnyWinnings = computed(() => {
+  return totalWinnings.value > 0;
+});
 </script>
 
 <style scoped>

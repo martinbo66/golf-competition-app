@@ -97,117 +97,115 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { ref, computed } from 'vue';
+import { usePlayersStore } from '@/stores/players';
+import { useTeamsStore } from '@/stores/teams';
 import { formatCurrency } from '@/utils';
-import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
 import PlayerForm from './PlayerForm.vue';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog.vue';
 
-export default {
-  name: 'PlayerList',
-  components: {
-    PlayerForm,
-    ConfirmationDialog
-  },
-  data() {
-    return {
-      showAddPlayerForm: false,
-      editingPlayer: null,
-      showDeleteConfirmation: false,
-      playerToDelete: null,
-      sortKey: 'name',
-      sortDirection: 'asc'
-    };
-  },
-  computed: {
-    ...mapGetters('players', ['allPlayers', 'totalEntryFees', 'totalWinnings']),
-    ...mapGetters('teams', ['teamById']),
-    players() {
-      return this.allPlayers.map(player => ({
-        ...player,
-        teamName: player.teamId ? this.teamById(player.teamId).name : null
-      }));
-    },
-    sortedPlayers() {
-      const players = [...this.players];
-      
-      return players.sort((a, b) => {
-        let valueA = a[this.sortKey];
-        let valueB = b[this.sortKey];
-        
-        // Handle null values
-        if (valueA === null) valueA = '';
-        if (valueB === null) valueB = '';
-        
-        // Compare based on type
-        if (typeof valueA === 'string' && typeof valueB === 'string') {
-          return this.sortDirection === 'asc' 
-            ? valueA.localeCompare(valueB) 
-            : valueB.localeCompare(valueA);
-        } else {
-          return this.sortDirection === 'asc' 
-            ? valueA - valueB 
-            : valueB - valueA;
-        }
-      });
+const playersStore = usePlayersStore();
+const teamsStore = useTeamsStore();
+
+const showAddPlayerForm = ref(false);
+const editingPlayer = ref(null);
+const showDeleteConfirmation = ref(false);
+const playerToDelete = ref(null);
+const sortKey = ref('name');
+const sortDirection = ref('asc');
+
+const players = computed(() => {
+  return playersStore.allPlayers.map(player => ({
+    ...player,
+    teamName: player.teamId ? teamsStore.teamById(player.teamId)?.name : null
+  }));
+});
+
+const totalEntryFees = computed(() => playersStore.totalEntryFees);
+const totalWinnings = computed(() => playersStore.totalWinnings);
+
+const sortedPlayers = computed(() => {
+  const playersList = [...players.value];
+  
+  return playersList.sort((a, b) => {
+    let valueA = a[sortKey.value];
+    let valueB = b[sortKey.value];
+    
+    // Handle null values
+    if (valueA === null) valueA = '';
+    if (valueB === null) valueB = '';
+    
+    // Compare based on type
+    if (typeof valueA === 'string' && typeof valueB === 'string') {
+      return sortDirection.value === 'asc' 
+        ? valueA.localeCompare(valueB) 
+        : valueB.localeCompare(valueA);
+    } else {
+      return sortDirection.value === 'asc' 
+        ? valueA - valueB 
+        : valueB - valueA;
     }
-  },
-  methods: {
-    formatCurrency,
-    sortBy(key) {
-      // If clicking the same column, toggle direction
-      if (this.sortKey === key) {
-        this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-      } else {
-        this.sortKey = key;
-        this.sortDirection = 'asc';
-      }
-    },
-    editPlayer(player) {
-      this.editingPlayer = { ...player };
-      this.showAddPlayerForm = false;
-    },
-    confirmDeletePlayer(player) {
-      this.playerToDelete = player;
-      this.showDeleteConfirmation = true;
-    },
-    deletePlayer() {
-      try {
-        DataService.deletePlayer(this.playerToDelete.id);
-        NotificationService.success(`Player ${this.playerToDelete.name} deleted successfully.`);
-      } catch (error) {
-        NotificationService.error(`Error deleting player: ${error.message}`);
-      } finally {
-        this.cancelDeletePlayer();
-      }
-    },
-    cancelDeletePlayer() {
-      this.showDeleteConfirmation = false;
-      this.playerToDelete = null;
-    },
-    savePlayer(player) {
-      try {
-        if (player.id) {
-          // Update existing player
-          DataService.updatePlayer(player.id, player);
-          NotificationService.success(`Player ${player.name} updated successfully.`);
-        } else {
-          // Add new player
-          DataService.createPlayer(player);
-          NotificationService.success(`Player ${player.name} added successfully.`);
-        }
-        this.closePlayerForm();
-      } catch (error) {
-        NotificationService.error(`Error saving player: ${error.message}`);
-      }
-    },
-    closePlayerForm() {
-      this.showAddPlayerForm = false;
-      this.editingPlayer = null;
-    }
+  });
+});
+
+const sortBy = (key) => {
+  // If clicking the same column, toggle direction
+  if (sortKey.value === key) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortKey.value = key;
+    sortDirection.value = 'asc';
   }
+};
+
+const editPlayer = (player) => {
+  editingPlayer.value = { ...player };
+  showAddPlayerForm.value = false;
+};
+
+const confirmDeletePlayer = (player) => {
+  playerToDelete.value = player;
+  showDeleteConfirmation.value = true;
+};
+
+const deletePlayer = () => {
+  try {
+    playersStore.deletePlayer(playerToDelete.value.id);
+    NotificationService.success(`Player ${playerToDelete.value.name} deleted successfully.`);
+  } catch (error) {
+    NotificationService.error(`Error deleting player: ${error.message}`);
+  } finally {
+    cancelDeletePlayer();
+  }
+};
+
+const cancelDeletePlayer = () => {
+  showDeleteConfirmation.value = false;
+  playerToDelete.value = null;
+};
+
+const savePlayer = (player) => {
+  try {
+    if (player.id) {
+      // Update existing player
+      playersStore.updatePlayer({ id: player.id, updates: player });
+      NotificationService.success(`Player ${player.name} updated successfully.`);
+    } else {
+      // Add new player
+      playersStore.addPlayer(player);
+      NotificationService.success(`Player ${player.name} added successfully.`);
+    }
+    closePlayerForm();
+  } catch (error) {
+    NotificationService.error(`Error saving player: ${error.message}`);
+  }
+};
+
+const closePlayerForm = () => {
+  showAddPlayerForm.value = false;
+  editingPlayer.value = null;
 };
 </script>
 

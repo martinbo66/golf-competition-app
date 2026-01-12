@@ -137,126 +137,123 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
-import DataService from '@/services/DataService';
+<script setup>
+import { ref, computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { usePlayersStore } from '@/stores/players';
 import NotificationService from '@/services/NotificationService';
 import TeamForm from './TeamForm.vue';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog.vue';
 
-export default {
-  name: 'TeamList',
-  components: {
-    TeamForm,
-    ConfirmationDialog
-  },
-  data() {
-    return {
-      showAddTeamForm: false,
-      editingTeam: null,
-      showDeleteConfirmation: false,
-      teamToDelete: null,
-      showGenerateTeamsModal: false,
-      numberOfTeams: 4
-    };
-  },
-  computed: {
-    ...mapGetters('teams', ['allTeams']),
-    ...mapGetters('players', ['playersByTeam']),
-    teams() {
-      return this.allTeams;
+const teamsStore = useTeamsStore();
+const playersStore = usePlayersStore();
+
+const showAddTeamForm = ref(false);
+const editingTeam = ref(null);
+const showDeleteConfirmation = ref(false);
+const teamToDelete = ref(null);
+const showGenerateTeamsModal = ref(false);
+const numberOfTeams = ref(4);
+
+const teams = computed(() => teamsStore.allTeams);
+
+const getTeamPlayers = (teamId) => {
+  return playersStore.playersByTeam(teamId);
+};
+
+const getPlayerCountByTalent = (teamId, talentRating) => {
+  return getTeamPlayers(teamId).filter(player => player.talentRating === talentRating).length;
+};
+
+const getTeamInitials = (teamName) => {
+  if (!teamName) return 'TM';
+  
+  // Split by spaces and apostrophes, then take first letter of each word
+  const words = teamName.split(/[\s']+/).filter(word => word.length > 0);
+  
+  if (words.length === 1) {
+    // Single word: take first two letters
+    return words[0].substring(0, 2).toUpperCase();
+  } else {
+    // Multiple words: take first letter of each word (up to 3)
+    return words.slice(0, 3).map(word => word.charAt(0)).join('').toUpperCase();
+  }
+};
+
+const onLogoError = (event, team) => {
+  // Hide the broken image and show initials instead
+  event.target.style.display = 'none';
+  
+  // Find the team logo container and add initials fallback
+  const logoContainer = event.target.parentElement;
+  if (!logoContainer.querySelector('.logo-placeholder')) {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'logo-placeholder';
+    placeholder.textContent = getTeamInitials(team.name);
+    logoContainer.appendChild(placeholder);
+  }
+};
+
+const editTeam = (team) => {
+  editingTeam.value = { ...team };
+  showAddTeamForm.value = false;
+};
+
+const confirmDeleteTeam = (team) => {
+  teamToDelete.value = team;
+  showDeleteConfirmation.value = true;
+};
+
+const deleteTeam = () => {
+  try {
+    teamsStore.deleteTeam(teamToDelete.value.id);
+    NotificationService.success(`Team ${teamToDelete.value.name} deleted successfully.`);
+  } catch (error) {
+    NotificationService.error(`Error deleting team: ${error.message}`);
+  } finally {
+    cancelDeleteTeam();
+  }
+};
+
+const cancelDeleteTeam = () => {
+  showDeleteConfirmation.value = false;
+  teamToDelete.value = null;
+};
+
+const saveTeam = (team) => {
+  try {
+    if (team.id) {
+      // Update existing team
+      teamsStore.updateTeam({ id: team.id, updates: team });
+      NotificationService.success(`Team ${team.name} updated successfully.`);
+    } else {
+      // Add new team
+      teamsStore.addTeam(team);
+      NotificationService.success(`Team ${team.name} added successfully.`);
     }
-  },
-  methods: {
-    getTeamPlayers(teamId) {
-      return this.playersByTeam(teamId);
-    },
-    getPlayerCountByTalent(teamId, talentRating) {
-      return this.getTeamPlayers(teamId).filter(player => player.talentRating === talentRating).length;
-    },
-    getTeamInitials(teamName) {
-      if (!teamName) return 'TM';
-      
-      // Split by spaces and apostrophes, then take first letter of each word
-      const words = teamName.split(/[\s']+/).filter(word => word.length > 0);
-      
-      if (words.length === 1) {
-        // Single word: take first two letters
-        return words[0].substring(0, 2).toUpperCase();
-      } else {
-        // Multiple words: take first letter of each word (up to 3)
-        return words.slice(0, 3).map(word => word.charAt(0)).join('').toUpperCase();
-      }
-    },
-    onLogoError(event, team) {
-      // Hide the broken image and show initials instead
-      event.target.style.display = 'none';
-      
-      // Find the team logo container and add initials fallback
-      const logoContainer = event.target.parentElement;
-      if (!logoContainer.querySelector('.logo-placeholder')) {
-        const placeholder = document.createElement('div');
-        placeholder.className = 'logo-placeholder';
-        placeholder.textContent = this.getTeamInitials(team.name);
-        logoContainer.appendChild(placeholder);
-      }
-    },
-    editTeam(team) {
-      this.editingTeam = { ...team };
-      this.showAddTeamForm = false;
-    },
-    confirmDeleteTeam(team) {
-      this.teamToDelete = team;
-      this.showDeleteConfirmation = true;
-    },
-    deleteTeam() {
-      try {
-        DataService.deleteTeam(this.teamToDelete.id);
-        NotificationService.success(`Team ${this.teamToDelete.name} deleted successfully.`);
-      } catch (error) {
-        NotificationService.error(`Error deleting team: ${error.message}`);
-      } finally {
-        this.cancelDeleteTeam();
-      }
-    },
-    cancelDeleteTeam() {
-      this.showDeleteConfirmation = false;
-      this.teamToDelete = null;
-    },
-    saveTeam(team) {
-      try {
-        if (team.id) {
-          // Update existing team
-          DataService.updateTeam(team.id, team);
-          NotificationService.success(`Team ${team.name} updated successfully.`);
-        } else {
-          // Add new team
-          DataService.createTeam(team);
-          NotificationService.success(`Team ${team.name} added successfully.`);
-        }
-        this.closeTeamForm();
-      } catch (error) {
-        NotificationService.error(`Error saving team: ${error.message}`);
-      }
-    },
-    closeTeamForm() {
-      this.showAddTeamForm = false;
-      this.editingTeam = null;
-    },
-    generateTeams() {
-      try {
-        if (this.numberOfTeams < 2 || this.numberOfTeams > 10) {
-          NotificationService.warning('Please choose between 2 and 10 teams.');
-          return;
-        }
-        
-        DataService.generateTeams(this.numberOfTeams);
-        NotificationService.success(`${this.numberOfTeams} teams generated successfully.`);
-        this.showGenerateTeamsModal = false;
-      } catch (error) {
-        NotificationService.error(`Error generating teams: ${error.message}`);
-      }
+    closeTeamForm();
+  } catch (error) {
+    NotificationService.error(`Error saving team: ${error.message}`);
+  }
+};
+
+const closeTeamForm = () => {
+  showAddTeamForm.value = false;
+  editingTeam.value = null;
+};
+
+const generateTeams = async () => {
+  try {
+    if (numberOfTeams.value < 2 || numberOfTeams.value > 10) {
+      NotificationService.warning('Please choose between 2 and 10 teams.');
+      return;
     }
+    
+    await teamsStore.generateTeams(numberOfTeams.value);
+    NotificationService.success(`${numberOfTeams.value} teams generated successfully.`);
+    showGenerateTeamsModal.value = false;
+  } catch (error) {
+    NotificationService.error(`Error generating teams: ${error.message}`);
   }
 };
 </script>

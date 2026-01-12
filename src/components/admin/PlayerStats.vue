@@ -78,40 +78,28 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { usePlayersStore } from '@/stores/players';
 import { formatCurrency } from '@/utils';
 
-export default {
-  name: 'PlayerStats',
-  computed: {
-    ...mapGetters('players', [
-      'allPlayers', 
-      'playerCount', 
-      'unassignedPlayers', 
-      'totalEntryFees', 
-      'totalWinnings',
-      'playersByTalentRating'
-    ]),
-    unassignedPlayerCount() {
-      return this.unassignedPlayers.length;
-    },
-    talentCounts() {
-      return {
-        A: this.playersByTalentRating('A').length,
-        B: this.playersByTalentRating('B').length,
-        C: this.playersByTalentRating('C').length,
-        D: this.playersByTalentRating('D').length
-      };
-    }
-  },
-  methods: {
-    formatCurrency,
-    talentPercentage(rating) {
-      if (this.playerCount === 0) return 0;
-      return (this.talentCounts[rating] / this.playerCount) * 100;
-    }
-  }
+const playersStore = usePlayersStore();
+
+const playerCount = computed(() => playersStore.playerCount);
+const unassignedPlayerCount = computed(() => playersStore.unassignedPlayers.length);
+const totalEntryFees = computed(() => playersStore.totalEntryFees);
+const totalWinnings = computed(() => playersStore.totalWinnings);
+
+const talentCounts = computed(() => ({
+  A: playersStore.playersByTalentRating('A').length,
+  B: playersStore.playersByTalentRating('B').length,
+  C: playersStore.playersByTalentRating('C').length,
+  D: playersStore.playersByTalentRating('D').length
+}));
+
+const talentPercentage = (rating) => {
+  if (playerCount.value === 0) return 0;
+  return (talentCounts.value[rating] / playerCount.value) * 100;
 };
 </script>
 

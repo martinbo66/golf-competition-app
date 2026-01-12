@@ -64,48 +64,32 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { usePlayersStore } from '@/stores/players';
+import { useCoursesStore } from '@/stores/courses';
+import { useScoresStore } from '@/stores/scores';
 import { formatCurrency } from '@/utils';
 import TeamLeaderboard from '@/components/scoring/TeamLeaderboard.vue';
 import PlayerLeaderboard from '@/components/scoring/PlayerLeaderboard.vue';
 
-export default {
-  name: 'Leaderboards',
-  components: {
-    TeamLeaderboard,
-    PlayerLeaderboard
-  },
-  computed: {
-    ...mapGetters('teams', ['allTeams']),
-    ...mapGetters('players', ['allPlayers', 'totalEntryFees', 'totalWinnings']),
-    ...mapGetters('courses', ['allCourses']),
-    ...mapGetters('scores', ['allScores']),
-    
-    teams() {
-      return this.allTeams;
-    },
-    
-    players() {
-      return this.allPlayers;
-    },
-    
-    courses() {
-      return this.allCourses;
-    },
-    
-    scores() {
-      return this.allScores;
-    },
-    
-    balance() {
-      return this.totalEntryFees - this.totalWinnings;
-    }
-  },
-  methods: {
-    formatCurrency
-  }
-};
+const teamsStore = useTeamsStore();
+const playersStore = usePlayersStore();
+const coursesStore = useCoursesStore();
+const scoresStore = useScoresStore();
+
+const teams = computed(() => teamsStore.allTeams);
+const players = computed(() => playersStore.allPlayers);
+const courses = computed(() => coursesStore.allCourses);
+const scores = computed(() => scoresStore.allScores);
+
+const totalEntryFees = computed(() => playersStore.totalEntryFees);
+const totalWinnings = computed(() => playersStore.totalWinnings);
+
+const balance = computed(() => {
+  return totalEntryFees.value - totalWinnings.value;
+});
 </script>
 
 <style scoped>

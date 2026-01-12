@@ -94,106 +94,109 @@
   </header>
 </template>
 
-<script>
-import { mapGetters, mapActions } from 'vuex';
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useUiStore } from '@/stores/ui';
+import { useCoursesStore } from '@/stores/courses';
 import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
 
-export default {
-  name: 'AppHeader',
-  data() {
-    return {
-      navItems: [
-        { id: 'administration', label: 'Administration', route: '/admin/players', icon: 'fas fa-users-cog' },
-        { id: 'scoring', label: 'Scoring', route: '/scoring/parkland', icon: 'fas fa-golf-ball' },
-        { id: 'leaderboards', label: 'Leaderboards', route: '/leaderboards', icon: 'fas fa-trophy' }
-      ],
-      showExportModal: false,
-      showImportModal: false,
-      importData: '',
-      isDarkMode: false
-    };
-  },
-  computed: {
-    ...mapGetters('ui', ['activeSection']),
+const uiStore = useUiStore();
+const coursesStore = useCoursesStore();
+
+const scoringRoute = computed(() => {
+  const firstCourse = coursesStore.allCourses[0];
+  return firstCourse ? `/scoring/${firstCourse.id}` : '/scoring';
+});
+
+const navItems = computed(() => [
+  { id: 'administration', label: 'Administration', route: '/admin/players', icon: 'fas fa-users-cog' },
+  { id: 'scoring', label: 'Scoring', route: scoringRoute.value, icon: 'fas fa-golf-ball' },
+  { id: 'leaderboards', label: 'Leaderboards', route: '/leaderboards', icon: 'fas fa-trophy' }
+]);
+
+const showExportModal = ref(false);
+const showImportModal = ref(false);
+const importData = ref('');
+const isDarkMode = ref(false);
+
+const activeSection = computed(() => uiStore.activeSection);
+
+const currentHeaderImage = computed(() => {
+  const imageMap = {
+    'administration': require('@/assets/parkland-header.png'),
+    'scoring': require('@/assets/heathland-header.png'),
+    'leaderboards': require('@/assets/moorland-header.png')
+  };
+  return imageMap[activeSection.value] || null;
+});
+
+const currentSection = computed(() => activeSection.value || 'administration');
+
+const setActiveSection = (sectionId) => {
+  uiStore.setActiveSection(sectionId);
+};
+
+const toggleTheme = () => {
+  isDarkMode.value = !isDarkMode.value;
+  document.body.classList.toggle('dark-mode', isDarkMode.value);
+  localStorage.setItem('darkMode', isDarkMode.value ? 'true' : 'false');
+  
+  NotificationService.info(`${isDarkMode.value ? 'Dark' : 'Light'} mode activated`);
+};
+
+const exportData = () => {
+  try {
+    const data = DataService.exportData();
     
-    currentHeaderImage() {
-      const imageMap = {
-        'administration': require('@/assets/parkland-header.png'),
-        'scoring': require('@/assets/heathland-header.png'),
-        'leaderboards': require('@/assets/moorland-header.png')
-      };
-      return imageMap[this.activeSection] || null;
-    },
+    // Create a download link
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `golf-competition-export-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     
-    currentSection() {
-      return this.activeSection || 'administration';
-    }
-  },
-  methods: {
-    ...mapActions('ui', ['setActiveSection']),
-    
-    toggleTheme() {
-      this.isDarkMode = !this.isDarkMode;
-      document.body.classList.toggle('dark-mode', this.isDarkMode);
-      localStorage.setItem('darkMode', this.isDarkMode ? 'true' : 'false');
-      
-      NotificationService.info(`${this.isDarkMode ? 'Dark' : 'Light'} mode activated`);
-    },
-    
-    exportData() {
-      try {
-        const data = DataService.exportData();
-        
-        // Create a download link
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `golf-competition-export-${new Date().toISOString().slice(0, 10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        this.showExportModal = false;
-        NotificationService.success('Data exported successfully');
-      } catch (error) {
-        NotificationService.error(`Error exporting data: ${error.message}`);
-      }
-    },
-    
-    importDataFromJson() {
-      try {
-        if (!this.importData) {
-          NotificationService.warning('Please paste JSON data to import');
-          return;
-        }
-        
-        DataService.importData(this.importData);
-        
-        this.importData = '';
-        this.showImportModal = false;
-        NotificationService.success('Data imported successfully');
-        
-        // Refresh the page to show the imported data
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      } catch (error) {
-        NotificationService.error(`Error importing data: ${error.message}`);
-      }
-    }
-  },
-  created() {
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('darkMode');
-    if (savedTheme === 'true') {
-      this.isDarkMode = true;
-      document.body.classList.add('dark-mode');
-    }
+    showExportModal.value = false;
+    NotificationService.success('Data exported successfully');
+  } catch (error) {
+    NotificationService.error(`Error exporting data: ${error.message}`);
   }
 };
+
+const importDataFromJson = () => {
+  try {
+    if (!importData.value) {
+      NotificationService.warning('Please paste JSON data to import');
+      return;
+    }
+    
+    DataService.importData(importData.value);
+    
+    importData.value = '';
+    showImportModal.value = false;
+    NotificationService.success('Data imported successfully');
+    
+    // Refresh the page to show the imported data
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  } catch (error) {
+    NotificationService.error(`Error importing data: ${error.message}`);
+  }
+};
+
+onMounted(() => {
+  // Check for saved theme preference
+  const savedTheme = localStorage.getItem('darkMode');
+  if (savedTheme === 'true') {
+    isDarkMode.value = true;
+    document.body.classList.add('dark-mode');
+  }
+});
 </script>
 
 <style scoped>

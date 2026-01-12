@@ -79,97 +79,99 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script setup>
+import { computed } from 'vue';
+import { useTeamsStore } from '@/stores/teams';
+import { usePlayersStore } from '@/stores/players';
 import { calculateTeamBalanceMetrics } from '@/utils';
 
-export default {
-  name: 'TeamBalanceAnalyzer',
-  computed: {
-    ...mapGetters('teams', ['allTeams']),
-    ...mapGetters('players', ['allPlayers']),
-    teams() {
-      return this.allTeams;
-    },
-    players() {
-      return this.allPlayers;
-    },
-    teamMetrics() {
-      return calculateTeamBalanceMetrics(this.teams, this.players);
-    },
-    // Calculate overall balance metrics
-    playerCountVariance() {
-      if (this.teamMetrics.length <= 1) return 0;
-      
-      const counts = this.teamMetrics.map(team => team.playerCount);
-      const avg = counts.reduce((sum, count) => sum + count, 0) / counts.length;
-      const variance = counts.reduce((sum, count) => sum + Math.pow(count - avg, 2), 0) / counts.length;
-      return variance;
-    },
-    talentVariance() {
-      if (this.teamMetrics.length <= 1) return 0;
-      
-      const avgTalents = this.teamMetrics.map(team => team.avgTalentRating);
-      const avg = avgTalents.reduce((sum, val) => sum + val, 0) / avgTalents.length;
-      const variance = avgTalents.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / avgTalents.length;
-      return variance;
-    },
-    // Balance indicators
-    overallBalanceClass() {
-      const combinedVariance = this.playerCountVariance + this.talentVariance * 2;
-      if (combinedVariance < 0.1) return 'excellent';
-      if (combinedVariance < 0.3) return 'good';
-      if (combinedVariance < 0.6) return 'fair';
-      return 'poor';
-    },
-    overallBalanceText() {
-      const classes = {
-        excellent: 'Excellent',
-        good: 'Good',
-        fair: 'Fair',
-        poor: 'Poor'
-      };
-      return classes[this.overallBalanceClass];
-    },
-    playerDistributionClass() {
-      if (this.playerCountVariance < 0.1) return 'excellent';
-      if (this.playerCountVariance < 0.5) return 'good';
-      if (this.playerCountVariance < 1) return 'fair';
-      return 'poor';
-    },
-    playerDistributionText() {
-      const classes = {
-        excellent: 'Excellent',
-        good: 'Good',
-        fair: 'Fair',
-        poor: 'Poor'
-      };
-      return classes[this.playerDistributionClass];
-    },
-    talentDistributionClass() {
-      if (this.talentVariance < 0.05) return 'excellent';
-      if (this.talentVariance < 0.15) return 'good';
-      if (this.talentVariance < 0.3) return 'fair';
-      return 'poor';
-    },
-    talentDistributionText() {
-      const classes = {
-        excellent: 'Excellent',
-        good: 'Good',
-        fair: 'Fair',
-        poor: 'Poor'
-      };
-      return classes[this.talentDistributionClass];
-    }
-  },
-  methods: {
-    getAvgTalentClass(avgTalent) {
-      if (avgTalent >= 3.5) return 'talent-a';
-      if (avgTalent >= 2.5) return 'talent-b';
-      if (avgTalent >= 1.5) return 'talent-c';
-      return 'talent-d';
-    }
-  }
+const teamsStore = useTeamsStore();
+const playersStore = usePlayersStore();
+
+const teams = computed(() => teamsStore.allTeams);
+const players = computed(() => playersStore.allPlayers);
+
+const teamMetrics = computed(() => {
+  return calculateTeamBalanceMetrics(teams.value, players.value);
+});
+
+// Calculate overall balance metrics
+const playerCountVariance = computed(() => {
+  if (teamMetrics.value.length <= 1) return 0;
+  
+  const counts = teamMetrics.value.map(team => team.playerCount);
+  const avg = counts.reduce((sum, count) => sum + count, 0) / counts.length;
+  const variance = counts.reduce((sum, count) => sum + Math.pow(count - avg, 2), 0) / counts.length;
+  return variance;
+});
+
+const talentVariance = computed(() => {
+  if (teamMetrics.value.length <= 1) return 0;
+  
+  const avgTalents = teamMetrics.value.map(team => team.avgTalentRating);
+  const avg = avgTalents.reduce((sum, val) => sum + val, 0) / avgTalents.length;
+  const variance = avgTalents.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / avgTalents.length;
+  return variance;
+});
+
+// Balance indicators
+const overallBalanceClass = computed(() => {
+  const combinedVariance = playerCountVariance.value + talentVariance.value * 2;
+  if (combinedVariance < 0.1) return 'excellent';
+  if (combinedVariance < 0.3) return 'good';
+  if (combinedVariance < 0.6) return 'fair';
+  return 'poor';
+});
+
+const overallBalanceText = computed(() => {
+  const classes = {
+    excellent: 'Excellent',
+    good: 'Good',
+    fair: 'Fair',
+    poor: 'Poor'
+  };
+  return classes[overallBalanceClass.value];
+});
+
+const playerDistributionClass = computed(() => {
+  if (playerCountVariance.value < 0.1) return 'excellent';
+  if (playerCountVariance.value < 0.5) return 'good';
+  if (playerCountVariance.value < 1) return 'fair';
+  return 'poor';
+});
+
+const playerDistributionText = computed(() => {
+  const classes = {
+    excellent: 'Excellent',
+    good: 'Good',
+    fair: 'Fair',
+    poor: 'Poor'
+  };
+  return classes[playerDistributionClass.value];
+});
+
+const talentDistributionClass = computed(() => {
+  if (talentVariance.value < 0.05) return 'excellent';
+  if (talentVariance.value < 0.15) return 'good';
+  if (talentVariance.value < 0.3) return 'fair';
+  return 'poor';
+});
+
+const talentDistributionText = computed(() => {
+  const classes = {
+    excellent: 'Excellent',
+    good: 'Good',
+    fair: 'Fair',
+    poor: 'Poor'
+  };
+  return classes[talentDistributionClass.value];
+});
+
+const getAvgTalentClass = (avgTalent) => {
+  if (avgTalent >= 3.5) return 'talent-a';
+  if (avgTalent >= 2.5) return 'talent-b';
+  if (avgTalent >= 1.5) return 'talent-c';
+  return 'talent-d';
 };
 </script>
 
