@@ -14,12 +14,7 @@ export const useScoresStore = defineStore('scores', {
         scoresByPlayer: (state) => (playerId) => state.scores.filter(score => score.playerId === playerId),
         scoresByCourse: (state) => (courseId) => state.scores.filter(score => score.courseId === courseId),
         scoreByPlayerAndCourse: (state) => (playerId, courseId) => {
-            const found = state.scores.find(score => score.playerId === playerId && score.courseId === courseId);
-            console.log(`scoreByPlayerAndCourse: Looking for ${playerId} on ${courseId}. Found:`, found ? 'Yes' : 'No');
-            if (!found) {
-                console.log('Current scores in state:', JSON.parse(JSON.stringify(state.scores)));
-            }
-            return found;
+            return state.scores.find(score => score.playerId === playerId && score.courseId === courseId);
         },
         playerTotalScore: (state) => (playerId) => {
             return state.scores
@@ -212,7 +207,6 @@ export const useScoresStore = defineStore('scores', {
 
     actions: {
         updateScore({ playerId, courseId, value }) {
-            console.log('updateScore called with:', { playerId, courseId, value });
             // Validate score value
             const scoreValue = parseInt(value);
             if (isNaN(scoreValue)) {
@@ -222,11 +216,9 @@ export const useScoresStore = defineStore('scores', {
             const existingScore = this.scores.find(score => score.playerId === playerId && score.courseId === courseId);
 
             if (existingScore) {
-                console.log('Updating existing score');
                 existingScore.value = scoreValue;
                 existingScore.timestamp = new Date().toISOString();
             } else {
-                console.log('Creating new score');
                 const newScore = {
                     id: uuidv4(),
                     playerId,
@@ -236,8 +228,6 @@ export const useScoresStore = defineStore('scores', {
                 };
                 this.scores.push(newScore);
             }
-            console.log('Current scores count:', this.scores.length);
-            console.log('Current scores:', JSON.parse(JSON.stringify(this.scores)));
         },
 
         deleteScore(id) {
