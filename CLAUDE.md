@@ -36,12 +36,21 @@ Vue.js 2 client-side SPA for managing golf team competitions with:
 
 **Commands:**
 ```bash
-npm run serve           # Dev server :8080
-npm run build          # Production build
-npm run lint           # ESLint check
-npm run lint -- --fix  # Auto-fix
-npm test               # Run tests
+npm run serve                    # Dev server :8080
+npm run build                   # Production build
+npm run lint                    # ESLint check
+npm run lint -- --fix           # Auto-fix
+npm test                        # Run all tests
+npm test -- tests/teams.test.js # Run specific test
+npm test -- --coverage          # Run tests with coverage
+npm test -- --watch             # Watch mode for tests
+./run.sh                        # Quick setup: install, lint, build, serve
 ```
+
+**Build Tools:**
+- **Webpack 5** via Vue CLI for bundling
+- **Babel** for ES6+ transpilation
+- **Jest** for testing with custom Vuex mock store
 
 ---
 
@@ -51,7 +60,7 @@ npm test               # Run tests
 src/
 ├── main.js                    # App entry
 ├── App.vue                    # Root component
-├── router/index.js            # Hash mode router
+├── router/index.js            # Hash mode router (vue.config.js: port 8080)
 ├── store/
 │   ├── index.js               # Root store + persistence plugin
 │   └── modules/
@@ -61,15 +70,26 @@ src/
 │       ├── courses.js         # Static course data
 │       └── ui.js              # Theme, notifications, nav state
 ├── services/
-│   ├── DataService.js         # Singleton store abstraction
+│   ├── DataService.js         # Singleton store abstraction + import/export
 │   └── NotificationService.js # Singleton toast notifications
 ├── utils/index.js             # Validation, formatting helpers
+├── assets/                    # Images and global styles (styles.css)
 ├── components/
 │   ├── layout/                # AppHeader, AppSidebar
 │   ├── shared/                # Notifications, ConfirmationDialog
-│   ├── admin/                 # Player/Team CRUD components
-│   └── scoring/               # ScoreEntry, Leaderboards
+│   ├── admin/                 # PlayerForm, PlayerList, TeamList,
+│   │                          # PlayerAssignment, TeamBalanceAnalyzer
+│   └── scoring/               # ScoreEntry, PlayerLeaderboard, TeamLeaderboard
 └── views/                     # Route-level containers
+
+Other Directories:
+├── data/                      # Sample data files for import (JSON)
+├── doc/                       # User guide, test plan, delivery docs
+├── tests/                     # Jest tests (teams.test.js, etc.)
+├── vue.config.js              # Vue CLI config (dev server port 8080)
+├── jest.config.js             # Jest testing configuration
+├── babel.config.js            # Babel transpilation setup
+└── run.sh                     # Quick setup script
 ```
 
 ---
@@ -97,6 +117,8 @@ methods: {
 
 **CRITICAL:** Mutations must start with module name (`players/`, `teams/`, `scores/`, `courses/`) to trigger persistence.
 
+The plugin provides **automatic cross-tab synchronization** - changes in one tab are reflected in others.
+
 ```javascript
 // /src/store/index.js
 const persistencePlugin = (store) => {
@@ -105,7 +127,7 @@ const persistencePlugin = (store) => {
         mutation.type.startsWith('teams/') ||
         mutation.type.startsWith('scores/') ||
         mutation.type.startsWith('courses/')) {
-      // Auto-saves to localStorage
+      // Auto-saves to localStorage with cross-tab sync
       localStorage.setItem('golf-competition-app', JSON.stringify(state));
     }
   });
@@ -118,6 +140,12 @@ const persistencePlugin = (store) => {
 User Action → Component → Store Action → Mutation → State Update →
 Persistence Plugin → localStorage → Getter → Component Re-render
 ```
+
+### 4. Component Communication Patterns
+
+- **Parent-child:** Props down, events up
+- **Cross-component:** Vuex store for shared state
+- **UI state:** Use `ui` module for global UI state (theme, notifications, loading)
 
 ---
 
@@ -300,6 +328,11 @@ import PlayerList from '@/components/admin/PlayerList.vue'
 
 Toggle via `AppHeader.vue` which adds/removes `dark-mode` class to `<body>`.
 
+**Design Approach:**
+- **Mobile-first responsive design** with CSS variables for theming
+- Component-scoped styles in `.vue` files
+- Global styles in `/src/assets/styles.css`
+
 **Key Variables:**
 ```css
 --primary-color, --text-color, --background-color, --card-bg,
@@ -382,6 +415,16 @@ Before finalizing changes:
 - [ ] Related features still work
 - [ ] Dark mode still works
 
+### Testing Patterns
+
+When writing tests for this app:
+- Use the **MockStore class pattern** established in `tests/teams.test.js`
+- Focus on testing Vuex modules independently
+- Test team generation algorithms thoroughly (core business logic)
+- Mock localStorage operations when needed
+- Run specific tests: `npm test -- tests/teams.test.js`
+- Use watch mode during development: `npm test -- --watch`
+
 ### Common Pitfalls
 
 1. **Component not re-rendering?** → Use `computed` not `data()`
@@ -401,10 +444,18 @@ Before finalizing changes:
 | Teams Store | `/src/store/modules/teams.js` |
 | Scores Store | `/src/store/modules/scores.js` |
 | Player CRUD | `/src/components/admin/PlayerList.vue` |
+| Player Form | `/src/components/admin/PlayerForm.vue` |
 | Team CRUD | `/src/components/admin/TeamList.vue` |
+| Player Assignment | `/src/components/admin/PlayerAssignment.vue` |
+| Team Balance Analyzer | `/src/components/admin/TeamBalanceAnalyzer.vue` |
 | Score Entry | `/src/components/scoring/ScoreEntry.vue` |
+| Player Leaderboard | `/src/components/scoring/PlayerLeaderboard.vue` |
+| Team Leaderboard | `/src/components/scoring/TeamLeaderboard.vue` |
 | Utilities | `/src/utils/index.js` |
-| Styles | `/src/assets/styles.css` |
+| Global Styles | `/src/assets/styles.css` |
+| Data Service | `/src/services/DataService.js` |
+| Sample Data | `/data/` directory (JSON files) |
+| Documentation | `/doc/` directory (user guide, test plan) |
 
 ### Notification Usage
 
@@ -466,6 +517,9 @@ Example: "Add player statistics dashboard"
 5. **Courses are static/read-only** - no mutations
 6. **Team generation uses snake draft** - see `teams.js:72-93`
 7. **Test persistence after changes** - reload page and check data
+8. **Mobile-first responsive design** - components adapt to screen size
+9. **Cross-tab synchronization** - localStorage changes sync across open tabs
+10. **Use MockStore pattern for testing** - see `tests/teams.test.js`
 
 **When in doubt:** Look at existing similar code in the codebase.
 
