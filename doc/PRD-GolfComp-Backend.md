@@ -1,14 +1,79 @@
 # PRD: Bathe Golf v2 - Backend Implementation
 
 > **Version:** 1.0  
-> **Last Updated:** 2026-01-31  
-> **Status:** Draft  
+> **Last Updated:** 2026-02-15  
+> **Status:** In Progress  
 > **Owner:** Development Team
+
+---
+
+## Implementation Tracking
+
+Progress across working sessions. Use this section to pick up where you left off.
+
+### Story Status Summary
+
+| Story | Title | Status |
+|-------|-------|--------|
+| US-001 | Spring Boot Project Bootstrap | Complete |
+| US-002 | Liquibase Setup | Not Started |
+| US-003 | Competition Entity | Not Started |
+| US-004 | Course Entity | Not Started |
+| US-005 | Round Entity | Not Started |
+| US-006 | Team Entity | Not Started |
+| US-007 | Player Entity | Not Started |
+| US-008 | Score Entity | Not Started |
+| US-009 | Competition Repository | Not Started |
+| US-010 | Course Repository | Not Started |
+| US-011 | Round Repository | Not Started |
+| US-012 | Team Repository | Not Started |
+| US-013 | Player Repository | Not Started |
+| US-014 | Score Repository | Not Started |
+| US-015 | Competition Service | Not Started |
+| US-016 | Course Service | Not Started |
+| US-017 | Round Service | Not Started |
+| US-018 | Team Service | Not Started |
+| US-019 | Player Service | Not Started |
+| US-020 | Score Service | Not Started |
+| US-021 | Leaderboard Service | Not Started |
+| US-022 | Competition Controller | Not Started |
+| US-023 | Course Controller | Not Started |
+| US-024 | Round Controller | Not Started |
+| US-025 | Team Controller | Not Started |
+| US-026 | Player Controller | Not Started |
+| US-027 | Score Controller | Not Started |
+| US-028 | Leaderboard Controller | Not Started |
+| US-029 | Snake Draft Algorithm | Not Started |
+| US-030 | Global Exception Handler | Not Started |
+| US-031 | CORS Configuration | Not Started |
+| US-032 | OpenAPI Documentation | Not Started |
+
+### Next Up
+
+**Recommended next story:** US-002 (Liquibase Setup) — depends on US-001 ✓
+
+### Progress Log
+
+- **2026-02-15:** US-001 complete. Spring Boot 3.5 project bootstrap: Gradle build, GolfCompApplication, application profiles (dev/test/prod), health actuator, context load test. Root build.gradle updated for monorepo (backendBuild, bootRun, unified build/test/clean).
+
+### Files Modified (Cumulative)
+
+- `spring-golfcomp/build.gradle` — Gradle config, Spring Boot 3.5.3, dependencies
+- `spring-golfcomp/src/main/java/com/golfcomp/api/GolfCompApplication.java` — Main class
+- `spring-golfcomp/src/main/resources/application.yml` — Default config
+- `spring-golfcomp/src/main/resources/application-dev.yml` — H2 dev profile
+- `spring-golfcomp/src/main/resources/application-test.yml` — H2 test profile
+- `spring-golfcomp/src/main/resources/application-prod.yml` — Prod profile stub
+- `spring-golfcomp/src/test/java/com/golfcomp/api/GolfCompApplicationTests.java` — Context load test
+- `spring-golfcomp/README.md` — Backend readme
+- `settings.gradle` — Include spring-golfcomp subproject
+- `build.gradle` — Backend tasks, bootRun, unified build/test/clean
 
 ---
 
 ## Table of Contents
 
+0. [Implementation Tracking](#implementation-tracking)
 1. [Executive Summary](#1-executive-summary)
 2. [Goals & Success Metrics](#2-goals--success-metrics)
 3. [Target Audience](#3-target-audience)
@@ -711,7 +776,7 @@ graph TB
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Project Setup |
@@ -725,15 +790,15 @@ As a developer, I want a properly configured Spring Boot 3.5 project so that I h
 
 | Story ID | Title | Status |
 |----------|-------|--------|
-| — | No prerequisites | — |
+| — | No prerequisites | ✓ |
 
 #### Acceptance Criteria
 
-- [ ] AC1: Gradle project with Spring Boot 3.5.x parent
-- [ ] AC2: Dependencies include: Spring Web, Spring Data JPA, PostgreSQL driver, Lombok, Validation, SpringDoc OpenAPI
-- [ ] AC3: Application starts successfully on port 8080
-- [ ] AC4: Health check endpoint returns 200 OK at `/actuator/health`
-- [ ] AC5: Application profiles configured (dev, test, prod)
+- [x] AC1: Gradle project with Spring Boot 3.5.x parent
+- [x] AC2: Dependencies include: Spring Web, Spring Data JPA, PostgreSQL driver, Lombok, Validation, SpringDoc OpenAPI
+- [x] AC3: Application starts successfully on port 8080
+- [x] AC4: Health check endpoint returns 200 OK at `/actuator/health`
+- [x] AC5: Application profiles configured (dev, test, prod)
 
 #### Agent Instructions
 
@@ -755,9 +820,9 @@ Create a new Spring Boot 3.5 Gradle project with all required dependencies and c
 - DO NOT configure database connection (Liquibase story handles this)
 
 **📤 Expected Output:**
-- [ ] Project compiles with `./gradlew clean compile` (from repository root or `spring-golfcomp/`)
-- [ ] Application starts with `./gradlew bootRun` (from repository root)
-- [ ] Health endpoint accessible
+- [x] Project compiles with `./gradlew clean compile` (from repository root or `spring-golfcomp/`)
+- [x] Application starts with `./gradlew bootRun` (from repository root)
+- [x] Health endpoint accessible
 
 #### Testing Requirements
 
@@ -767,10 +832,10 @@ Create a new Spring Boot 3.5 Gradle project with all required dependencies and c
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] Code compiles with no errors
-- [ ] Ready for human code review
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] Code compiles with no errors
+- [x] Ready for human code review
 
 ---
 
@@ -792,7 +857,7 @@ As a developer, I want Liquibase configured for database migrations so that sche
 
 | Story ID | Title | Status |
 |----------|-------|--------|
-| US-001 | Spring Boot Project Bootstrap | Required |
+| US-001 | Spring Boot Project Bootstrap | ✓ Complete |
 
 #### Acceptance Criteria
 

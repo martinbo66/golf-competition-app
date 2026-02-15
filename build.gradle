@@ -1,12 +1,14 @@
 /**
  * Golf Competition App - Root Build Configuration
  *
- * This Gradle build orchestrates the Vue.js frontend (vue-golfcomp) for unified CI/CD.
+ * This Gradle build orchestrates the Spring Boot backend (spring-golfcomp) and
+ * Vue.js frontend (vue-golfcomp) for unified CI/CD.
  *
  * Usage:
- *   ./gradlew build        - Build frontend
+ *   ./gradlew build        - Build backend and frontend
  *   ./gradlew test         - Run all tests
  *   ./gradlew clean        - Clean all build artifacts
+ *   ./gradlew bootRun      - Run the Spring Boot backend
  *   ./gradlew frontendDev  - Start Vue dev server (for local development)
  */
 
@@ -109,19 +111,41 @@ task frontendClean(type: Delete) {
 }
 
 // ============================================================================
+// Backend Task Aliases (delegate to subproject)
+// ============================================================================
+
+task backendBuild {
+    description = 'Build the Spring Boot backend'
+    group = 'backend'
+    dependsOn ':spring-golfcomp:build'
+}
+
+task backendTest {
+    description = 'Run backend tests'
+    group = 'backend'
+    dependsOn ':spring-golfcomp:test'
+}
+
+task backendClean {
+    description = 'Clean backend build artifacts'
+    group = 'backend'
+    dependsOn ':spring-golfcomp:clean'
+}
+
+// ============================================================================
 // Unified CI/CD Tasks
 // ============================================================================
 
 task build {
-    description = 'Build frontend'
+    description = 'Build backend and frontend'
     group = 'build'
-    dependsOn frontendBuild
+    dependsOn backendBuild, frontendBuild
 }
 
 task test {
-    description = 'Run all tests'
+    description = 'Run all tests (backend and frontend)'
     group = 'verification'
-    dependsOn frontendTest
+    dependsOn backendTest, frontendTest
 }
 
 task lint {
@@ -139,7 +163,14 @@ task check {
 task clean {
     description = 'Clean all build artifacts'
     group = 'build'
-    dependsOn frontendClean
+    dependsOn backendClean, frontendClean
+}
+
+// Alias for running backend
+task bootRun {
+    description = 'Run the Spring Boot backend application'
+    group = 'application'
+    dependsOn ':spring-golfcomp:bootRun'
 }
 
 // ============================================================================
@@ -170,11 +201,16 @@ task showTasks {
 ║                          Current Version: ${project.version.padRight(31)}║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║ UNIFIED COMMANDS                                                               ║
-║   ./gradlew build      Build frontend                                          ║
+║   ./gradlew build      Build backend and frontend                              ║
 ║   ./gradlew test       Run all tests                                           ║
 ║   ./gradlew lint       Run ESLint                                              ║
 ║   ./gradlew clean      Clean all build artifacts                              ║
 ║   ./gradlew ci         Full CI: clean, build, test, lint                        ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║ BACKEND (Spring Boot)                                                           ║
+║   ./gradlew bootRun          Run the Spring Boot application                  ║
+║   ./gradlew backendBuild     Build backend only                                ║
+║   ./gradlew backendTest      Run backend tests only                            ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║ FRONTEND (Vue.js)                                                              ║
 ║   ./gradlew frontendDev      Start dev server (http://localhost:8080)          ║
