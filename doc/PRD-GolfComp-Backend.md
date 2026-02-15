@@ -21,8 +21,8 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-004 | Course Entity | Complete |
 | US-005 | Round Entity | Complete |
 | US-006 | Team Entity | Complete |
-| US-007 | Player Entity | Not Started |
-| US-008 | Score Entity | Not Started |
+| US-007 | Player Entity | Complete |
+| US-008 | Score Entity | Complete |
 | US-009 | Competition Repository | Not Started |
 | US-010 | Course Repository | Not Started |
 | US-011 | Round Repository | Not Started |
@@ -50,10 +50,12 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next story:** US-007 (Player Entity) — depends on US-003 ✓ and US-006 ✓, then US-008 (Score Entity) — depends on US-005 ✓ and US-007
+**Recommended next stories:** US-009 through US-014 (Repository Stories) — all entity dependencies complete (US-003 through US-008 ✓)
 
 ### Progress Log
 
+- **2026-02-15:** US-008 complete. Score entity and migration: Created Score.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, ManyToOne relationships to Competition (denormalized for query efficiency), Round, and Player, Integer value field with @Min(18)/@Max(150) validation, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 006-create-scores-table.xml with foreign keys to competitions, rounds, and players tables, unique constraint on (round_id, player_id), CHECK constraint on value (18-150) for PostgreSQL.
+- **2026-02-15:** US-007 complete. Player entity, TalentRating enum, and migration: Created TalentRating.java enum with values A, B, C, D for skill classification. Created Player.java entity with Lombok annotations, UUID primary key, ManyToOne relationships to Competition (required) and Team (nullable), TalentRating enum stored as STRING, BigDecimal fields for entryFee and winnings with defaults of 0, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 005-create-players-table.xml with foreign keys to competitions and teams tables, CHECK constraint on talent_rating (A, B, C, D).
 - **2026-02-15:** US-006 complete. Team entity and migration: Created Team.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, ManyToOne relationship to Competition, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 004-create-teams-table.xml with foreign key to competitions table and unique constraint on (competition_id, name).
 - **2026-02-15:** US-005 complete. Round entity and migration: Created Round.java entity with Lombok annotations, UUID primary key, ManyToOne relationships to Competition and Course, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 003-create-rounds-table.xml with foreign keys to competitions and courses tables, unique constraint on (competition_id, round_number).
 - **2026-02-15:** US-003 complete. Competition entity and migration: Created Competition.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 001-create-competitions-table.xml with proper PostgreSQL types and constraints. Added unit tests for entity.
@@ -78,6 +80,11 @@ Progress across working sessions. Use this section to pick up where you left off
 - `spring-golfcomp/src/main/resources/db/changelog/changes/003-create-rounds-table.xml` — Rounds table migration
 - `spring-golfcomp/src/main/java/com/golfcomp/api/model/Team.java` — Team entity with JPA annotations
 - `spring-golfcomp/src/main/resources/db/changelog/changes/004-create-teams-table.xml` — Teams table migration
+- `spring-golfcomp/src/main/java/com/golfcomp/api/model/TalentRating.java` — TalentRating enum (A, B, C, D)
+- `spring-golfcomp/src/main/java/com/golfcomp/api/model/Player.java` — Player entity with JPA annotations
+- `spring-golfcomp/src/main/resources/db/changelog/changes/005-create-players-table.xml` — Players table migration
+- `spring-golfcomp/src/main/java/com/golfcomp/api/model/Score.java` — Score entity with JPA annotations
+- `spring-golfcomp/src/main/resources/db/changelog/changes/006-create-scores-table.xml` — Scores table migration
 - `spring-golfcomp/src/test/java/com/golfcomp/api/GolfCompApplicationTests.java` — Context load test
 - `spring-golfcomp/src/test/java/com/golfcomp/api/model/CompetitionTest.java` — Competition entity unit tests
 - `spring-golfcomp/README.md` — Backend readme
@@ -1029,7 +1036,7 @@ As a developer, I want a Competition entity and database table so that competiti
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Core Entities |
@@ -1044,9 +1051,9 @@ As a developer, I want a Competition entity and database table so that competiti
 
 #### Acceptance Criteria
 
-- [ ] AC1: TalentRating enum with values A, B, C, D
-- [ ] AC2: Player entity with competition and optional team relationships
-- [ ] AC3: Entry fee and winnings default to 0
+- [x] AC1: TalentRating enum with values A, B, C, D
+- [x] AC2: Player entity with competition and optional team relationships
+- [x] AC3: Entry fee and winnings default to 0
 
 #### Agent Instructions
 
@@ -1068,7 +1075,7 @@ As a developer, I want a Competition entity and database table so that competiti
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~1.5 hours |
 | **Epic** | Core Entities |
@@ -1083,9 +1090,9 @@ As a developer, I want a Competition entity and database table so that competiti
 
 #### Acceptance Criteria
 
-- [ ] AC1: Score entity with round and player relationships
-- [ ] AC2: Value validated between 18 and 150
-- [ ] AC3: Unique constraint on (round_id, player_id)
+- [x] AC1: Score entity with round and player relationships
+- [x] AC2: Value validated between 18 and 150
+- [x] AC3: Unique constraint on (round_id, player_id)
 
 #### Agent Instructions
 

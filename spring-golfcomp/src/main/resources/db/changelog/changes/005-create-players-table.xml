@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="005-create-players-table" author="golfcomp">
+        <comment>Create the players table - individual golfers participating in a competition</comment>
+        
+        <createTable tableName="players">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="competition_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="team_id" type="uuid">
+                <constraints nullable="true"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="talent_rating" type="varchar(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entry_fee" type="decimal(10,2)" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="winnings" type="decimal(10,2)" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <!-- Foreign key to competitions table (required) -->
+        <addForeignKeyConstraint 
+            baseTableName="players" 
+            baseColumnNames="competition_id"
+            constraintName="fk_players_competition"
+            referencedTableName="competitions"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+        
+        <!-- Foreign key to teams table (nullable - players start unassigned) -->
+        <addForeignKeyConstraint 
+            baseTableName="players" 
+            baseColumnNames="team_id"
+            constraintName="fk_players_team"
+            referencedTableName="teams"
+            referencedColumnNames="id"
+            onDelete="SET NULL"/>
+        
+        <!-- CHECK constraint on talent_rating (A, B, C, D) -->
+        <sql>
+            ALTER TABLE players ADD CONSTRAINT chk_players_talent_rating 
+            CHECK (talent_rating IN ('A', 'B', 'C', 'D'));
+        </sql>
+        
+        <rollback>
+            <dropTable tableName="players"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

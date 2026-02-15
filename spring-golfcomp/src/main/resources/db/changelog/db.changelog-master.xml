@@ -19,5 +19,7 @@
     <include file="changes/002-create-courses-table.xml" relativeToChangelogFile="true"/>
     <include file="changes/003-create-rounds-table.xml" relativeToChangelogFile="true"/>
     <include file="changes/004-create-teams-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/005-create-players-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/006-create-scores-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

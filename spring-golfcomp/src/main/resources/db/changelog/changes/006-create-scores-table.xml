@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-create-scores-table" author="golfcomp">
+        <comment>Create scores table for storing player scores per round. Competition reference is denormalized for query efficiency.</comment>
+        
+        <createTable tableName="scores">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="competition_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="round_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="player_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Foreign key to competitions table (denormalized for query efficiency) -->
+        <addForeignKeyConstraint
+            baseTableName="scores"
+            baseColumnNames="competition_id"
+            constraintName="fk_scores_competition"
+            referencedTableName="competitions"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <!-- Foreign key to rounds table -->
+        <addForeignKeyConstraint
+            baseTableName="scores"
+            baseColumnNames="round_id"
+            constraintName="fk_scores_round"
+            referencedTableName="rounds"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <!-- Foreign key to players table -->
+        <addForeignKeyConstraint
+            baseTableName="scores"
+            baseColumnNames="player_id"
+            constraintName="fk_scores_player"
+            referencedTableName="players"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <!-- Unique constraint: one score per player per round -->
+        <addUniqueConstraint
+            tableName="scores"
+            columnNames="round_id, player_id"
+            constraintName="uk_scores_round_player"/>
+
+        <!-- CHECK constraint: score value must be between 18 and 150 (PostgreSQL only) -->
+        <!-- Note: H2 test database relies on JPA @Min/@Max validation instead -->
+        <sql dbms="postgresql">
+            ALTER TABLE scores ADD CONSTRAINT chk_scores_value CHECK (value &gt;= 18 AND value &lt;= 150);
+        </sql>
+
+        <rollback>
+            <dropTable tableName="scores"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
