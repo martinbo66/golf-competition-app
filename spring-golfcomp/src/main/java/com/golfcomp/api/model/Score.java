@@ -83,7 +83,7 @@ public class Score {
      */
     @Min(value = 18, message = "Score must be at least 18")
     @Max(value = 150, message = "Score must not exceed 150")
-    @Column(name = "value", nullable = false)
+    @Column(name = "score_value", nullable = false)
     private Integer value;
 
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -21,7 +21,7 @@
             <column name="player_id" type="uuid">
                 <constraints nullable="false"/>
             </column>
-            <column name="value" type="int">
+            <column name="score_value" type="int">
                 <constraints nullable="false"/>
             </column>
             <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
@@ -68,7 +68,7 @@
         <!-- CHECK constraint: score value must be between 18 and 150 (PostgreSQL only) -->
         <!-- Note: H2 test database relies on JPA @Min/@Max validation instead -->
         <sql dbms="postgresql">
-            ALTER TABLE scores ADD CONSTRAINT chk_scores_value CHECK (value &gt;= 18 AND value &lt;= 150);
+            ALTER TABLE scores ADD CONSTRAINT chk_scores_value CHECK (score_value &gt;= 18 AND score_value &lt;= 150);
         </sql>
 
         <rollback>
