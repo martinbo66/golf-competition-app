@@ -35,3 +35,4 @@ node_modules/
 tasks.json
 tasks/ 
 coverage/
+.claude/settings.local.json
