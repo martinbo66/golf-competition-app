@@ -29,13 +29,13 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-012 | Team Repository | Complete |
 | US-013 | Player Repository | Complete |
 | US-014 | Score Repository | Complete |
-| US-015 | Competition Service | Not Started |
-| US-016 | Course Service | Not Started |
-| US-017 | Round Service | Not Started |
-| US-018 | Team Service | Not Started |
-| US-019 | Player Service | Not Started |
-| US-020 | Score Service | Not Started |
-| US-021 | Leaderboard Service | Not Started |
+| US-015 | Competition Service | Complete |
+| US-016 | Course Service | Complete |
+| US-017 | Round Service | Complete |
+| US-018 | Team Service | Complete |
+| US-019 | Player Service | Complete |
+| US-020 | Score Service | Complete |
+| US-021 | Leaderboard Service | Complete |
 | US-022 | Competition Controller | Not Started |
 | US-023 | Course Controller | Not Started |
 | US-024 | Round Controller | Not Started |
@@ -50,10 +50,11 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next stories:** US-015 through US-021 (Service Stories) — all repository dependencies complete (US-009 through US-014 ✓)
+**Recommended next stories:** US-022 through US-028 (Controller Stories) — all service dependencies complete (US-015 through US-021 ✓)
 
 ### Progress Log
 
+- **2026-02-15:** US-015 through US-021 complete. Created exception classes (ResourceNotFoundException, BusinessRuleException), 11 request DTOs, 8 response DTOs (including PlayerLeaderboardEntry, TeamLeaderboardEntry), and 7 service classes (CompetitionService, CourseService, RoundService, TeamService, PlayerService, ScoreService, LeaderboardService). All services use constructor injection, @Transactional(readOnly=true) class-level with @Transactional overrides for writes, and throw typed exceptions on not-found/business-rule violations. LeaderboardService ranks players by (roundsPlayed DESC, totalScore ASC) and aggregates team totals. Created 7 Mockito unit test classes (54 new tests). All 96 backend tests passing.
 - **2026-02-15:** US-009 through US-014 complete. Created 6 Spring Data JPA repositories: CompetitionRepository, CourseRepository, RoundRepository (with ordered query, find by competition+round number, bulk delete), TeamRepository (with competition list, name uniqueness check, bulk delete), PlayerRepository (with unassigned filter, team filter, talent-rating-ordered query for snake draft, bulk delete), ScoreRepository (with round/competition/player filters, round+player lookup for upsert, bulk delete). Created @DataJpaTest integration tests for all 6 repositories (42 new tests). Fixed H2 reserved-keyword conflict on scores.value column by renaming to score_value in entity and migration.
 - **2026-02-15:** US-008 complete. Score entity and migration: Created Score.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, ManyToOne relationships to Competition (denormalized for query efficiency), Round, and Player, Integer value field with @Min(18)/@Max(150) validation, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 006-create-scores-table.xml with foreign keys to competitions, rounds, and players tables, unique constraint on (round_id, player_id), CHECK constraint on value (18-150) for PostgreSQL.
 - **2026-02-15:** US-007 complete. Player entity, TalentRating enum, and migration: Created TalentRating.java enum with values A, B, C, D for skill classification. Created Player.java entity with Lombok annotations, UUID primary key, ManyToOne relationships to Competition (required) and Team (nullable), TalentRating enum stored as STRING, BigDecimal fields for entryFee and winnings with defaults of 0, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 005-create-players-table.xml with foreign keys to competitions and teams tables, CHECK constraint on talent_rating (A, B, C, D).

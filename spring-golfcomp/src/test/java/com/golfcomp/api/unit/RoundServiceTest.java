@@ -1,0 +1,150 @@
+package com.golfcomp.api.unit;
+
+import com.golfcomp.api.dto.request.CreateRoundRequest;
+import com.golfcomp.api.dto.response.RoundResponse;
+import com.golfcomp.api.exception.ResourceNotFoundException;
+import com.golfcomp.api.model.Competition;
+import com.golfcomp.api.model.Course;
+import com.golfcomp.api.model.Round;
+import com.golfcomp.api.repository.CompetitionRepository;
+import com.golfcomp.api.repository.CourseRepository;
+import com.golfcomp.api.repository.RoundRepository;
+import com.golfcomp.api.service.RoundService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class RoundServiceTest {
+
+    @Mock private RoundRepository roundRepository;
+    @Mock private CompetitionRepository competitionRepository;
+    @Mock private CourseRepository courseRepository;
+
+    @InjectMocks
+    private RoundService roundService;
+
+    private Competition competition;
+    private Course course;
+    private Round round;
+    private UUID competitionId;
+    private UUID courseId;
+    private UUID roundId;
+
+    @BeforeEach
+    void setUp() {
+        competitionId = UUID.randomUUID();
+        courseId = UUID.randomUUID();
+        roundId = UUID.randomUUID();
+
+        competition = Competition.builder()
+            .id(competitionId)
+            .name("2026 Bathe Golf")
+            .startDate(LocalDate.of(2026, 6, 1))
+            .endDate(LocalDate.of(2026, 6, 5))
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
+            .build();
+
+        course = Course.builder()
+            .id(courseId)
+            .name("Heathland")
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
+
+        round = Round.builder()
+            .id(roundId)
+            .competition(competition)
+            .course(course)
+            .playDate(LocalDate.of(2026, 6, 2))
+            .roundNumber(1)
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
+    }
+
+    @Test
+    @DisplayName("create - saves round with competition and course")
+    void create_savesRound() {
+        when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+        when(roundRepository.save(any(Round.class))).thenReturn(round);
+        CreateRoundRequest request = new CreateRoundRequest(courseId, LocalDate.of(2026, 6, 2), 1);
+
+        RoundResponse response = roundService.create(competitionId, request);
+
+        assertNotNull(response);
+        assertEquals(competitionId, response.competitionId());
+        assertEquals(1, response.roundNumber());
+    }
+
+    @Test
+    @DisplayName("create - throws when competition not found")
+    void create_throwsWhenCompetitionNotFound() {
+        when(competitionRepository.findById(competitionId)).thenReturn(Optional.empty());
+        CreateRoundRequest request = new CreateRoundRequest(courseId, LocalDate.now(), 1);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.create(competitionId, request));
+    }
+
+    @Test
+    @DisplayName("create - throws when course not found")
+    void create_throwsWhenCourseNotFound() {
+        when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
+        when(courseRepository.findById(courseId)).thenReturn(Optional.empty());
+        CreateRoundRequest request = new CreateRoundRequest(courseId, LocalDate.now(), 1);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.create(competitionId, request));
+    }
+
+    @Test
+    @DisplayName("findByCompetition - returns rounds ordered by round number")
+    void findByCompetition_returnsRounds() {
+        when(competitionRepository.existsById(competitionId)).thenReturn(true);
+        when(roundRepository.findByCompetitionIdOrderByRoundNumberAsc(competitionId))
+            .thenReturn(List.of(round));
+
+        List<RoundResponse> result = roundService.findByCompetition(competitionId);
+
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).roundNumber());
+    }
+
+    @Test
+    @DisplayName("findById - throws when round belongs to different competition")
+    void findById_throwsWhenWrongCompetition() {
+        UUID otherCompetitionId = UUID.randomUUID();
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.findById(otherCompetitionId, roundId));
+    }
+
+    @Test
+    @DisplayName("delete - removes round when it belongs to competition")
+    void delete_removesRound() {
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+
+        roundService.delete(competitionId, roundId);
+
+        verify(roundRepository).deleteById(roundId);
+    }
+}
