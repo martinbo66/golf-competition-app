@@ -35,7 +35,9 @@ export function persistencePlugin({ store }) {
         if (currentSavedState) {
             try {
                 data = JSON.parse(currentSavedState);
-            } catch (e) { }
+            } catch {
+                // Ignore parse errors, will overwrite with fresh data
+            }
         }
 
         // Update the specific module's data

@@ -115,6 +115,7 @@ export const useScoresStore = defineStore('scores', {
                 return a.name.localeCompare(b.name);
             });
         },
+        /* eslint-disable-next-line no-unused-vars */
         playerMoneyLeaderboard: (state) => {
             const playersStore = usePlayersStore();
             const teamsStore = useTeamsStore();
@@ -142,6 +143,7 @@ export const useScoresStore = defineStore('scores', {
                 return a.name.localeCompare(b.name);
             });
         },
+        /* eslint-disable-next-line no-unused-vars */
         teamMoneyLeaderboard: (state) => {
             const teamsStore = useTeamsStore();
             const playersStore = usePlayersStore();

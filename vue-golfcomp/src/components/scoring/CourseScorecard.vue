@@ -95,10 +95,6 @@ const courseData = computed(() => {
 
 const teams = computed(() => teamsStore.allTeams);
 
-const hasAnyScores = computed(() => {
-  return scoresStore.scoresByCourse(props.courseId).length > 0;
-});
-
 const scorecardImagePath = computed(() => {
   if (!courseData.value.name) return null;
   

@@ -112,7 +112,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useTeamsStore } from '@/stores/teams';
 import { usePlayersStore } from '@/stores/players';
-import { useCoursesStore } from '@/stores/courses';
 import { useScoresStore } from '@/stores/scores';
 import { validateScore } from '@/utils';
 import NotificationService from '@/services/NotificationService';
@@ -126,7 +125,6 @@ const props = defineProps({
 
 const teamsStore = useTeamsStore();
 const playersStore = usePlayersStore();
-const coursesStore = useCoursesStore();
 const scoresStore = useScoresStore();
 
 const scores = ref({});
@@ -134,10 +132,6 @@ const scoreErrors = ref({});
 const isSaving = ref({});
 const filterTeam = ref('');
 const filterScored = ref('all');
-
-const courseData = computed(() => {
-  return coursesStore.courseById(props.courseId) || { name: 'Unknown Course' };
-});
 
 const teams = computed(() => teamsStore.allTeams);
 

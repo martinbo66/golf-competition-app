@@ -41,7 +41,6 @@ describe('ScoreEntry Component', () => {
 
     test('updates score when input changes', async () => {
         const playersStore = usePlayersStore();
-        const scoresStore = useScoresStore();
 
         playersStore.players = [
             { id: 'p1', name: 'Player 1', talentRating: 'A' }

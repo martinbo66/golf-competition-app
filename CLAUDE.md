@@ -18,6 +18,7 @@ Vue.js 2 client-side SPA for managing golf team competitions with:
 - No backend - 100% client-side with localStorage
 - Hash-based routing for static hosting
 - Offline-capable after initial load
+- Monorepo structure with Vue frontend in `vue-golfcomp/` (Gradle orchestration at root)
 
 ---
 
@@ -34,9 +35,20 @@ Vue.js 2 client-side SPA for managing golf team competitions with:
 }
 ```
 
-**Commands:**
+**Commands (from repository root):**
 ```bash
-npm run serve                    # Dev server :8080
+./gradlew build                 # Build frontend
+./gradlew test                  # Run all tests
+./gradlew lint                  # ESLint check
+./gradlew frontendDev           # Dev server :8080
+./gradlew frontendInstall       # Install npm dependencies
+./gradlew showTasks             # List all Gradle tasks
+./run.sh                        # Quick setup: install, lint, build, serve
+```
+
+**Commands (from vue-golfcomp/):**
+```bash
+npm run serve                   # Dev server :8080
 npm run build                   # Production build
 npm run lint                    # ESLint check
 npm run lint -- --fix           # Auto-fix
@@ -44,7 +56,6 @@ npm test                        # Run all tests
 npm test -- tests/teams.test.js # Run specific test
 npm test -- --coverage          # Run tests with coverage
 npm test -- --watch             # Watch mode for tests
-./run.sh                        # Quick setup: install, lint, build, serve
 ```
 
 **Build Tools:**
@@ -54,41 +65,32 @@ npm test -- --watch             # Watch mode for tests
 
 ---
 
-## Project Structure
+## Project Structure (Monorepo)
 
 ```
-src/
-├── main.js                    # App entry
-├── App.vue                    # Root component
-├── router/index.js            # Hash mode router (vue.config.js: port 8080)
-├── store/
-│   ├── index.js               # Root store + persistence plugin
-│   └── modules/
-│       ├── players.js         # Player CRUD
-│       ├── teams.js           # Team CRUD + auto-generation
-│       ├── scores.js          # Scoring + leaderboard logic
-│       ├── courses.js         # Static course data
-│       └── ui.js              # Theme, notifications, nav state
-├── services/
-│   ├── DataService.js         # Singleton store abstraction + import/export
-│   └── NotificationService.js # Singleton toast notifications
-├── utils/index.js             # Validation, formatting helpers
-├── assets/                    # Images and global styles (styles.css)
-├── components/
-│   ├── layout/                # AppHeader, AppSidebar
-│   ├── shared/                # Notifications, ConfirmationDialog
-│   ├── admin/                 # PlayerForm, PlayerList, TeamList,
-│   │                          # PlayerAssignment, TeamBalanceAnalyzer
-│   └── scoring/               # ScoreEntry, PlayerLeaderboard, TeamLeaderboard
-└── views/                     # Route-level containers
-
-Other Directories:
+golf-competition-app/
+├── vue-golfcomp/              # Vue.js frontend
+│   ├── src/
+│   │   ├── main.js            # App entry
+│   │   ├── App.vue            # Root component
+│   │   ├── router/index.js    # Hash mode router (vue.config.js: port 8080)
+│   │   ├── stores/            # Pinia stores (players, teams, scores, etc.)
+│   │   ├── services/          # DataService, NotificationService
+│   │   ├── utils/             # Validation, formatting helpers
+│   │   ├── assets/            # Images and global styles
+│   │   ├── components/        # layout/, shared/, admin/, scoring/
+│   │   └── views/             # Route-level containers
+│   ├── public/                # Static assets, index.html
+│   ├── tests/                 # Jest tests
+│   ├── package.json
+│   ├── vue.config.js          # Vue CLI config (dev server port 8080)
+│   ├── jest.config.js
+│   └── babel.config.js
 ├── data/                      # Sample data files for import (JSON)
 ├── doc/                       # User guide, test plan, delivery docs
-├── tests/                     # Jest tests (teams.test.js, etc.)
-├── vue.config.js              # Vue CLI config (dev server port 8080)
-├── jest.config.js             # Jest testing configuration
-├── babel.config.js            # Babel transpilation setup
+├── build.gradle               # Root Gradle orchestration
+├── settings.gradle
+├── gradlew / gradlew.bat      # Gradle wrapper
 └── run.sh                     # Quick setup script
 ```
 
@@ -256,7 +258,7 @@ Persistence Plugin → localStorage → Getter → Component Re-render
 - `teamLeaderboard(state, getters, rootState, rootGetters)` - Team rankings
 - `courseScoresByTeam: (state, getters, rootState, rootGetters) => (courseId)` - Scorecard view
 
-**Score Validation:** 18-150 range (validated in `/src/utils/index.js`)
+**Score Validation:** 18-150 range (validated in `vue-golfcomp/src/utils/index.js`)
 
 ### `courses` Module
 
@@ -331,7 +333,7 @@ Toggle via `AppHeader.vue` which adds/removes `dark-mode` class to `<body>`.
 **Design Approach:**
 - **Mobile-first responsive design** with CSS variables for theming
 - Component-scoped styles in `.vue` files
-- Global styles in `/src/assets/styles.css`
+- Global styles in `vue-golfcomp/src/assets/styles.css`
 
 **Key Variables:**
 ```css
@@ -440,22 +442,22 @@ When writing tests for this app:
 
 | Component | Path |
 |-----------|------|
-| Players Store | `/src/store/modules/players.js` |
-| Teams Store | `/src/store/modules/teams.js` |
-| Scores Store | `/src/store/modules/scores.js` |
-| Player CRUD | `/src/components/admin/PlayerList.vue` |
-| Player Form | `/src/components/admin/PlayerForm.vue` |
-| Team CRUD | `/src/components/admin/TeamList.vue` |
-| Player Assignment | `/src/components/admin/PlayerAssignment.vue` |
-| Team Balance Analyzer | `/src/components/admin/TeamBalanceAnalyzer.vue` |
-| Score Entry | `/src/components/scoring/ScoreEntry.vue` |
-| Player Leaderboard | `/src/components/scoring/PlayerLeaderboard.vue` |
-| Team Leaderboard | `/src/components/scoring/TeamLeaderboard.vue` |
-| Utilities | `/src/utils/index.js` |
-| Global Styles | `/src/assets/styles.css` |
-| Data Service | `/src/services/DataService.js` |
-| Sample Data | `/data/` directory (JSON files) |
-| Documentation | `/doc/` directory (user guide, test plan) |
+| Players Store | `vue-golfcomp/src/stores/players.js` |
+| Teams Store | `vue-golfcomp/src/stores/teams.js` |
+| Scores Store | `vue-golfcomp/src/stores/scores.js` |
+| Player CRUD | `vue-golfcomp/src/components/admin/PlayerList.vue` |
+| Player Form | `vue-golfcomp/src/components/admin/PlayerForm.vue` |
+| Team CRUD | `vue-golfcomp/src/components/admin/TeamList.vue` |
+| Player Assignment | `vue-golfcomp/src/components/admin/PlayerAssignment.vue` |
+| Team Balance Analyzer | `vue-golfcomp/src/components/admin/TeamBalanceAnalyzer.vue` |
+| Score Entry | `vue-golfcomp/src/components/scoring/ScoreEntry.vue` |
+| Player Leaderboard | `vue-golfcomp/src/components/scoring/PlayerLeaderboard.vue` |
+| Team Leaderboard | `vue-golfcomp/src/components/scoring/TeamLeaderboard.vue` |
+| Utilities | `vue-golfcomp/src/utils/index.js` |
+| Global Styles | `vue-golfcomp/src/assets/styles.css` |
+| Data Service | `vue-golfcomp/src/services/DataService.js` |
+| Sample Data | `data/` directory (JSON files) |
+| Documentation | `doc/` directory (user guide, test plan) |
 
 ### Notification Usage
 

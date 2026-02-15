@@ -5,7 +5,6 @@ import { useUiStore } from '@/stores/ui';
 import PlayerManagement from '@/views/PlayerManagement.vue';
 import TeamManagement from '@/views/TeamManagement.vue';
 import CourseScoring from '@/views/CourseScoring.vue';
-import Leaderboards from '@/views/Leaderboards.vue';
 
 const routes = [
   {
@@ -30,7 +29,7 @@ const routes = [
   },
   {
     path: '/scoring',
-    redirect: to => {
+    redirect: () => {
       try {
         const { useCoursesStore } = require('@/stores/courses');
         const coursesStore = useCoursesStore();
@@ -48,6 +47,9 @@ const routes = [
   {
     path: '/leaderboards',
     name: 'Leaderboards',
+    component: () => import('@/views/Leaderboards.vue')
+  },
+  {
     path: '/money-leaderboards',
     name: 'MoneyLeaderboards',
     component: () => import('@/views/MoneyLeaderboards.vue')

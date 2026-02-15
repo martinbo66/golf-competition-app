@@ -71,6 +71,7 @@ import { usePlayersStore } from '@/stores/players';
 import { useScoresStore } from '@/stores/scores';
 import { formatCurrency } from '@/utils';
 import TeamMoneyLeaderboard from '@/components/scoring/TeamMoneyLeaderboard.vue';
+// eslint-disable-next-line no-unused-vars -- Used in template as player-money-leaderboard
 import PlayerMoneyLeaderboard from '@/components/scoring/PlayerMoneyLeaderboard.vue';
 
 const teamsStore = useTeamsStore();
