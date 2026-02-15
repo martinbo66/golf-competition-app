@@ -18,6 +18,7 @@ Vue.js 2 client-side SPA for managing golf team competitions with:
 - No backend - 100% client-side with localStorage
 - Hash-based routing for static hosting
 - Offline-capable after initial load
+- Monorepo structure with Vue frontend in `vue-golfcomp/` (Gradle orchestration at root)
 
 ---
 
@@ -34,42 +35,63 @@ Vue.js 2 client-side SPA for managing golf team competitions with:
 }
 ```
 
-**Commands:**
+**Commands (from repository root):**
 ```bash
-npm run serve           # Dev server :8080
-npm run build          # Production build
-npm run lint           # ESLint check
-npm run lint -- --fix  # Auto-fix
-npm test               # Run tests
+./gradlew build                 # Build frontend
+./gradlew test                  # Run all tests
+./gradlew lint                  # ESLint check
+./gradlew frontendDev           # Dev server :8080
+./gradlew frontendInstall       # Install npm dependencies
+./gradlew showTasks             # List all Gradle tasks
+./run.sh                        # Quick setup: install, lint, build, serve
 ```
+
+**Commands (from vue-golfcomp/):**
+```bash
+npm run serve                   # Dev server :8080
+npm run build                   # Production build
+npm run lint                    # ESLint check
+npm run lint -- --fix           # Auto-fix
+npm test                        # Run all tests
+npm test -- tests/teams.test.js # Run specific test
+npm test -- --coverage          # Run tests with coverage
+npm test -- --watch             # Watch mode for tests
+```
+
+**Build Tools:**
+- **Webpack 5** via Vue CLI for bundling
+- **Babel** for ES6+ transpilation
+- **Jest** for testing with custom Vuex mock store
 
 ---
 
-## Project Structure
+## Project Structure (Monorepo)
 
 ```
-src/
-├── main.js                    # App entry
-├── App.vue                    # Root component
-├── router/index.js            # Hash mode router
-├── store/
-│   ├── index.js               # Root store + persistence plugin
-│   └── modules/
-│       ├── players.js         # Player CRUD
-│       ├── teams.js           # Team CRUD + auto-generation
-│       ├── scores.js          # Scoring + leaderboard logic
-│       ├── courses.js         # Static course data
-│       └── ui.js              # Theme, notifications, nav state
-├── services/
-│   ├── DataService.js         # Singleton store abstraction
-│   └── NotificationService.js # Singleton toast notifications
-├── utils/index.js             # Validation, formatting helpers
-├── components/
-│   ├── layout/                # AppHeader, AppSidebar
-│   ├── shared/                # Notifications, ConfirmationDialog
-│   ├── admin/                 # Player/Team CRUD components
-│   └── scoring/               # ScoreEntry, Leaderboards
-└── views/                     # Route-level containers
+golf-competition-app/
+├── vue-golfcomp/              # Vue.js frontend
+│   ├── src/
+│   │   ├── main.js            # App entry
+│   │   ├── App.vue            # Root component
+│   │   ├── router/index.js    # Hash mode router (vue.config.js: port 8080)
+│   │   ├── stores/            # Pinia stores (players, teams, scores, etc.)
+│   │   ├── services/          # DataService, NotificationService
+│   │   ├── utils/             # Validation, formatting helpers
+│   │   ├── assets/            # Images and global styles
+│   │   ├── components/        # layout/, shared/, admin/, scoring/
+│   │   └── views/             # Route-level containers
+│   ├── public/                # Static assets, index.html
+│   ├── tests/                 # Jest tests
+│   ├── package.json
+│   ├── vue.config.js          # Vue CLI config (dev server port 8080)
+│   ├── jest.config.js
+│   └── babel.config.js
+├── data/                      # Sample data files for import (JSON)
+├── doc/                       # User guide, test plan, delivery docs
+├── build.gradle               # Root Gradle orchestration
+├── settings.gradle
+├── gradlew / gradlew.bat      # Gradle wrapper
+└── run.sh                     # Quick setup script
 ```
 
 ---
@@ -97,6 +119,8 @@ methods: {
 
 **CRITICAL:** Mutations must start with module name (`players/`, `teams/`, `scores/`, `courses/`) to trigger persistence.
 
+The plugin provides **automatic cross-tab synchronization** - changes in one tab are reflected in others.
+
 ```javascript
 // /src/store/index.js
 const persistencePlugin = (store) => {
@@ -105,7 +129,7 @@ const persistencePlugin = (store) => {
         mutation.type.startsWith('teams/') ||
         mutation.type.startsWith('scores/') ||
         mutation.type.startsWith('courses/')) {
-      // Auto-saves to localStorage
+      // Auto-saves to localStorage with cross-tab sync
       localStorage.setItem('golf-competition-app', JSON.stringify(state));
     }
   });
@@ -118,6 +142,12 @@ const persistencePlugin = (store) => {
 User Action → Component → Store Action → Mutation → State Update →
 Persistence Plugin → localStorage → Getter → Component Re-render
 ```
+
+### 4. Component Communication Patterns
+
+- **Parent-child:** Props down, events up
+- **Cross-component:** Vuex store for shared state
+- **UI state:** Use `ui` module for global UI state (theme, notifications, loading)
 
 ---
 
@@ -228,7 +258,7 @@ Persistence Plugin → localStorage → Getter → Component Re-render
 - `teamLeaderboard(state, getters, rootState, rootGetters)` - Team rankings
 - `courseScoresByTeam: (state, getters, rootState, rootGetters) => (courseId)` - Scorecard view
 
-**Score Validation:** 18-150 range (validated in `/src/utils/index.js`)
+**Score Validation:** 18-150 range (validated in `vue-golfcomp/src/utils/index.js`)
 
 ### `courses` Module
 
@@ -299,6 +329,11 @@ import PlayerList from '@/components/admin/PlayerList.vue'
 **Dark theme:** `body.dark-mode` variables
 
 Toggle via `AppHeader.vue` which adds/removes `dark-mode` class to `<body>`.
+
+**Design Approach:**
+- **Mobile-first responsive design** with CSS variables for theming
+- Component-scoped styles in `.vue` files
+- Global styles in `vue-golfcomp/src/assets/styles.css`
 
 **Key Variables:**
 ```css
@@ -382,6 +417,16 @@ Before finalizing changes:
 - [ ] Related features still work
 - [ ] Dark mode still works
 
+### Testing Patterns
+
+When writing tests for this app:
+- Use the **MockStore class pattern** established in `tests/teams.test.js`
+- Focus on testing Vuex modules independently
+- Test team generation algorithms thoroughly (core business logic)
+- Mock localStorage operations when needed
+- Run specific tests: `npm test -- tests/teams.test.js`
+- Use watch mode during development: `npm test -- --watch`
+
 ### Common Pitfalls
 
 1. **Component not re-rendering?** → Use `computed` not `data()`
@@ -397,14 +442,22 @@ Before finalizing changes:
 
 | Component | Path |
 |-----------|------|
-| Players Store | `/src/store/modules/players.js` |
-| Teams Store | `/src/store/modules/teams.js` |
-| Scores Store | `/src/store/modules/scores.js` |
-| Player CRUD | `/src/components/admin/PlayerList.vue` |
-| Team CRUD | `/src/components/admin/TeamList.vue` |
-| Score Entry | `/src/components/scoring/ScoreEntry.vue` |
-| Utilities | `/src/utils/index.js` |
-| Styles | `/src/assets/styles.css` |
+| Players Store | `vue-golfcomp/src/stores/players.js` |
+| Teams Store | `vue-golfcomp/src/stores/teams.js` |
+| Scores Store | `vue-golfcomp/src/stores/scores.js` |
+| Player CRUD | `vue-golfcomp/src/components/admin/PlayerList.vue` |
+| Player Form | `vue-golfcomp/src/components/admin/PlayerForm.vue` |
+| Team CRUD | `vue-golfcomp/src/components/admin/TeamList.vue` |
+| Player Assignment | `vue-golfcomp/src/components/admin/PlayerAssignment.vue` |
+| Team Balance Analyzer | `vue-golfcomp/src/components/admin/TeamBalanceAnalyzer.vue` |
+| Score Entry | `vue-golfcomp/src/components/scoring/ScoreEntry.vue` |
+| Player Leaderboard | `vue-golfcomp/src/components/scoring/PlayerLeaderboard.vue` |
+| Team Leaderboard | `vue-golfcomp/src/components/scoring/TeamLeaderboard.vue` |
+| Utilities | `vue-golfcomp/src/utils/index.js` |
+| Global Styles | `vue-golfcomp/src/assets/styles.css` |
+| Data Service | `vue-golfcomp/src/services/DataService.js` |
+| Sample Data | `data/` directory (JSON files) |
+| Documentation | `doc/` directory (user guide, test plan) |
 
 ### Notification Usage
 
@@ -466,6 +519,9 @@ Example: "Add player statistics dashboard"
 5. **Courses are static/read-only** - no mutations
 6. **Team generation uses snake draft** - see `teams.js:72-93`
 7. **Test persistence after changes** - reload page and check data
+8. **Mobile-first responsive design** - components adapt to screen size
+9. **Cross-tab synchronization** - localStorage changes sync across open tabs
+10. **Use MockStore pattern for testing** - see `tests/teams.test.js`
 
 **When in doubt:** Look at existing similar code in the codebase.
 

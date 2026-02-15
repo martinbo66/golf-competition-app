@@ -1,6 +1,18 @@
 .DS_Store
-node_modules
-/dist
+
+# ============================================================================
+# Gradle
+# ============================================================================
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ============================================================================
+# Frontend (Vue / Node)
+# ============================================================================
+node_modules/
+**/dist/
+**/node_modules/
 
 # local env files
 .env.local
@@ -26,8 +38,6 @@ pnpm-debug.log*
 logs
 *.log
 dev-debug.log
-# Dependency directories
-node_modules/
 # Environment variables
 .env
 # OS specific
@@ -35,3 +45,4 @@ node_modules/
 tasks.json
 tasks/ 
 coverage/
+.claude/settings.local.json

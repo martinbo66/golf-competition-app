@@ -1,0 +1,470 @@
+{
+  "players": [
+    {
+      "id": "610479be-e94e-4bb4-8113-fc67138f76c0",
+      "name": "Mack Charlet",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "439a59af-1de0-4a24-be00-b5dbe5050796",
+      "createdAt": "2025-06-12T00:10:24.587Z",
+      "updatedAt": "2025-06-12T00:25:48.559Z"
+    },
+    {
+      "id": "d4f7c198-825b-404c-8a7f-7fb29d7f7b8d",
+      "name": "Carl Beck",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "439a59af-1de0-4a24-be00-b5dbe5050796",
+      "createdAt": "2025-06-12T00:10:43.076Z",
+      "updatedAt": "2025-06-12T00:22:54.331Z"
+    },
+    {
+      "id": "d5cab52b-c8e9-444d-9937-ec84a93a3cb1",
+      "name": "Tyler Stamey",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "439a59af-1de0-4a24-be00-b5dbe5050796",
+      "createdAt": "2025-06-12T00:10:58.095Z",
+      "updatedAt": "2025-06-12T00:26:44.808Z"
+    },
+    {
+      "id": "839e51d2-f405-49f2-b94f-a3f6c900aab6",
+      "name": "Jordan Harbison",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "439a59af-1de0-4a24-be00-b5dbe5050796",
+      "createdAt": "2025-06-12T00:11:37.634Z",
+      "updatedAt": "2025-06-12T00:27:55.198Z"
+    },
+    {
+      "id": "5c946ade-c541-4256-9464-872f9a29a96c",
+      "name": "Roger Norris",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "439a59af-1de0-4a24-be00-b5dbe5050796",
+      "createdAt": "2025-06-12T00:11:49.360Z",
+      "updatedAt": "2025-06-12T00:26:11.139Z"
+    },
+    {
+      "id": "734e53cb-c09a-4549-ad30-a2e554021245",
+      "name": "Justin Terrell",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "439a59af-1de0-4a24-be00-b5dbe5050796",
+      "createdAt": "2025-06-12T00:12:06.308Z",
+      "updatedAt": "2025-06-12T00:24:56.475Z"
+    },
+    {
+      "id": "6b14c56f-bc68-4bfb-aaa7-97ecbac808ee",
+      "name": "Dalton Hummer",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "ff8ac133-7c3c-4c53-b6df-bf8ec9db1183",
+      "createdAt": "2025-06-12T00:12:35.218Z",
+      "updatedAt": "2025-06-12T00:27:30.152Z"
+    },
+    {
+      "id": "47e86913-82a3-43a5-8f88-6a714ac369c7",
+      "name": "Austin Bradshaw",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "ff8ac133-7c3c-4c53-b6df-bf8ec9db1183",
+      "createdAt": "2025-06-12T00:12:49.656Z",
+      "updatedAt": "2025-06-12T00:27:09.649Z"
+    },
+    {
+      "id": "d3f26b25-14a0-4d78-8c6a-65f6a521bb24",
+      "name": "Erik Bathe",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "ff8ac133-7c3c-4c53-b6df-bf8ec9db1183",
+      "createdAt": "2025-06-12T00:12:59.282Z",
+      "updatedAt": "2025-06-12T00:27:40.633Z"
+    },
+    {
+      "id": "5aeea878-da71-4e6f-9509-5a8988c446f9",
+      "name": "Jangtzen Hughes",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "ff8ac133-7c3c-4c53-b6df-bf8ec9db1183",
+      "createdAt": "2025-06-12T00:16:07.556Z",
+      "updatedAt": "2025-06-12T00:28:04.339Z"
+    },
+    {
+      "id": "a98baf05-e667-4f27-8f2c-4c7b4a72815f",
+      "name": "Chuck Elliott",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "ff8ac133-7c3c-4c53-b6df-bf8ec9db1183",
+      "createdAt": "2025-06-12T00:16:40.021Z",
+      "updatedAt": "2025-06-12T00:24:36.960Z"
+    },
+    {
+      "id": "630843eb-680e-4333-bfc9-9abbc8be36de",
+      "name": "Hayden Beck",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "ff8ac133-7c3c-4c53-b6df-bf8ec9db1183",
+      "createdAt": "2025-06-12T00:16:48.548Z",
+      "updatedAt": "2025-06-12T00:28:50.165Z"
+    },
+    {
+      "id": "c726bfe8-63ec-4828-a037-b980552a06fc",
+      "name": "Ben Charlet",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cc952125-4d5f-4a55-85fc-2c597620f163",
+      "createdAt": "2025-06-12T00:17:15.728Z",
+      "updatedAt": "2025-06-12T00:22:39.210Z"
+    },
+    {
+      "id": "73407c56-74ce-4eb6-8361-4b53a32c8ab3",
+      "name": "Hunter Story",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cc952125-4d5f-4a55-85fc-2c597620f163",
+      "createdAt": "2025-06-12T00:17:28.138Z",
+      "updatedAt": "2025-06-12T00:28:19.624Z"
+    },
+    {
+      "id": "166558a3-e23e-44f0-a67c-77839298e34a",
+      "name": "Benton Brinkley",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cc952125-4d5f-4a55-85fc-2c597620f163",
+      "createdAt": "2025-06-12T00:17:36.728Z",
+      "updatedAt": "2025-06-12T00:22:33.224Z"
+    },
+    {
+      "id": "7c5d5c4d-2292-439e-b4a4-2d61d9c2a151",
+      "name": "Andy McLaurin",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cc952125-4d5f-4a55-85fc-2c597620f163",
+      "createdAt": "2025-06-12T00:17:47.642Z",
+      "updatedAt": "2025-06-12T02:32:04.224Z"
+    },
+    {
+      "id": "2adde0b9-0016-46f0-9a03-bdc6dc51436f",
+      "name": "Ryan Stamey",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cc952125-4d5f-4a55-85fc-2c597620f163",
+      "createdAt": "2025-06-12T00:18:00.565Z",
+      "updatedAt": "2025-06-12T00:26:20.646Z"
+    },
+    {
+      "id": "3dd1710c-8176-41cc-9c3b-f40d6a3edba7",
+      "name": "Tony Grady",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cc952125-4d5f-4a55-85fc-2c597620f163",
+      "createdAt": "2025-06-12T00:18:09.048Z",
+      "updatedAt": "2025-06-12T00:26:31.223Z"
+    },
+    {
+      "id": "eacc3152-836a-4185-a295-0e35253eab9d",
+      "name": "Tucker Beck",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f167dd5c-a670-460b-a815-e7647f75b64e",
+      "createdAt": "2025-06-12T00:18:21.729Z",
+      "updatedAt": "2025-06-12T00:26:52.281Z"
+    },
+    {
+      "id": "a113e0ce-5e6c-4162-8786-6afd10965541",
+      "name": "Richard Greenhill",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f167dd5c-a670-460b-a815-e7647f75b64e",
+      "createdAt": "2025-06-12T00:18:30.661Z",
+      "updatedAt": "2025-06-12T00:25:56.775Z"
+    },
+    {
+      "id": "78870933-7840-4779-aa41-3e14e6104151",
+      "name": "Austin Everhardt",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f167dd5c-a670-460b-a815-e7647f75b64e",
+      "createdAt": "2025-06-12T00:18:39.746Z",
+      "updatedAt": "2025-06-12T00:22:15.890Z"
+    },
+    {
+      "id": "8d6e67b6-7198-4be0-a024-78107a6b8079",
+      "name": "Craig Treadway",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f167dd5c-a670-460b-a815-e7647f75b64e",
+      "createdAt": "2025-06-12T00:18:50.185Z",
+      "updatedAt": "2025-06-12T00:27:22.482Z"
+    },
+    {
+      "id": "1355c0f9-ea91-430a-b797-f276346950e4",
+      "name": "Keith Stamey",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f167dd5c-a670-460b-a815-e7647f75b64e",
+      "createdAt": "2025-06-12T00:18:58.008Z",
+      "updatedAt": "2025-06-12T00:25:40.975Z"
+    },
+    {
+      "id": "629923a1-061a-48a5-bb74-2c3ca10339a6",
+      "name": "Bo Martin",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f167dd5c-a670-460b-a815-e7647f75b64e",
+      "createdAt": "2025-06-12T02:30:21.796Z",
+      "updatedAt": "2025-06-12T02:32:35.621Z"
+    }
+  ],
+  "teams": [
+    {
+      "id": "f167dd5c-a670-460b-a815-e7647f75b64e",
+      "name": "Tucker's Team",
+      "logoUrl": null,
+      "createdAt": "2025-06-12T00:20:13.142Z",
+      "updatedAt": "2025-06-12T00:20:13.142Z"
+    },
+    {
+      "id": "cc952125-4d5f-4a55-85fc-2c597620f163",
+      "name": "Ben's Team",
+      "logoUrl": null,
+      "createdAt": "2025-06-12T00:20:21.226Z",
+      "updatedAt": "2025-06-12T00:20:21.226Z"
+    },
+    {
+      "id": "439a59af-1de0-4a24-be00-b5dbe5050796",
+      "name": "Mack's Team",
+      "logoUrl": null,
+      "createdAt": "2025-06-12T00:20:41.186Z",
+      "updatedAt": "2025-06-12T00:20:41.186Z"
+    },
+    {
+      "id": "ff8ac133-7c3c-4c53-b6df-bf8ec9db1183",
+      "name": "Dalton's Team",
+      "logoUrl": "",
+      "createdAt": "2025-06-12T00:20:52.277Z",
+      "updatedAt": "2025-06-12T00:24:07.021Z"
+    }
+  ],
+  "scores": [
+    {
+      "id": "48b066df-a307-4c97-9ac1-7c0a3e4d4ac8",
+      "playerId": "c726bfe8-63ec-4828-a037-b980552a06fc",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 22,
+      "timestamp": "2025-06-12T02:33:18.072Z"
+    },
+    {
+      "id": "91a3047c-0ea9-439f-b642-a30984390192",
+      "playerId": "839e51d2-f405-49f2-b94f-a3f6c900aab6",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 5,
+      "timestamp": "2025-06-12T02:33:44.431Z"
+    },
+    {
+      "id": "734cbce4-36a2-44be-8260-11f5997861d3",
+      "playerId": "6b14c56f-bc68-4bfb-aaa7-97ecbac808ee",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 35,
+      "timestamp": "2025-06-12T02:34:02.083Z"
+    },
+    {
+      "id": "ea1086d8-a1b9-41a3-8fcf-ad1b062940f6",
+      "playerId": "73407c56-74ce-4eb6-8361-4b53a32c8ab3",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 14,
+      "timestamp": "2025-06-12T02:34:41.121Z"
+    },
+    {
+      "id": "1b1ec064-dab2-4a12-a33d-eb7d23145dca",
+      "playerId": "d3f26b25-14a0-4d78-8c6a-65f6a521bb24",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 11,
+      "timestamp": "2025-06-12T02:38:50.532Z"
+    },
+    {
+      "id": "bdb7c49b-cd62-46b9-ae73-3a882fe017de",
+      "playerId": "d4f7c198-825b-404c-8a7f-7fb29d7f7b8d",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 10,
+      "timestamp": "2025-06-12T02:38:56.994Z"
+    },
+    {
+      "id": "2239e39e-f99c-4151-9bbf-3bb364ba8c1d",
+      "playerId": "629923a1-061a-48a5-bb74-2c3ca10339a6",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 11,
+      "timestamp": "2025-06-12T02:39:04.711Z"
+    },
+    {
+      "id": "37a02f27-ae55-4f3b-a3a9-22394ed1d51b",
+      "playerId": "a113e0ce-5e6c-4162-8786-6afd10965541",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 11,
+      "timestamp": "2025-06-12T02:39:10.827Z"
+    },
+    {
+      "id": "31f80d25-f2d5-49e1-b31d-9692537397e0",
+      "playerId": "5aeea878-da71-4e6f-9509-5a8988c446f9",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 20,
+      "timestamp": "2025-06-12T02:40:00.503Z"
+    },
+    {
+      "id": "0e4b0b89-cd2b-4815-883e-3875ef44d90d",
+      "playerId": "d5cab52b-c8e9-444d-9937-ec84a93a3cb1",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 7,
+      "timestamp": "2025-06-12T02:40:15.479Z"
+    },
+    {
+      "id": "a63d200a-050c-4fe1-8783-e835b782765b",
+      "playerId": "eacc3152-836a-4185-a295-0e35253eab9d",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 21,
+      "timestamp": "2025-06-12T02:40:49.898Z"
+    },
+    {
+      "id": "9b410018-e1db-4a39-b232-b31a417a6130",
+      "playerId": "7c5d5c4d-2292-439e-b4a4-2d61d9c2a151",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 23,
+      "timestamp": "2025-06-12T02:41:08.839Z"
+    },
+    {
+      "id": "14b3df0f-03fc-4bfc-a4d0-010889d03b25",
+      "playerId": "734e53cb-c09a-4549-ad30-a2e554021245",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 4,
+      "timestamp": "2025-06-12T02:42:57.905Z"
+    },
+    {
+      "id": "1a16098b-1a53-420b-9be1-5faa9e3ae7e2",
+      "playerId": "166558a3-e23e-44f0-a67c-77839298e34a",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 2,
+      "timestamp": "2025-06-12T02:43:12.409Z"
+    },
+    {
+      "id": "aa79d1b0-51fe-489e-b9fe-4afb105de70f",
+      "playerId": "8d6e67b6-7198-4be0-a024-78107a6b8079",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 3,
+      "timestamp": "2025-06-12T02:43:30.581Z"
+    },
+    {
+      "id": "c8086bae-3f22-4dac-9999-0c8c8fcfa978",
+      "playerId": "a98baf05-e667-4f27-8f2c-4c7b4a72815f",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 7,
+      "timestamp": "2025-06-12T02:43:41.730Z"
+    },
+    {
+      "id": "b560d5c0-ed19-493d-b0b7-4308566a042b",
+      "playerId": "2adde0b9-0016-46f0-9a03-bdc6dc51436f",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 11,
+      "timestamp": "2025-06-12T03:07:54.255Z"
+    },
+    {
+      "id": "ca32d45a-12d1-4ac7-b354-eb35df8741f8",
+      "playerId": "3dd1710c-8176-41cc-9c3b-f40d6a3edba7",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 10,
+      "timestamp": "2025-06-12T03:08:01.470Z"
+    },
+    {
+      "id": "79994e31-d48c-458f-9c77-375936fd90dc",
+      "playerId": "47e86913-82a3-43a5-8f88-6a714ac369c7",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 3,
+      "timestamp": "2025-06-12T03:08:08.847Z"
+    },
+    {
+      "id": "6777d6de-31c6-4b91-ab88-296478984442",
+      "playerId": "630843eb-680e-4333-bfc9-9abbc8be36de",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 5,
+      "timestamp": "2025-06-12T03:08:18.399Z"
+    },
+    {
+      "id": "40536f31-cd6d-4b73-82a0-6f9928915e76",
+      "playerId": "610479be-e94e-4bb4-8113-fc67138f76c0",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 30,
+      "timestamp": "2025-06-12T03:08:29.416Z"
+    },
+    {
+      "id": "14730459-385d-459e-af6a-bc0afc29a387",
+      "playerId": "5c946ade-c541-4256-9464-872f9a29a96c",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 5,
+      "timestamp": "2025-06-12T03:08:36.167Z"
+    },
+    {
+      "id": "1015f275-0fc0-4cf1-b367-66f5aaa26bf7",
+      "playerId": "78870933-7840-4779-aa41-3e14e6104151",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 7,
+      "timestamp": "2025-06-12T03:17:11.964Z"
+    },
+    {
+      "id": "be5ce4be-f935-48d0-a199-50cbbbc2c598",
+      "playerId": "1355c0f9-ea91-430a-b797-f276346950e4",
+      "courseId": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "value": 11,
+      "timestamp": "2025-06-12T03:10:18.960Z"
+    }
+  ],
+  "courses": [
+    {
+      "id": "071aaf93-773e-49d0-935e-4b825e25670f",
+      "name": "Parkland",
+      "order": 1
+    },
+    {
+      "id": "2b81e674-816a-42ea-b524-54a96bfb2b14",
+      "name": "Heathland",
+      "order": 2
+    },
+    {
+      "id": "38a5c806-7f44-4ebb-9472-6ec79431c5ff",
+      "name": "Heritage Club",
+      "order": 3
+    },
+    {
+      "id": "d3d8aa11-5320-477b-9602-6501dd63b186",
+      "name": "Moorland",
+      "order": 4
+    }
+  ],
+  "appMetadata": {
+    "version": "1.0.0",
+    "exportDate": "2025-06-12T19:19:33.664Z"
+  }
+}

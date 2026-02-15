@@ -1,0 +1,5 @@
+rootProject.name = 'golf-competition-app'
+
+include 'spring-golfcomp'
+
+// Note: vue-golfcomp is not a Gradle project but is managed via npm tasks in root build.gradle

@@ -1,0 +1,542 @@
+{
+  "players": [
+    {
+      "id": "77a03e13-115f-44dc-932c-4bfd7dcc7137",
+      "name": "James Anderson",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "49fba7a1-dfd5-461f-b266-6e09cf6f7abe",
+      "createdAt": "2025-06-08T20:28:14.865Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "b4926a25-5da6-4e7d-abcd-1995ddb210dc",
+      "name": "Sarah Mitchell",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cf448a5e-9b93-4c77-9c5f-e2d9b0e0cc3e",
+      "createdAt": "2025-06-08T20:29:37.129Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "90bc4280-b369-4a3f-b902-072fa6f099f9",
+      "name": "Michael Thompson",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cf448a5e-9b93-4c77-9c5f-e2d9b0e0cc3e",
+      "createdAt": "2025-06-08T20:30:01.608Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "295b7800-df70-4ddf-b890-04bcace87d0a",
+      "name": "Emily Rodriguez",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f77d1e78-b55a-48fb-910f-dbb5df9ed8a9",
+      "createdAt": "2025-06-08T20:30:12.562Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "c1790d42-0742-4ec1-a39b-128ad44ff8a5",
+      "name": "David Wilson",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 30,
+      "teamId": "44404320-a1ae-4ba9-acfd-99f485941046",
+      "createdAt": "2025-06-08T20:30:13.566Z",
+      "updatedAt": "2025-06-09T03:06:32.127Z"
+    },
+    {
+      "id": "16580f82-9a7e-4a82-9f62-3b2a2ead930c",
+      "name": "Jessica Chen",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "44404320-a1ae-4ba9-acfd-99f485941046",
+      "createdAt": "2025-06-08T20:30:14.571Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "a323ffc0-3b79-46df-b43a-2b662de4ac7d",
+      "name": "Robert Johnson",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f77d1e78-b55a-48fb-910f-dbb5df9ed8a9",
+      "createdAt": "2025-06-08T20:30:15.576Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "c8efdcc5-4c2e-4b15-98f2-68b339b4c7dd",
+      "name": "Amanda Davis",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 20,
+      "teamId": "49fba7a1-dfd5-461f-b266-6e09cf6f7abe",
+      "createdAt": "2025-06-08T20:30:16.581Z",
+      "updatedAt": "2025-06-08T23:51:43.017Z"
+    },
+    {
+      "id": "98091cef-38a8-4de1-a342-29aa429b64ea",
+      "name": "Christopher Lee",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 60,
+      "teamId": "49fba7a1-dfd5-461f-b266-6e09cf6f7abe",
+      "createdAt": "2025-06-08T20:30:17.588Z",
+      "updatedAt": "2025-06-09T03:04:10.163Z"
+    },
+    {
+      "id": "9bd74cf5-6a7e-4ca4-97ce-932a9f3effb4",
+      "name": "Nicole Brown",
+      "talentRating": "D",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cf448a5e-9b93-4c77-9c5f-e2d9b0e0cc3e",
+      "createdAt": "2025-06-08T20:30:18.592Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "2c318052-f3b7-4582-9c42-943e16df526e",
+      "name": "Matthew Garcia",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cf448a5e-9b93-4c77-9c5f-e2d9b0e0cc3e",
+      "createdAt": "2025-06-08T20:30:19.596Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "74324972-0409-47e6-b62d-faa3dc3f21de",
+      "name": "Lauren Martinez",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "cf448a5e-9b93-4c77-9c5f-e2d9b0e0cc3e",
+      "createdAt": "2025-06-08T20:30:20.600Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "5e252d27-68a6-4ac4-8ab7-64372e8716fe",
+      "name": "Daniel Taylor",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 20,
+      "teamId": "44404320-a1ae-4ba9-acfd-99f485941046",
+      "createdAt": "2025-06-08T20:30:21.604Z",
+      "updatedAt": "2025-06-08T23:51:55.590Z"
+    },
+    {
+      "id": "b7e1b263-fd9e-400c-8736-7aba1294dac4",
+      "name": "Stephanie White",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f77d1e78-b55a-48fb-910f-dbb5df9ed8a9",
+      "createdAt": "2025-06-08T20:30:22.609Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "4a3204f2-62ca-44b6-a442-ad943e99701a",
+      "name": "Kevin Anderson",
+      "talentRating": "D",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "f77d1e78-b55a-48fb-910f-dbb5df9ed8a9",
+      "createdAt": "2025-06-08T20:30:23.615Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "dfabcfdb-2397-465d-b89a-f84fcdd93d60",
+      "name": "Rachel Thomas",
+      "talentRating": "B",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "44404320-a1ae-4ba9-acfd-99f485941046",
+      "createdAt": "2025-06-08T20:30:24.619Z",
+      "updatedAt": "2025-06-09T03:07:44.775Z"
+    },
+    {
+      "id": "e439cd5f-a503-4fb5-8917-eadf8253c0d6",
+      "name": "Brian Jackson",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "44404320-a1ae-4ba9-acfd-99f485941046",
+      "createdAt": "2025-06-08T20:30:25.623Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "8c10921e-0c7f-4c1f-8d10-ee4ee7fabc85",
+      "name": "Ashley Harris",
+      "talentRating": "A",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "49fba7a1-dfd5-461f-b266-6e09cf6f7abe",
+      "createdAt": "2025-06-08T20:30:26.628Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "6b8c3646-c8f6-4c0c-9317-0b9e8f56c656",
+      "name": "Justin Clark",
+      "talentRating": "D",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "44404320-a1ae-4ba9-acfd-99f485941046",
+      "createdAt": "2025-06-08T20:30:27.632Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    },
+    {
+      "id": "86537301-8e7d-4064-9a5d-5f25de710dfd",
+      "name": "Erik Bathe",
+      "talentRating": "C",
+      "entryFee": 60,
+      "winnings": 0,
+      "teamId": "49fba7a1-dfd5-461f-b266-6e09cf6f7abe",
+      "createdAt": "2025-06-08T23:28:12.011Z",
+      "updatedAt": "2025-06-08T23:30:56.502Z"
+    }
+  ],
+  "teams": [
+    {
+      "id": "49fba7a1-dfd5-461f-b266-6e09cf6f7abe",
+      "name": "Bathe's Bombers",
+      "logoUrl": "https://i.etsystatic.com/40533556/r/il/009ba6/6086766741/il_1588xN.6086766741_gz9q.jpg",
+      "createdAt": "2025-06-08T23:30:56.490Z",
+      "updatedAt": "2025-06-08T23:44:24.729Z"
+    },
+    {
+      "id": "cf448a5e-9b93-4c77-9c5f-e2d9b0e0cc3e",
+      "name": "Silly MoFos",
+      "logoUrl": "",
+      "createdAt": "2025-06-08T23:30:56.495Z",
+      "updatedAt": "2025-06-08T23:45:28.820Z"
+    },
+    {
+      "id": "f77d1e78-b55a-48fb-910f-dbb5df9ed8a9",
+      "name": "The Beck Boys",
+      "logoUrl": "https://freedesignfile.com/image/preview/16931/sport-golf-cartoon-clipart.png",
+      "createdAt": "2025-06-08T23:30:56.499Z",
+      "updatedAt": "2025-06-08T23:36:54.853Z"
+    },
+    {
+      "id": "44404320-a1ae-4ba9-acfd-99f485941046",
+      "name": "Scooby Doos",
+      "logoUrl": "https://scontent-atl3-3.xx.fbcdn.net/v/t39.30808-6/472629576_10163144025010961_1682781072976949353_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=0b6b33&_nc_ohc=XcQOu-FgoWQQ7kNvwG0lO4A&_nc_oc=Adm26vJsloatv5dQ1pYkIBIFkb8AQys5EHCJBLKp5Dnjw3aRsXlWPH5tw_YbKJz4I78&_nc_zt=23&_nc_ht=scontent-atl3-3.xx&_nc_gid=EBB8FG_Rth3jIQQJXBDejA&oh=00_AfOatP-G49FNJtPGUPGY2tq04-yRa6xk0IzayXPwfly4MQ&oe=684C1AA0",
+      "createdAt": "2025-06-08T23:30:56.500Z",
+      "updatedAt": "2025-06-09T02:49:15.545Z"
+    }
+  ],
+  "scores": [
+    {
+      "id": "db0a3e77-e36d-41a3-9004-c210d4cd02cb",
+      "playerId": "c8efdcc5-4c2e-4b15-98f2-68b339b4c7dd",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 2,
+      "timestamp": "2025-06-08T23:46:16.091Z"
+    },
+    {
+      "id": "a42ec9b0-9b64-40a7-b179-cff9bd0b6641",
+      "playerId": "8c10921e-0c7f-4c1f-8d10-ee4ee7fabc85",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 2,
+      "timestamp": "2025-06-08T23:46:17.016Z"
+    },
+    {
+      "id": "3e0a261f-cb44-40fd-b677-2f4004642acc",
+      "playerId": "98091cef-38a8-4de1-a342-29aa429b64ea",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 3,
+      "timestamp": "2025-06-08T23:46:17.813Z"
+    },
+    {
+      "id": "a04d1a8f-36fc-4a25-8185-ca4f1c8c46cf",
+      "playerId": "86537301-8e7d-4064-9a5d-5f25de710dfd",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 4,
+      "timestamp": "2025-06-08T23:46:18.633Z"
+    },
+    {
+      "id": "3da5838a-81dd-4958-8abc-972c76a2100f",
+      "playerId": "77a03e13-115f-44dc-932c-4bfd7dcc7137",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 5,
+      "timestamp": "2025-06-08T23:46:19.464Z"
+    },
+    {
+      "id": "3d34d014-e142-4332-923e-e6d0eae666a1",
+      "playerId": "74324972-0409-47e6-b62d-faa3dc3f21de",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 4,
+      "timestamp": "2025-06-08T23:46:56.807Z"
+    },
+    {
+      "id": "39e0246f-a62a-49f4-b496-75729a77bd5c",
+      "playerId": "2c318052-f3b7-4582-9c42-943e16df526e",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 7,
+      "timestamp": "2025-06-08T23:46:57.845Z"
+    },
+    {
+      "id": "7c1d6571-fd21-4373-a382-e208497a3dae",
+      "playerId": "90bc4280-b369-4a3f-b902-072fa6f099f9",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 8,
+      "timestamp": "2025-06-08T23:46:58.686Z"
+    },
+    {
+      "id": "0fb41cbd-03eb-47df-b5a8-f3e653caecb1",
+      "playerId": "9bd74cf5-6a7e-4ca4-97ce-932a9f3effb4",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 9,
+      "timestamp": "2025-06-08T23:46:59.496Z"
+    },
+    {
+      "id": "f4722922-6ae8-4873-b1d4-bc1c8cefea46",
+      "playerId": "b4926a25-5da6-4e7d-abcd-1995ddb210dc",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 11,
+      "timestamp": "2025-06-08T23:47:00.227Z"
+    },
+    {
+      "id": "57dafb43-c3ff-4e8d-a7fb-6aee2e24fc7a",
+      "playerId": "e439cd5f-a503-4fb5-8917-eadf8253c0d6",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 17,
+      "timestamp": "2025-06-08T23:47:01.128Z"
+    },
+    {
+      "id": "6d32a541-1e37-4d6a-a77a-082ad99bbe42",
+      "playerId": "5e252d27-68a6-4ac4-8ab7-64372e8716fe",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 22,
+      "timestamp": "2025-06-08T23:47:03.470Z"
+    },
+    {
+      "id": "df31a49b-c128-4f5a-ad3b-02a15be85e99",
+      "playerId": "295b7800-df70-4ddf-b890-04bcace87d0a",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 4,
+      "timestamp": "2025-06-08T23:47:23.219Z"
+    },
+    {
+      "id": "32314b3b-ced0-4d8f-9160-634e782f6220",
+      "playerId": "4a3204f2-62ca-44b6-a442-ad943e99701a",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 3,
+      "timestamp": "2025-06-08T23:47:24.207Z"
+    },
+    {
+      "id": "435d9d3a-7819-409e-bf68-3459224c9bf4",
+      "playerId": "dfabcfdb-2397-465d-b89a-f84fcdd93d60",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 2,
+      "timestamp": "2025-06-08T23:47:24.984Z"
+    },
+    {
+      "id": "0279d0a3-d6a4-4c39-a12e-3fffe05c784a",
+      "playerId": "a323ffc0-3b79-46df-b43a-2b662de4ac7d",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 6,
+      "timestamp": "2025-06-08T23:47:25.739Z"
+    },
+    {
+      "id": "2e23d792-5fab-4c8f-a7c9-bd233e506151",
+      "playerId": "b7e1b263-fd9e-400c-8736-7aba1294dac4",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 12,
+      "timestamp": "2025-06-08T23:47:26.766Z"
+    },
+    {
+      "id": "6df4e893-0677-4987-9a25-4f15b861d83a",
+      "playerId": "c1790d42-0742-4ec1-a39b-128ad44ff8a5",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 8,
+      "timestamp": "2025-06-08T23:49:56.399Z"
+    },
+    {
+      "id": "97f70355-f0ac-4667-a28b-76e6fc53fae8",
+      "playerId": "16580f82-9a7e-4a82-9f62-3b2a2ead930c",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 3,
+      "timestamp": "2025-06-08T23:49:56.958Z"
+    },
+    {
+      "id": "5144d42d-dc70-41e7-86a0-fd1c51651d32",
+      "playerId": "6b8c3646-c8f6-4c0c-9317-0b9e8f56c656",
+      "courseId": "a9154851-e157-403d-bb60-0778207f6b61",
+      "value": 7,
+      "timestamp": "2025-06-08T23:49:57.559Z"
+    },
+    {
+      "id": "fdaa3500-b109-4a3c-b7c9-454518a0faf5",
+      "playerId": "dfabcfdb-2397-465d-b89a-f84fcdd93d60",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 18,
+      "timestamp": "2025-06-09T02:22:11.234Z"
+    },
+    {
+      "id": "c7d0ed04-bee1-4b09-94f9-c31e48761b5e",
+      "playerId": "4a3204f2-62ca-44b6-a442-ad943e99701a",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 18,
+      "timestamp": "2025-06-09T02:23:09.885Z"
+    },
+    {
+      "id": "d32e5480-6350-4c25-8ee3-de3ff3bb9d1b",
+      "playerId": "295b7800-df70-4ddf-b890-04bcace87d0a",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 18,
+      "timestamp": "2025-06-09T02:23:11.590Z"
+    },
+    {
+      "id": "1dc59fb0-84ec-4a79-b8d1-94a9b8272d46",
+      "playerId": "6b8c3646-c8f6-4c0c-9317-0b9e8f56c656",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 7,
+      "timestamp": "2025-06-09T02:22:22.338Z"
+    },
+    {
+      "id": "da07db7b-ed42-46ae-8eb7-d3e46b687b7b",
+      "playerId": "16580f82-9a7e-4a82-9f62-3b2a2ead930c",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 19,
+      "timestamp": "2025-06-09T02:23:28.720Z"
+    },
+    {
+      "id": "2978e57a-ce31-46df-aad1-9c85315274ba",
+      "playerId": "c1790d42-0742-4ec1-a39b-128ad44ff8a5",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 8,
+      "timestamp": "2025-06-09T02:22:23.728Z"
+    },
+    {
+      "id": "85a51ec7-1696-4b75-baed-625bc47ad007",
+      "playerId": "a323ffc0-3b79-46df-b43a-2b662de4ac7d",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 6,
+      "timestamp": "2025-06-09T02:22:24.854Z"
+    },
+    {
+      "id": "2df543d4-ffee-4895-bf5a-764f60b023a9",
+      "playerId": "b7e1b263-fd9e-400c-8736-7aba1294dac4",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 12,
+      "timestamp": "2025-06-09T02:22:25.646Z"
+    },
+    {
+      "id": "70c8804e-5733-4cf9-9e40-5a0d3e396e69",
+      "playerId": "98091cef-38a8-4de1-a342-29aa429b64ea",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 3,
+      "timestamp": "2025-06-09T02:22:29.162Z"
+    },
+    {
+      "id": "9b4c8678-af95-4929-ba54-c62e75665bc9",
+      "playerId": "86537301-8e7d-4064-9a5d-5f25de710dfd",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 4,
+      "timestamp": "2025-06-09T02:22:30.145Z"
+    },
+    {
+      "id": "7e26abfc-d246-426e-a81d-3c9303656dfe",
+      "playerId": "77a03e13-115f-44dc-932c-4bfd7dcc7137",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 5,
+      "timestamp": "2025-06-09T02:22:30.913Z"
+    },
+    {
+      "id": "bd2bafe1-1da7-4b37-8bee-f49e642a6893",
+      "playerId": "74324972-0409-47e6-b62d-faa3dc3f21de",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 4,
+      "timestamp": "2025-06-09T02:22:31.612Z"
+    },
+    {
+      "id": "3b5095c2-e79a-40ca-8069-82e2f57ed03e",
+      "playerId": "2c318052-f3b7-4582-9c42-943e16df526e",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 7,
+      "timestamp": "2025-06-09T02:22:32.255Z"
+    },
+    {
+      "id": "a96360db-5d56-4fe5-aa9c-c04fff10d358",
+      "playerId": "90bc4280-b369-4a3f-b902-072fa6f099f9",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 8,
+      "timestamp": "2025-06-09T02:22:32.871Z"
+    },
+    {
+      "id": "8112bc29-f8d7-4b65-8609-7d0532ce543b",
+      "playerId": "9bd74cf5-6a7e-4ca4-97ce-932a9f3effb4",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 9,
+      "timestamp": "2025-06-09T02:22:33.814Z"
+    },
+    {
+      "id": "ceffb11e-82c2-486d-a86a-10d01fe00d1b",
+      "playerId": "b4926a25-5da6-4e7d-abcd-1995ddb210dc",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 11,
+      "timestamp": "2025-06-09T02:22:34.996Z"
+    },
+    {
+      "id": "7ca046b0-8563-4178-a360-06a1f9e6cfb4",
+      "playerId": "e439cd5f-a503-4fb5-8917-eadf8253c0d6",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 17,
+      "timestamp": "2025-06-09T02:22:36.984Z"
+    },
+    {
+      "id": "e156833c-cef3-4df5-a0a2-2e1ecdb17508",
+      "playerId": "5e252d27-68a6-4ac4-8ab7-64372e8716fe",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 22,
+      "timestamp": "2025-06-09T02:22:37.861Z"
+    },
+    {
+      "id": "cbfd560c-e2c2-4971-8184-10fc584c3d36",
+      "playerId": "c8efdcc5-4c2e-4b15-98f2-68b339b4c7dd",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 2,
+      "timestamp": "2025-06-09T02:24:06.363Z"
+    },
+    {
+      "id": "53add21f-b4f0-44da-ae5e-0ebfb496e8b1",
+      "playerId": "8c10921e-0c7f-4c1f-8d10-ee4ee7fabc85",
+      "courseId": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "value": 2,
+      "timestamp": "2025-06-09T02:24:07.594Z"
+    }
+  ],
+  "courses": [
+    {
+      "id": "a9154851-e157-403d-bb60-0778207f6b61",
+      "name": "Parkland",
+      "order": 1
+    },
+    {
+      "id": "ce23980e-d86d-4587-ba67-ff90ca393b14",
+      "name": "Heathland",
+      "order": 2
+    },
+    {
+      "id": "7447f0e0-fc30-4663-a35e-93118fa73409",
+      "name": "Heritage Club",
+      "order": 3
+    },
+    {
+      "id": "85f002a7-a41c-4e60-8019-bd5a76f08b86",
+      "name": "Moorland",
+      "order": 4
+    }
+  ],
+  "appMetadata": {
+    "version": "1.0.0",
+    "exportDate": "2025-06-09T03:11:03.137Z"
+  }
+}

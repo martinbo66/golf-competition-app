@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="004-create-teams-table" author="golfcomp">
+        <comment>Create the teams table - groups of players competing together in a competition</comment>
+        
+        <createTable tableName="teams">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="competition_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="logo_url" type="text">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <!-- Foreign key to competitions table -->
+        <addForeignKeyConstraint 
+            baseTableName="teams" 
+            baseColumnNames="competition_id"
+            constraintName="fk_teams_competition"
+            referencedTableName="competitions"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+        
+        <!-- Unique constraint on (competition_id, name) -->
+        <addUniqueConstraint 
+            tableName="teams"
+            columnNames="competition_id, name"
+            constraintName="uk_teams_competition_name"/>
+        
+        <rollback>
+            <dropTable tableName="teams"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

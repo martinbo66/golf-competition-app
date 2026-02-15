@@ -1,0 +1,228 @@
+/**
+ * Golf Competition App - Root Build Configuration
+ *
+ * This Gradle build orchestrates the Spring Boot backend (spring-golfcomp) and
+ * Vue.js frontend (vue-golfcomp) for unified CI/CD.
+ *
+ * Usage:
+ *   ./gradlew build        - Build backend and frontend
+ *   ./gradlew test         - Run all tests
+ *   ./gradlew clean        - Clean all build artifacts
+ *   ./gradlew bootRun      - Run the Spring Boot backend
+ *   ./gradlew frontendDev  - Start Vue dev server (for local development)
+ */
+
+plugins {
+    id 'pl.allegro.tech.build.axion-release' version '1.21.1'
+}
+
+// ============================================================================
+// Semantic Versioning from Git Tags
+// ============================================================================
+scmVersion {
+    tag {
+        prefix = 'v'
+        versionSeparator = ''
+    }
+    useHighestVersion = true
+}
+
+project.version = scmVersion.version
+
+// Detect npm or use npx as fallback
+def npmCommand = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
+def frontendDir = file("${projectDir}/vue-golfcomp")
+
+// ============================================================================
+// Frontend (Vue.js) Tasks
+// ============================================================================
+
+task frontendInstall(type: Exec) {
+    description = 'Install frontend npm dependencies'
+    group = 'frontend'
+    workingDir frontendDir
+    commandLine npmCommand, 'install'
+
+    inputs.file("${frontendDir}/package.json")
+    inputs.file("${frontendDir}/package-lock.json")
+    outputs.dir("${frontendDir}/node_modules")
+}
+
+task frontendBuild(type: Exec) {
+    description = 'Build the Vue.js frontend for production'
+    group = 'frontend'
+    dependsOn frontendInstall
+    workingDir frontendDir
+    commandLine npmCommand, 'run', 'build'
+
+    inputs.dir("${frontendDir}/src")
+    inputs.file("${frontendDir}/package.json")
+    inputs.file("${frontendDir}/vue.config.js")
+    outputs.dir("${frontendDir}/dist")
+}
+
+task frontendTest(type: Exec) {
+    description = 'Run frontend tests (Jest)'
+    group = 'frontend'
+    dependsOn frontendInstall
+    workingDir frontendDir
+
+    doFirst {
+        def packageJson = new groovy.json.JsonSlurper().parse(file("${frontendDir}/package.json"))
+        if (!packageJson.scripts?.test) {
+            println "No test script found in frontend package.json, skipping frontend tests"
+            throw new StopExecutionException()
+        }
+    }
+
+    commandLine npmCommand, 'run', 'test', '--', '--passWithNoTests'
+}
+
+task frontendLint(type: Exec) {
+    description = 'Run ESLint on frontend code'
+    group = 'frontend'
+    dependsOn frontendInstall
+    workingDir frontendDir
+
+    doFirst {
+        def packageJson = new groovy.json.JsonSlurper().parse(file("${frontendDir}/package.json"))
+        if (!packageJson.scripts?.lint) {
+            println "No lint script found in frontend package.json, skipping linting"
+            throw new StopExecutionException()
+        }
+    }
+
+    commandLine npmCommand, 'run', 'lint'
+}
+
+task frontendDev(type: Exec) {
+    description = 'Start Vue.js development server'
+    group = 'frontend'
+    dependsOn frontendInstall
+    workingDir frontendDir
+    commandLine npmCommand, 'run', 'serve'
+}
+
+task frontendClean(type: Delete) {
+    description = 'Clean frontend build artifacts'
+    group = 'frontend'
+    delete "${frontendDir}/dist"
+    delete "${frontendDir}/node_modules/.cache"
+}
+
+// ============================================================================
+// Backend Task Aliases (delegate to subproject)
+// ============================================================================
+
+task backendBuild {
+    description = 'Build the Spring Boot backend'
+    group = 'backend'
+    dependsOn ':spring-golfcomp:build'
+}
+
+task backendTest {
+    description = 'Run backend tests'
+    group = 'backend'
+    dependsOn ':spring-golfcomp:test'
+}
+
+task backendClean {
+    description = 'Clean backend build artifacts'
+    group = 'backend'
+    dependsOn ':spring-golfcomp:clean'
+}
+
+// ============================================================================
+// Unified CI/CD Tasks
+// ============================================================================
+
+task build {
+    description = 'Build backend and frontend'
+    group = 'build'
+    dependsOn backendBuild, frontendBuild
+}
+
+task test {
+    description = 'Run all tests (backend and frontend)'
+    group = 'verification'
+    dependsOn backendTest, frontendTest
+}
+
+task lint {
+    description = 'Run all linting'
+    group = 'verification'
+    dependsOn frontendLint
+}
+
+task check {
+    description = 'Run all verification tasks'
+    group = 'verification'
+    dependsOn test, lint
+}
+
+task clean {
+    description = 'Clean all build artifacts'
+    group = 'build'
+    dependsOn backendClean, frontendClean
+}
+
+// Alias for running backend
+task bootRun {
+    description = 'Run the Spring Boot backend application'
+    group = 'application'
+    dependsOn ':spring-golfcomp:bootRun'
+}
+
+// ============================================================================
+// CI Task
+// ============================================================================
+
+task ci {
+    description = 'Full CI pipeline: clean, build, test, lint'
+    group = 'ci'
+    dependsOn clean, build, test, lint
+
+    build.mustRunAfter clean
+    test.mustRunAfter build
+    lint.mustRunAfter test
+}
+
+// ============================================================================
+// Help
+// ============================================================================
+
+task showTasks {
+    description = 'Show commonly used tasks'
+    group = 'help'
+    doLast {
+        println """
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                    Golf Competition App - Gradle Tasks                         ║
+║                          Current Version: ${project.version.padRight(31)}║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║ UNIFIED COMMANDS                                                               ║
+║   ./gradlew build      Build backend and frontend                              ║
+║   ./gradlew test       Run all tests                                           ║
+║   ./gradlew lint       Run ESLint                                              ║
+║   ./gradlew clean      Clean all build artifacts                              ║
+║   ./gradlew ci         Full CI: clean, build, test, lint                        ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║ BACKEND (Spring Boot)                                                           ║
+║   ./gradlew bootRun          Run the Spring Boot application                  ║
+║   ./gradlew backendBuild     Build backend only                                ║
+║   ./gradlew backendTest      Run backend tests only                            ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║ FRONTEND (Vue.js)                                                              ║
+║   ./gradlew frontendDev      Start dev server (http://localhost:8080)          ║
+║   ./gradlew frontendBuild    Build frontend for production                     ║
+║   ./gradlew frontendLint     Run ESLint on frontend code                       ║
+║   ./gradlew frontendInstall  Install npm dependencies                          ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║ VERSIONING                                                                     ║
+║   ./gradlew currentVersion   Show current version from Git tags                ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+"""
+    }
+}
+
+defaultTasks 'showTasks'
