@@ -19,8 +19,8 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-002 | Liquibase Setup | Complete |
 | US-003 | Competition Entity | Complete |
 | US-004 | Course Entity | Complete |
-| US-005 | Round Entity | Not Started |
-| US-006 | Team Entity | Not Started |
+| US-005 | Round Entity | Complete |
+| US-006 | Team Entity | Complete |
 | US-007 | Player Entity | Not Started |
 | US-008 | Score Entity | Not Started |
 | US-009 | Competition Repository | Not Started |
@@ -50,10 +50,12 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next story:** US-005 (Round Entity) — depends on US-003 ✓ and US-004 ✓, or US-006 (Team Entity) — depends on US-003 ✓
+**Recommended next story:** US-007 (Player Entity) — depends on US-003 ✓ and US-006 ✓, then US-008 (Score Entity) — depends on US-005 ✓ and US-007
 
 ### Progress Log
 
+- **2026-02-15:** US-006 complete. Team entity and migration: Created Team.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, ManyToOne relationship to Competition, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 004-create-teams-table.xml with foreign key to competitions table and unique constraint on (competition_id, name).
+- **2026-02-15:** US-005 complete. Round entity and migration: Created Round.java entity with Lombok annotations, UUID primary key, ManyToOne relationships to Competition and Course, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 003-create-rounds-table.xml with foreign keys to competitions and courses tables, unique constraint on (competition_id, round_number).
 - **2026-02-15:** US-003 complete. Competition entity and migration: Created Competition.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 001-create-competitions-table.xml with proper PostgreSQL types and constraints. Added unit tests for entity.
 - **2026-02-15:** US-004 complete. Course entity and migration: Created Course.java entity with Lombok annotations, UUID primary key, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 002-create-courses-table.xml with proper PostgreSQL types and constraints.
 - **2026-02-15:** US-002 complete. Liquibase setup: Added liquibase-core dependency, configured datasource and Liquibase in application.yml, updated test profile for H2 with Liquibase, created master changelog file.
@@ -72,6 +74,10 @@ Progress across working sessions. Use this section to pick up where you left off
 - `spring-golfcomp/src/main/resources/db/changelog/db.changelog-master.xml` — Liquibase master changelog
 - `spring-golfcomp/src/main/resources/db/changelog/changes/001-create-competitions-table.xml` — Competitions table migration
 - `spring-golfcomp/src/main/resources/db/changelog/changes/002-create-courses-table.xml` — Courses table migration
+- `spring-golfcomp/src/main/java/com/golfcomp/api/model/Round.java` — Round entity with JPA annotations
+- `spring-golfcomp/src/main/resources/db/changelog/changes/003-create-rounds-table.xml` — Rounds table migration
+- `spring-golfcomp/src/main/java/com/golfcomp/api/model/Team.java` — Team entity with JPA annotations
+- `spring-golfcomp/src/main/resources/db/changelog/changes/004-create-teams-table.xml` — Teams table migration
 - `spring-golfcomp/src/test/java/com/golfcomp/api/GolfCompApplicationTests.java` — Context load test
 - `spring-golfcomp/src/test/java/com/golfcomp/api/model/CompetitionTest.java` — Competition entity unit tests
 - `spring-golfcomp/README.md` — Backend readme
@@ -964,7 +970,7 @@ As a developer, I want a Competition entity and database table so that competiti
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~1.5 hours |
 | **Epic** | Core Entities |
@@ -996,7 +1002,7 @@ As a developer, I want a Competition entity and database table so that competiti
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~1 hour |
 | **Epic** | Core Entities |

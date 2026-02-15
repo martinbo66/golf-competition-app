@@ -17,5 +17,7 @@
     <!-- Entity migrations -->
     <include file="changes/001-create-competitions-table.xml" relativeToChangelogFile="true"/>
     <include file="changes/002-create-courses-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/003-create-rounds-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/004-create-teams-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

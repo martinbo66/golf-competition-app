@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="003-create-rounds-table" author="golfcomp">
+        <comment>Create rounds table for storing golf rounds within competitions</comment>
+        
+        <createTable tableName="rounds">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="competition_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="course_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="play_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="round_number" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Foreign key to competitions table -->
+        <addForeignKeyConstraint
+            baseTableName="rounds"
+            baseColumnNames="competition_id"
+            constraintName="fk_rounds_competition"
+            referencedTableName="competitions"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <!-- Foreign key to courses table -->
+        <addForeignKeyConstraint
+            baseTableName="rounds"
+            baseColumnNames="course_id"
+            constraintName="fk_rounds_course"
+            referencedTableName="courses"
+            referencedColumnNames="id"
+            onDelete="RESTRICT"/>
+
+        <!-- Unique constraint: one round number per competition -->
+        <addUniqueConstraint
+            tableName="rounds"
+            columnNames="competition_id, round_number"
+            constraintName="uk_rounds_competition_round_number"/>
+
+        <rollback>
+            <dropTable tableName="rounds"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
