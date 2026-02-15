@@ -36,13 +36,13 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-019 | Player Service | Complete |
 | US-020 | Score Service | Complete |
 | US-021 | Leaderboard Service | Complete |
-| US-022 | Competition Controller | Not Started |
-| US-023 | Course Controller | Not Started |
-| US-024 | Round Controller | Not Started |
-| US-025 | Team Controller | Not Started |
-| US-026 | Player Controller | Not Started |
-| US-027 | Score Controller | Not Started |
-| US-028 | Leaderboard Controller | Not Started |
+| US-022 | Competition Controller | Complete |
+| US-023 | Course Controller | Complete |
+| US-024 | Round Controller | Complete |
+| US-025 | Team Controller | Complete |
+| US-026 | Player Controller | Complete |
+| US-027 | Score Controller | Complete |
+| US-028 | Leaderboard Controller | Complete |
 | US-029 | Snake Draft Algorithm | Not Started |
 | US-030 | Global Exception Handler | Not Started |
 | US-031 | CORS Configuration | Not Started |
@@ -50,10 +50,11 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next stories:** US-022 through US-028 (Controller Stories) — all service dependencies complete (US-015 through US-021 ✓)
+**Recommended next stories:** US-029 (Snake Draft), US-030 (Global Exception Handler), US-031 (CORS Config), US-032 (OpenAPI Docs) — all controller dependencies complete (US-022 through US-028 ✓)
 
 ### Progress Log
 
+- **2026-02-15:** US-022 through US-028 complete. Created ApiResponse<T> wrapper (success/error factory methods, @JsonInclude(NON_NULL)), GlobalExceptionHandler (@RestControllerAdvice mapping ResourceNotFoundException→404, BusinessRuleException→409, MethodArgumentNotValidException→400), and 7 REST controllers: CompetitionController, CourseController, RoundController, TeamController (including bulk deleteAll), PlayerController (assign/unassign endpoints), ScoreController (upsert pattern), LeaderboardController. All follow /api/v1/... URL convention with correct HTTP status codes (201/200/204). Created 7 @WebMvcTest controller test classes (34 new tests). All 130 backend tests passing.
 - **2026-02-15:** US-015 through US-021 complete. Created exception classes (ResourceNotFoundException, BusinessRuleException), 11 request DTOs, 8 response DTOs (including PlayerLeaderboardEntry, TeamLeaderboardEntry), and 7 service classes (CompetitionService, CourseService, RoundService, TeamService, PlayerService, ScoreService, LeaderboardService). All services use constructor injection, @Transactional(readOnly=true) class-level with @Transactional overrides for writes, and throw typed exceptions on not-found/business-rule violations. LeaderboardService ranks players by (roundsPlayed DESC, totalScore ASC) and aggregates team totals. Created 7 Mockito unit test classes (54 new tests). All 96 backend tests passing.
 - **2026-02-15:** US-009 through US-014 complete. Created 6 Spring Data JPA repositories: CompetitionRepository, CourseRepository, RoundRepository (with ordered query, find by competition+round number, bulk delete), TeamRepository (with competition list, name uniqueness check, bulk delete), PlayerRepository (with unassigned filter, team filter, talent-rating-ordered query for snake draft, bulk delete), ScoreRepository (with round/competition/player filters, round+player lookup for upsert, bulk delete). Created @DataJpaTest integration tests for all 6 repositories (42 new tests). Fixed H2 reserved-keyword conflict on scores.value column by renaming to score_value in entity and migration.
 - **2026-02-15:** US-008 complete. Score entity and migration: Created Score.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, ManyToOne relationships to Competition (denormalized for query efficiency), Round, and Player, Integer value field with @Min(18)/@Max(150) validation, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 006-create-scores-table.xml with foreign keys to competitions, rounds, and players tables, unique constraint on (round_id, player_id), CHECK constraint on value (18-150) for PostgreSQL.
