@@ -16,9 +16,9 @@ Progress across working sessions. Use this section to pick up where you left off
 | Story | Title | Status |
 |-------|-------|--------|
 | US-001 | Spring Boot Project Bootstrap | Complete |
-| US-002 | Liquibase Setup | Not Started |
-| US-003 | Competition Entity | Not Started |
-| US-004 | Course Entity | Not Started |
+| US-002 | Liquibase Setup | Complete |
+| US-003 | Competition Entity | Complete |
+| US-004 | Course Entity | Complete |
 | US-005 | Round Entity | Not Started |
 | US-006 | Team Entity | Not Started |
 | US-007 | Player Entity | Not Started |
@@ -50,21 +50,30 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next story:** US-002 (Liquibase Setup) — depends on US-001 ✓
+**Recommended next story:** US-005 (Round Entity) — depends on US-003 ✓ and US-004 ✓, or US-006 (Team Entity) — depends on US-003 ✓
 
 ### Progress Log
 
+- **2026-02-15:** US-003 complete. Competition entity and migration: Created Competition.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 001-create-competitions-table.xml with proper PostgreSQL types and constraints. Added unit tests for entity.
+- **2026-02-15:** US-004 complete. Course entity and migration: Created Course.java entity with Lombok annotations, UUID primary key, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 002-create-courses-table.xml with proper PostgreSQL types and constraints.
+- **2026-02-15:** US-002 complete. Liquibase setup: Added liquibase-core dependency, configured datasource and Liquibase in application.yml, updated test profile for H2 with Liquibase, created master changelog file.
 - **2026-02-15:** US-001 complete. Spring Boot 3.5 project bootstrap: Gradle build, GolfCompApplication, application profiles (dev/test/prod), health actuator, context load test. Root build.gradle updated for monorepo (backendBuild, bootRun, unified build/test/clean).
 
 ### Files Modified (Cumulative)
 
-- `spring-golfcomp/build.gradle` — Gradle config, Spring Boot 3.5.3, dependencies
+- `spring-golfcomp/build.gradle` — Gradle config, Spring Boot 3.5.3, dependencies, Liquibase
 - `spring-golfcomp/src/main/java/com/golfcomp/api/GolfCompApplication.java` — Main class
-- `spring-golfcomp/src/main/resources/application.yml` — Default config
+- `spring-golfcomp/src/main/java/com/golfcomp/api/model/Competition.java` — Competition entity with JPA annotations
+- `spring-golfcomp/src/main/java/com/golfcomp/api/model/Course.java` — Course entity with JPA annotations
+- `spring-golfcomp/src/main/resources/application.yml` — Default config with datasource and Liquibase
 - `spring-golfcomp/src/main/resources/application-dev.yml` — H2 dev profile
-- `spring-golfcomp/src/main/resources/application-test.yml` — H2 test profile
+- `spring-golfcomp/src/main/resources/application-test.yml` — H2 test profile with Liquibase
 - `spring-golfcomp/src/main/resources/application-prod.yml` — Prod profile stub
+- `spring-golfcomp/src/main/resources/db/changelog/db.changelog-master.xml` — Liquibase master changelog
+- `spring-golfcomp/src/main/resources/db/changelog/changes/001-create-competitions-table.xml` — Competitions table migration
+- `spring-golfcomp/src/main/resources/db/changelog/changes/002-create-courses-table.xml` — Courses table migration
 - `spring-golfcomp/src/test/java/com/golfcomp/api/GolfCompApplicationTests.java` — Context load test
+- `spring-golfcomp/src/test/java/com/golfcomp/api/model/CompetitionTest.java` — Competition entity unit tests
 - `spring-golfcomp/README.md` — Backend readme
 - `settings.gradle` — Include spring-golfcomp subproject
 - `build.gradle` — Backend tasks, bootRun, unified build/test/clean
@@ -843,7 +852,7 @@ Create a new Spring Boot 3.5 Gradle project with all required dependencies and c
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~1.5 hours |
 | **Epic** | Project Setup |
@@ -861,10 +870,10 @@ As a developer, I want Liquibase configured for database migrations so that sche
 
 #### Acceptance Criteria
 
-- [ ] AC1: Liquibase configured in application.yml
-- [ ] AC2: Master changelog file exists and loads
-- [ ] AC3: Application connects to PostgreSQL on startup
-- [ ] AC4: Test profile uses H2 in-memory database
+- [x] AC1: Liquibase configured in application.yml
+- [x] AC2: Master changelog file exists and loads
+- [x] AC3: Application connects to PostgreSQL on startup
+- [x] AC4: Test profile uses H2 in-memory database
 
 #### Agent Instructions
 
@@ -877,8 +886,8 @@ As a developer, I want Liquibase configured for database migrations so that sche
 | CREATE | `src/main/resources/db/changelog/db.changelog-master.xml` | Master changelog |
 
 **📤 Expected Output:**
-- [ ] Application starts and connects to PostgreSQL
-- [ ] Liquibase creates its tracking tables
+- [x] Application starts and connects to PostgreSQL
+- [x] Liquibase creates its tracking tables
 
 ---
 
@@ -886,7 +895,7 @@ As a developer, I want Liquibase configured for database migrations so that sche
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~1.5 hours |
 | **Epic** | Core Entities |
@@ -904,10 +913,10 @@ As a developer, I want a Competition entity and database table so that competiti
 
 #### Acceptance Criteria
 
-- [ ] AC1: Competition entity class with all fields from data model
-- [ ] AC2: Liquibase migration creates `competitions` table
-- [ ] AC3: JPA annotations properly configured
-- [ ] AC4: Timestamps auto-managed via @PrePersist/@PreUpdate
+- [x] AC1: Competition entity class with all fields from data model
+- [x] AC2: Liquibase migration creates `competitions` table
+- [x] AC3: JPA annotations properly configured
+- [x] AC4: Timestamps auto-managed via @PrePersist/@PreUpdate
 
 #### Agent Instructions
 
@@ -928,7 +937,7 @@ As a developer, I want a Competition entity and database table so that competiti
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~1 hour |
 | **Epic** | Core Entities |

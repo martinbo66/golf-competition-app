@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- 
+        Golf Competition App - Master Changelog
+        
+        This file includes all database migration changesets.
+        Add new migration files to the 'changes' directory and include them below.
+        
+        Naming convention: NNN-description.xml (e.g., 001-create-competitions-table.xml)
+    -->
+
+    <!-- Entity migrations -->
+    <include file="changes/001-create-competitions-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/002-create-courses-table.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
