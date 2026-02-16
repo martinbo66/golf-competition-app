@@ -4,6 +4,7 @@ import com.golfcomp.api.dto.request.CreateRoundRequest;
 import com.golfcomp.api.dto.response.ApiResponse;
 import com.golfcomp.api.dto.response.RoundResponse;
 import com.golfcomp.api.service.RoundService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Rounds", description = "Manage competition rounds")
 @RestController
 @RequestMapping("/api/v1/competitions/{competitionId}/rounds")
 public class RoundController {
