@@ -23,26 +23,26 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-006 | Team Entity | Complete |
 | US-007 | Player Entity | Complete |
 | US-008 | Score Entity | Complete |
-| US-009 | Competition Repository | Not Started |
-| US-010 | Course Repository | Not Started |
-| US-011 | Round Repository | Not Started |
-| US-012 | Team Repository | Not Started |
-| US-013 | Player Repository | Not Started |
-| US-014 | Score Repository | Not Started |
-| US-015 | Competition Service | Not Started |
-| US-016 | Course Service | Not Started |
-| US-017 | Round Service | Not Started |
-| US-018 | Team Service | Not Started |
-| US-019 | Player Service | Not Started |
-| US-020 | Score Service | Not Started |
-| US-021 | Leaderboard Service | Not Started |
-| US-022 | Competition Controller | Not Started |
-| US-023 | Course Controller | Not Started |
-| US-024 | Round Controller | Not Started |
-| US-025 | Team Controller | Not Started |
-| US-026 | Player Controller | Not Started |
-| US-027 | Score Controller | Not Started |
-| US-028 | Leaderboard Controller | Not Started |
+| US-009 | Competition Repository | Complete |
+| US-010 | Course Repository | Complete |
+| US-011 | Round Repository | Complete |
+| US-012 | Team Repository | Complete |
+| US-013 | Player Repository | Complete |
+| US-014 | Score Repository | Complete |
+| US-015 | Competition Service | Complete |
+| US-016 | Course Service | Complete |
+| US-017 | Round Service | Complete |
+| US-018 | Team Service | Complete |
+| US-019 | Player Service | Complete |
+| US-020 | Score Service | Complete |
+| US-021 | Leaderboard Service | Complete |
+| US-022 | Competition Controller | Complete |
+| US-023 | Course Controller | Complete |
+| US-024 | Round Controller | Complete |
+| US-025 | Team Controller | Complete |
+| US-026 | Player Controller | Complete |
+| US-027 | Score Controller | Complete |
+| US-028 | Leaderboard Controller | Complete |
 | US-029 | Snake Draft Algorithm | Not Started |
 | US-030 | Global Exception Handler | Not Started |
 | US-031 | CORS Configuration | Not Started |
@@ -50,10 +50,13 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next stories:** US-009 through US-014 (Repository Stories) — all entity dependencies complete (US-003 through US-008 ✓)
+**Recommended next stories:** US-029 (Snake Draft), US-030 (Global Exception Handler), US-031 (CORS Config), US-032 (OpenAPI Docs) — all controller dependencies complete (US-022 through US-028 ✓)
 
 ### Progress Log
 
+- **2026-02-15:** US-022 through US-028 complete. Created ApiResponse<T> wrapper (success/error factory methods, @JsonInclude(NON_NULL)), GlobalExceptionHandler (@RestControllerAdvice mapping ResourceNotFoundException→404, BusinessRuleException→409, MethodArgumentNotValidException→400), and 7 REST controllers: CompetitionController, CourseController, RoundController, TeamController (including bulk deleteAll), PlayerController (assign/unassign endpoints), ScoreController (upsert pattern), LeaderboardController. All follow /api/v1/... URL convention with correct HTTP status codes (201/200/204). Created 7 @WebMvcTest controller test classes (34 new tests). All 130 backend tests passing.
+- **2026-02-15:** US-015 through US-021 complete. Created exception classes (ResourceNotFoundException, BusinessRuleException), 11 request DTOs, 8 response DTOs (including PlayerLeaderboardEntry, TeamLeaderboardEntry), and 7 service classes (CompetitionService, CourseService, RoundService, TeamService, PlayerService, ScoreService, LeaderboardService). All services use constructor injection, @Transactional(readOnly=true) class-level with @Transactional overrides for writes, and throw typed exceptions on not-found/business-rule violations. LeaderboardService ranks players by (roundsPlayed DESC, totalScore ASC) and aggregates team totals. Created 7 Mockito unit test classes (54 new tests). All 96 backend tests passing.
+- **2026-02-15:** US-009 through US-014 complete. Created 6 Spring Data JPA repositories: CompetitionRepository, CourseRepository, RoundRepository (with ordered query, find by competition+round number, bulk delete), TeamRepository (with competition list, name uniqueness check, bulk delete), PlayerRepository (with unassigned filter, team filter, talent-rating-ordered query for snake draft, bulk delete), ScoreRepository (with round/competition/player filters, round+player lookup for upsert, bulk delete). Created @DataJpaTest integration tests for all 6 repositories (42 new tests). Fixed H2 reserved-keyword conflict on scores.value column by renaming to score_value in entity and migration.
 - **2026-02-15:** US-008 complete. Score entity and migration: Created Score.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, ManyToOne relationships to Competition (denormalized for query efficiency), Round, and Player, Integer value field with @Min(18)/@Max(150) validation, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 006-create-scores-table.xml with foreign keys to competitions, rounds, and players tables, unique constraint on (round_id, player_id), CHECK constraint on value (18-150) for PostgreSQL.
 - **2026-02-15:** US-007 complete. Player entity, TalentRating enum, and migration: Created TalentRating.java enum with values A, B, C, D for skill classification. Created Player.java entity with Lombok annotations, UUID primary key, ManyToOne relationships to Competition (required) and Team (nullable), TalentRating enum stored as STRING, BigDecimal fields for entryFee and winnings with defaults of 0, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 005-create-players-table.xml with foreign keys to competitions and teams tables, CHECK constraint on talent_rating (A, B, C, D).
 - **2026-02-15:** US-006 complete. Team entity and migration: Created Team.java entity with Lombok annotations (@Data, @Builder, @NoArgsConstructor, @AllArgsConstructor), UUID primary key, ManyToOne relationship to Competition, auto-managed timestamps via @PrePersist/@PreUpdate. Created Liquibase migration 004-create-teams-table.xml with foreign key to competitions table and unique constraint on (competition_id, name).
@@ -90,6 +93,21 @@ Progress across working sessions. Use this section to pick up where you left off
 - `spring-golfcomp/README.md` — Backend readme
 - `settings.gradle` — Include spring-golfcomp subproject
 - `build.gradle` — Backend tasks, bootRun, unified build/test/clean
+- `spring-golfcomp/src/main/java/com/golfcomp/api/repository/CompetitionRepository.java` — Competition JPA repository
+- `spring-golfcomp/src/main/java/com/golfcomp/api/repository/CourseRepository.java` — Course JPA repository (findByName)
+- `spring-golfcomp/src/main/java/com/golfcomp/api/repository/RoundRepository.java` — Round JPA repository (ordered query, find by competition+round, bulk delete)
+- `spring-golfcomp/src/main/java/com/golfcomp/api/repository/TeamRepository.java` — Team JPA repository (by competition, name uniqueness, bulk delete)
+- `spring-golfcomp/src/main/java/com/golfcomp/api/repository/PlayerRepository.java` — Player JPA repository (unassigned filter, talent-rating order, team filter, count, bulk delete)
+- `spring-golfcomp/src/main/java/com/golfcomp/api/repository/ScoreRepository.java` — Score JPA repository (round/player/competition filters, upsert lookup, bulk delete)
+- `spring-golfcomp/src/test/java/com/golfcomp/api/integration/CompetitionRepositoryTest.java` — Competition repository integration tests
+- `spring-golfcomp/src/test/java/com/golfcomp/api/integration/CourseRepositoryTest.java` — Course repository integration tests
+- `spring-golfcomp/src/test/java/com/golfcomp/api/integration/RoundRepositoryTest.java` — Round repository integration tests
+- `spring-golfcomp/src/test/java/com/golfcomp/api/integration/TeamRepositoryTest.java` — Team repository integration tests
+- `spring-golfcomp/src/test/java/com/golfcomp/api/integration/PlayerRepositoryTest.java` — Player repository integration tests
+- `spring-golfcomp/src/test/java/com/golfcomp/api/integration/ScoreRepositoryTest.java` — Score repository integration tests
+- `spring-golfcomp/src/main/java/com/golfcomp/api/model/Score.java` — Fixed: column renamed to score_value (was reserved word in H2)
+- `spring-golfcomp/src/main/resources/db/changelog/changes/006-create-scores-table.xml` — Fixed: column renamed to score_value
+- `spring-golfcomp/src/main/resources/application-test.yml` — Added NON_KEYWORDS=VALUE to H2 URL (belt-and-suspenders)
 
 ---
 
