@@ -1,6 +1,6 @@
 # Golf Team Competition App
 
-A Vue.js web application for managing golf team competitions. This application helps organizers manage players, form balanced teams, track scores, and display leaderboards.
+A full-stack application for managing golf team competitions. The project is a monorepo containing a Vue.js 2 single-page application and a Spring Boot REST API backend.
 
 ## Features
 
@@ -11,15 +11,102 @@ A Vue.js web application for managing golf team competitions. This application h
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
 - **Theme Options**: Choose between light and dark themes
 - **Data Import/Export**: Backup and restore your competition data
+- **REST API**: Spring Boot backend with full CRUD for players, teams, scores, courses, rounds, and competitions
 
-## Installation
+## Project Structure
 
-### Prerequisites
+```
+golf-competition-app/          # Monorepo root (Gradle orchestration)
+├── vue-golfcomp/              # Vue.js 2 frontend SPA
+│   ├── src/
+│   │   ├── components/        # admin/, layout/, scoring/, shared/
+│   │   ├── router/            # Hash-mode router
+│   │   ├── stores/            # Vuex namespaced modules
+│   │   ├── services/          # DataService, NotificationService
+│   │   ├── utils/             # Validation and formatting helpers
+│   │   └── views/             # Route-level page components
+│   ├── tests/                 # Jest unit tests
+│   └── package.json
+├── spring-golfcomp/           # Spring Boot 3 REST API backend
+│   └── src/
+│       ├── main/java/com/golfcomp/api/
+│       │   ├── controller/    # REST controllers (players, teams, scores, etc.)
+│       │   ├── service/       # Business logic
+│       │   ├── repository/    # Spring Data JPA repositories
+│       │   ├── model/         # JPA entities
+│       │   ├── dto/           # Request/response DTOs
+│       │   └── exception/     # Global exception handling
+│       └── main/resources/
+│           └── db/changelog/  # Liquibase database migrations
+├── data/                      # Sample JSON data files for import
+├── doc/                       # User guide, test plan, delivery docs
+├── build.gradle               # Root Gradle build (orchestrates both subprojects)
+└── run.sh                     # Quick setup: install, lint, build, serve
+```
 
-- Node.js (v14.0.0 or higher)
-- npm (v6.0.0 or higher)
+## Technology Stack
 
-### Setup
+### Frontend (vue-golfcomp/)
+- **Vue.js 2** with Options API
+- **Vue Router 3** (hash mode for static hosting)
+- **Vuex 3** (namespaced modules)
+- **Webpack 5** via Vue CLI
+- **Jest 29** for unit testing
+- **localStorage** for client-side persistence
+
+### Backend (spring-golfcomp/)
+- **Spring Boot 3.5** with Java 21
+- **Spring Data JPA** for data access
+- **Liquibase** for database migrations
+- **PostgreSQL** (production) / **H2** (testing)
+- **Springdoc OpenAPI** (Swagger UI at `/swagger-ui.html`)
+- **Lombok** for boilerplate reduction
+- **JaCoCo** for test coverage
+
+## Prerequisites
+
+- **Java 21+** (for the Spring Boot backend)
+- **Node.js 14+** and **npm 6+** (for the Vue.js frontend)
+- **PostgreSQL** (for production backend use; H2 is used automatically in tests)
+
+## Commands
+
+All commands are run from the **repository root** using the Gradle wrapper.
+
+### Unified Commands
+```bash
+./gradlew build          # Build backend and frontend
+./gradlew test           # Run all tests (backend + frontend)
+./gradlew lint           # Run ESLint on frontend code
+./gradlew clean          # Clean all build artifacts
+./gradlew ci             # Full CI pipeline: clean, build, test, lint
+./gradlew showTasks      # Show all available tasks
+```
+
+### Backend (Spring Boot)
+```bash
+./gradlew bootRun        # Run the Spring Boot application (default port 8080)
+./gradlew backendBuild   # Build backend only
+./gradlew backendTest    # Run backend tests only
+```
+
+### Frontend (Vue.js)
+```bash
+./gradlew frontendDev    # Start Vue dev server at http://localhost:8080
+./gradlew frontendBuild  # Build frontend for production
+./gradlew frontendInstall # Install npm dependencies
+```
+
+### Frontend (direct npm, from vue-golfcomp/)
+```bash
+npm run serve            # Dev server
+npm run build            # Production build
+npm run lint             # ESLint check
+npm test                 # Run Jest tests
+npm test -- --watch      # Watch mode
+```
+
+## Quick Start
 
 1. Clone the repository:
 ```bash
@@ -27,83 +114,46 @@ git clone https://github.com/yourusername/golf-competition-app.git
 cd golf-competition-app
 ```
 
-2. Install dependencies:
+2. Start the frontend dev server:
 ```bash
-npm install
+./gradlew frontendDev
 ```
+Open `http://localhost:8080` in your browser.
 
-3. Start the development server:
+3. (Optional) Start the backend API:
 ```bash
-npm run serve
+./gradlew bootRun
 ```
+The API will be available at `http://localhost:8080/api` with Swagger UI at `http://localhost:8080/swagger-ui.html`.
 
-4. Build for production:
-```bash
-npm run build
-```
+For detailed instructions, refer to the [User Guide](./doc/user-guide.md).
 
-## Usage
+## API Endpoints
 
-After starting the development server, open your browser and navigate to `http://localhost:8080` to access the application.
+The REST API is organized around the following resources:
 
-### Quick Start Guide
+| Resource       | Base Path              |
+|----------------|------------------------|
+| Players        | `/api/players`         |
+| Teams          | `/api/teams`           |
+| Scores         | `/api/scores`          |
+| Courses        | `/api/courses`         |
+| Rounds         | `/api/rounds`          |
+| Competitions   | `/api/competitions`    |
+| Leaderboards   | `/api/leaderboard`     |
 
-1. **Add Players**: Navigate to Administration > Players to add players with their talent ratings
-2. **Create Teams**: Go to Administration > Teams to create teams and assign players
-3. **Enter Scores**: Use the Scoring section to enter scores for each course
-4. **View Leaderboards**: Check the Leaderboards section to see team and individual rankings
-
-For detailed instructions, please refer to the [User Guide](./doc/user-guide.md).
-
-## Project Structure
-
-```
-golf-competition-app/
-├── doc/                    # Documentation files
-│   ├── final-delivery.md   # Final delivery documentation
-│   ├── test-plan.md        # Test plan
-│   └── user-guide.md       # User guide
-├── public/                 # Static files
-├── src/                    # Source files
-│   ├── assets/             # Assets (images, styles)
-│   ├── components/         # Vue components
-│   │   ├── admin/          # Administration components
-│   │   ├── layout/         # Layout components
-│   │   ├── scoring/        # Scoring components
-│   │   └── shared/         # Shared components
-│   ├── router/             # Vue Router configuration
-│   ├── services/           # Services for data handling
-│   ├── store/              # Vuex store modules
-│   │   └── modules/        # Store modules
-│   ├── utils/              # Utility functions
-│   ├── views/              # Page components
-│   ├── App.vue             # Root component
-│   └── main.js             # Entry point
-├── .gitignore              # Git ignore file
-├── package.json            # Package configuration
-├── README.md               # Project documentation
-└── vue.config.js           # Vue CLI configuration
-```
-
-## Technology Stack
-
-- Vue.js 2
-- Vue Router for navigation
-- Vuex for state management
-- CSS Variables for theming
-- LocalStorage for data persistence
+Full API documentation is available via Swagger UI when the backend is running.
 
 ## Testing
 
-A comprehensive test plan is available in the [Test Plan](./doc/test-plan.md) document.
+- **Frontend:** Jest unit tests in `vue-golfcomp/tests/`
+- **Backend:** JUnit 5 tests in `spring-golfcomp/src/test/` (unit and integration)
+- **Coverage:** JaCoCo reports generated at `spring-golfcomp/build/reports/jacoco/`
 
-## Data Persistence
-
-The application uses localStorage for data persistence. All data is stored in the browser's localStorage and can be exported/imported as JSON.
+Run all tests: `./gradlew test`
 
 ## Browser Compatibility
 
-The application is compatible with the following browsers:
 - Chrome (latest)
 - Firefox (latest)
 - Safari (latest)
@@ -112,9 +162,3 @@ The application is compatible with the following browsers:
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Vue.js team for the excellent framework
-- All contributors to the project
-
