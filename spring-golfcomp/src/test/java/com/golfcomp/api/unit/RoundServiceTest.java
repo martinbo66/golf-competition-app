@@ -147,4 +147,53 @@ class RoundServiceTest {
 
         verify(roundRepository).deleteById(roundId);
     }
+
+    @Test
+    @DisplayName("findByCompetition - throws when competition not found")
+    void findByCompetition_throwsWhenNotFound() {
+        when(competitionRepository.existsById(competitionId)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.findByCompetition(competitionId));
+    }
+
+    @Test
+    @DisplayName("findById - returns round when found in correct competition")
+    void findById_returnsRoundWhenFound() {
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+
+        RoundResponse response = roundService.findById(competitionId, roundId);
+
+        assertNotNull(response);
+        assertEquals(roundId, response.id());
+        assertEquals(1, response.roundNumber());
+    }
+
+    @Test
+    @DisplayName("findById - throws when round not found")
+    void findById_throwsWhenNotFound() {
+        when(roundRepository.findById(roundId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.findById(competitionId, roundId));
+    }
+
+    @Test
+    @DisplayName("delete - throws when round not found")
+    void delete_throwsWhenNotFound() {
+        when(roundRepository.findById(roundId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.delete(competitionId, roundId));
+    }
+
+    @Test
+    @DisplayName("delete - throws when round belongs to different competition")
+    void delete_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.delete(otherId, roundId));
+    }
 }

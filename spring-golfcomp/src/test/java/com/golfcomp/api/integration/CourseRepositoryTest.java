@@ -32,22 +32,24 @@ class CourseRepositoryTest {
     @Test
     @DisplayName("Should save and retrieve a course by ID")
     void shouldSaveAndFindById() {
-        Course saved = courseRepository.save(buildCourse("Heathland"));
+        // Use a unique name that won't conflict with seeded courses
+        Course saved = courseRepository.save(buildCourse("TestCourseById"));
 
         assertNotNull(saved.getId());
         Optional<Course> found = courseRepository.findById(saved.getId());
         assertTrue(found.isPresent());
-        assertEquals("Heathland", found.get().getName());
+        assertEquals("TestCourseById", found.get().getName());
     }
 
     @Test
     @DisplayName("Should find course by name")
     void shouldFindByName() {
-        courseRepository.save(buildCourse("Parkland"));
+        // Use a unique name that won't conflict with seeded courses
+        courseRepository.save(buildCourse("TestCourse"));
 
-        Optional<Course> found = courseRepository.findByName("Parkland");
+        Optional<Course> found = courseRepository.findByName("TestCourse");
         assertTrue(found.isPresent());
-        assertEquals("Parkland", found.get().getName());
+        assertEquals("TestCourse", found.get().getName());
     }
 
     @Test

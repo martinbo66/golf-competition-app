@@ -1,13 +1,16 @@
-# Development profile - uses H2 in-memory until US-002 adds PostgreSQL/Liquibase
+# Development profile - local PostgreSQL
 spring:
   datasource:
-    url: jdbc:h2:mem:golfcomp;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
+    url: jdbc:postgresql://localhost:5432/golfcomp
+    username: ${USER:bmartin}
     password:
-    driver-class-name: org.h2.Driver
-  h2:
-    console:
-      enabled: true
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8081

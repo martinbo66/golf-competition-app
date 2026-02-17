@@ -47,3 +47,4 @@ tasks/
 coverage/
 test-results/
 .claude/settings.local.json
+spring-golfcomp/bin/

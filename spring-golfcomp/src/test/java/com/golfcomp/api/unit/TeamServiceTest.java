@@ -153,4 +153,93 @@ class TeamServiceTest {
 
         verify(teamRepository).deleteByCompetitionId(competitionId);
     }
+
+    @Test
+    @DisplayName("findByCompetition - throws when competition not found")
+    void findByCompetition_throwsWhenNotFound() {
+        when(competitionRepository.existsById(competitionId)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> teamService.findByCompetition(competitionId));
+    }
+
+    @Test
+    @DisplayName("findById - returns team when found in correct competition")
+    void findById_returnsTeamWhenFound() {
+        when(teamRepository.findById(teamId)).thenReturn(Optional.of(team));
+
+        TeamResponse response = teamService.findById(competitionId, teamId);
+
+        assertNotNull(response);
+        assertEquals(teamId, response.id());
+        assertEquals("Bathe's Bombers", response.name());
+    }
+
+    @Test
+    @DisplayName("findById - throws when team not found")
+    void findById_throwsWhenNotFound() {
+        when(teamRepository.findById(teamId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> teamService.findById(competitionId, teamId));
+    }
+
+    @Test
+    @DisplayName("update - throws when team belongs to different competition")
+    void update_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(teamRepository.findById(teamId)).thenReturn(Optional.of(team));
+        UpdateTeamRequest request = new UpdateTeamRequest("New Name", null);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> teamService.update(otherId, teamId, request));
+    }
+
+    @Test
+    @DisplayName("update - throws when team not found")
+    void update_throwsWhenNotFound() {
+        when(teamRepository.findById(teamId)).thenReturn(Optional.empty());
+        UpdateTeamRequest request = new UpdateTeamRequest("New Name", null);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> teamService.update(competitionId, teamId, request));
+    }
+
+    @Test
+    @DisplayName("delete - removes team when it belongs to competition")
+    void delete_removesTeam() {
+        when(teamRepository.findById(teamId)).thenReturn(Optional.of(team));
+
+        teamService.delete(competitionId, teamId);
+
+        verify(teamRepository).deleteById(teamId);
+    }
+
+    @Test
+    @DisplayName("delete - throws when team not found")
+    void delete_throwsWhenNotFound() {
+        when(teamRepository.findById(teamId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> teamService.delete(competitionId, teamId));
+    }
+
+    @Test
+    @DisplayName("delete - throws when team belongs to different competition")
+    void delete_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(teamRepository.findById(teamId)).thenReturn(Optional.of(team));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> teamService.delete(otherId, teamId));
+    }
+
+    @Test
+    @DisplayName("deleteAll - throws when competition not found")
+    void deleteAll_throwsWhenNotFound() {
+        when(competitionRepository.existsById(competitionId)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> teamService.deleteAll(competitionId));
+    }
 }

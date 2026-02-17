@@ -22,4 +22,7 @@
     <include file="changes/005-create-players-table.xml" relativeToChangelogFile="true"/>
     <include file="changes/006-create-scores-table.xml" relativeToChangelogFile="true"/>
 
+    <!-- Seed data -->
+    <include file="changes/007-seed-courses.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

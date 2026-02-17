@@ -185,4 +185,64 @@ class ScoreServiceTest {
         assertThrows(ResourceNotFoundException.class,
             () -> scoreService.deleteAllByCompetition(competitionId));
     }
+
+    @Test
+    @DisplayName("upsert - throws when round not found")
+    void upsert_throwsWhenRoundNotFound() {
+        when(roundRepository.findById(roundId)).thenReturn(Optional.empty());
+        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 85);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> scoreService.upsert(competitionId, roundId, request));
+    }
+
+    @Test
+    @DisplayName("upsert - throws when player not found")
+    void upsert_throwsWhenPlayerNotFound() {
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
+        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 85);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> scoreService.upsert(competitionId, roundId, request));
+    }
+
+    @Test
+    @DisplayName("upsert - throws when player belongs to different competition")
+    void upsert_throwsWhenPlayerInDifferentCompetition() {
+        UUID otherCompId = UUID.randomUUID();
+        Competition otherComp = Competition.builder()
+            .id(otherCompId).name("Other").startDate(LocalDate.now())
+            .endDate(LocalDate.now().plusDays(1))
+            .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
+        Player otherPlayer = Player.builder()
+            .id(playerId).competition(otherComp).name("Other Player")
+            .talentRating(TalentRating.C).entryFee(BigDecimal.ZERO).winnings(BigDecimal.ZERO)
+            .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(otherPlayer));
+        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 85);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> scoreService.upsert(competitionId, roundId, request));
+    }
+
+    @Test
+    @DisplayName("findByRound - throws when round not found")
+    void findByRound_throwsWhenRoundNotFound() {
+        when(roundRepository.findById(roundId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> scoreService.findByRound(competitionId, roundId));
+    }
+
+    @Test
+    @DisplayName("findByRound - throws when round belongs to different competition")
+    void findByRound_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> scoreService.findByRound(otherId, roundId));
+    }
 }

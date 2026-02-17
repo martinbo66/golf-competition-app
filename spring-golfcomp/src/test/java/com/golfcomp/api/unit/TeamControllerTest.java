@@ -3,6 +3,7 @@ package com.golfcomp.api.unit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golfcomp.api.controller.TeamController;
 import com.golfcomp.api.dto.request.CreateTeamRequest;
+import com.golfcomp.api.dto.request.UpdateTeamRequest;
 import com.golfcomp.api.dto.response.TeamResponse;
 import com.golfcomp.api.exception.BusinessRuleException;
 import com.golfcomp.api.exception.GlobalExceptionHandler;
@@ -23,7 +24,6 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -103,5 +103,30 @@ class TeamControllerTest {
 
         mockMvc.perform(get("/api/v1/competitions/{cId}/teams/{tId}", competitionId, teamId))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET /teams/{id} - returns 200 with team")
+    void findById_returns200() throws Exception {
+        UUID teamId = UUID.randomUUID();
+        when(teamService.findById(competitionId, teamId)).thenReturn(sampleTeam(competitionId));
+
+        mockMvc.perform(get("/api/v1/competitions/{cId}/teams/{tId}", competitionId, teamId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.name").value("Bathe's Bombers"));
+    }
+
+    @Test
+    @DisplayName("PUT /teams/{id} - returns 200 with updated team")
+    void update_returns200() throws Exception {
+        UUID teamId = UUID.randomUUID();
+        when(teamService.update(eq(competitionId), eq(teamId), any())).thenReturn(sampleTeam(competitionId));
+        UpdateTeamRequest req = new UpdateTeamRequest("Updated Name", null);
+
+        mockMvc.perform(put("/api/v1/competitions/{cId}/teams/{tId}", competitionId, teamId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.name").value("Bathe's Bombers"));
     }
 }
