@@ -16,7 +16,7 @@ Progress across working sessions. Use this section to pick up where you left off
 | Story | Title | Status |
 |-------|-------|--------|
 | US-F001 | Add Axios and Create ApiService | Complete |
-| US-F002 | Liquibase Seed Data for Courses | Not Started |
+| US-F002 | Liquibase Seed Data for Courses | Complete |
 | US-F003 | Competition Bootstrap on App Init | Not Started |
 | US-F004 | Vue Dev Server Proxy Configuration | Not Started |
 | US-F005 | Migrate Courses Store to API | Not Started |
@@ -33,15 +33,21 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended starting stories:** US-F001 (ApiService), US-F002 (Course seed data), US-F004 (Proxy config) — these are independent and can be implemented in parallel.
+**Recommended next stories:** US-F003 (Competition Bootstrap) and US-F004 (Proxy Config) — these are the remaining foundation stories. US-F004 has no dependencies and can be done immediately. US-F003 depends on US-F001 (complete) and US-F004.
 
 ### Progress Log
 
-_(Empty — no work started yet)_
+- **2026-02-17:** US-F001 complete. Created ApiService wrapper with axios for HTTP communication.
+- **2026-02-17:** US-F002 complete. Added Liquibase seed migration for 4 golf courses with exact UUIDs matching frontend.
 
 ### Files Modified (Cumulative)
 
-_(Empty — no work started yet)_
+- `vue-golfcomp/package.json` — Added axios dependency
+- `vue-golfcomp/src/services/ApiService.js` — Created HTTP client wrapper
+- `vue-golfcomp/tests/apiService.test.js` — Unit tests for ApiService
+- `spring-golfcomp/src/main/resources/db/changelog/changes/007-seed-courses.xml` — Liquibase seed migration
+- `spring-golfcomp/src/main/resources/db/changelog/db.changelog-master.xml` — Include new migration
+- `spring-golfcomp/src/test/java/com/golfcomp/api/integration/CourseRepositoryTest.java` — Updated test to avoid name conflicts with seeded courses
 
 ---
 
@@ -510,7 +516,7 @@ Create a basic test that:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~30 minutes |
 | **Epic** | Foundation |
@@ -528,15 +534,15 @@ As a developer, I want the 4 golf courses pre-seeded in the database via Liquiba
 
 #### Acceptance Criteria
 
-- [ ] AC1: Liquibase migration `007-seed-courses.xml` inserts 4 courses
-- [ ] AC2: Course IDs match the frontend hardcoded UUIDs exactly:
+- [x] AC1: Liquibase migration `007-seed-courses.xml` inserts 4 courses
+- [x] AC2: Course IDs match the frontend hardcoded UUIDs exactly:
   - `071aaf93-773e-49d0-935e-4b825e25670f` — Parkland
   - `2b81e674-816a-42ea-b524-54a96bfb2b14` — Heathland
   - `38a5c806-7f44-4ebb-9472-6ec79431c5ff` — Heritage Club
   - `d3d8aa11-5320-477b-9602-6501dd63b186` — Moorland
-- [ ] AC3: Migration is idempotent (uses `preconditions` or `onFail="MARK_RAN"` to skip if courses exist)
-- [ ] AC4: Master changelog includes the new migration file
-- [ ] AC5: `./gradlew backendTest` passes (H2 compatible)
+- [x] AC3: Migration is idempotent (uses `preconditions` or `onFail="MARK_RAN"` to skip if courses exist)
+- [x] AC4: Master changelog includes the new migration file
+- [x] AC5: `./gradlew backendTest` passes (H2 compatible)
 
 #### Agent Instructions
 

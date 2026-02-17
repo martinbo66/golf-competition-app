@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Seed data for the 4 golf courses.
+        
+        These UUIDs must match exactly with the frontend hardcoded values in:
+        vue-golfcomp/src/stores/courses.js
+        
+        The migration is idempotent - it will skip inserting if a course with
+        the same ID already exists.
+    -->
+
+    <changeSet id="007-seed-courses-parkland" author="golfcomp" runOnChange="false">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM courses WHERE id = '071aaf93-773e-49d0-935e-4b825e25670f'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <comment>Seed Parkland course</comment>
+        <insert tableName="courses">
+            <column name="id" value="071aaf93-773e-49d0-935e-4b825e25670f"/>
+            <column name="name" value="Parkland"/>
+            <column name="facility" valueComputed="NULL"/>
+            <column name="location" valueComputed="NULL"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-courses-heathland" author="golfcomp" runOnChange="false">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM courses WHERE id = '2b81e674-816a-42ea-b524-54a96bfb2b14'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <comment>Seed Heathland course</comment>
+        <insert tableName="courses">
+            <column name="id" value="2b81e674-816a-42ea-b524-54a96bfb2b14"/>
+            <column name="name" value="Heathland"/>
+            <column name="facility" valueComputed="NULL"/>
+            <column name="location" valueComputed="NULL"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-courses-heritage-club" author="golfcomp" runOnChange="false">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM courses WHERE id = '38a5c806-7f44-4ebb-9472-6ec79431c5ff'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <comment>Seed Heritage Club course</comment>
+        <insert tableName="courses">
+            <column name="id" value="38a5c806-7f44-4ebb-9472-6ec79431c5ff"/>
+            <column name="name" value="Heritage Club"/>
+            <column name="facility" valueComputed="NULL"/>
+            <column name="location" valueComputed="NULL"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="007-seed-courses-moorland" author="golfcomp" runOnChange="false">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM courses WHERE id = 'd3d8aa11-5320-477b-9602-6501dd63b186'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <comment>Seed Moorland course</comment>
+        <insert tableName="courses">
+            <column name="id" value="d3d8aa11-5320-477b-9602-6501dd63b186"/>
+            <column name="name" value="Moorland"/>
+            <column name="facility" valueComputed="NULL"/>
+            <column name="location" valueComputed="NULL"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
