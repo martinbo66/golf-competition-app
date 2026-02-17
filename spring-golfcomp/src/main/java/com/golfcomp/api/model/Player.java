@@ -52,7 +52,7 @@ public class Player {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "talent_rating", nullable = false, length = 1)
+    @Column(name = "talent_rating", nullable = false, columnDefinition = "varchar(1)")
     private TalentRating talentRating;
 
     @Builder.Default
