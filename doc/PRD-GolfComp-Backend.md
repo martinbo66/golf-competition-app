@@ -44,9 +44,9 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-027 | Score Controller | Complete |
 | US-028 | Leaderboard Controller | Complete |
 | US-029 | Snake Draft Algorithm | Not Started |
-| US-030 | Global Exception Handler | Not Started |
+| US-030 | Global Exception Handler | Complete |
 | US-031 | CORS Configuration | Not Started |
-| US-032 | OpenAPI Documentation | Not Started |
+| US-032 | OpenAPI Documentation | Complete |
 
 ### Next Up
 
@@ -1261,7 +1261,7 @@ Result: Each team has one of each rating.
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~1 hour |
 | **Epic** | Advanced Features |

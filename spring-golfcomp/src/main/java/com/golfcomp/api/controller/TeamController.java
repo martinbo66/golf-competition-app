@@ -5,6 +5,7 @@ import com.golfcomp.api.dto.request.UpdateTeamRequest;
 import com.golfcomp.api.dto.response.ApiResponse;
 import com.golfcomp.api.dto.response.TeamResponse;
 import com.golfcomp.api.service.TeamService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Teams", description = "Manage competition teams")
 @RestController
 @RequestMapping("/api/v1/competitions/{competitionId}/teams")
 public class TeamController {

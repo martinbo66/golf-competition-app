@@ -5,6 +5,7 @@ import com.golfcomp.api.dto.request.UpdateCourseRequest;
 import com.golfcomp.api.dto.response.ApiResponse;
 import com.golfcomp.api.dto.response.CourseResponse;
 import com.golfcomp.api.service.CourseService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Courses", description = "Manage golf courses")
 @RestController
 @RequestMapping("/api/v1/courses")
 public class CourseController {

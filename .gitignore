@@ -45,4 +45,5 @@ dev-debug.log
 tasks.json
 tasks/ 
 coverage/
+test-results/
 .claude/settings.local.json

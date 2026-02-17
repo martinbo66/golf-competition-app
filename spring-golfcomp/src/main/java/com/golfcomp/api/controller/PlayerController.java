@@ -6,6 +6,7 @@ import com.golfcomp.api.dto.request.UpdatePlayerRequest;
 import com.golfcomp.api.dto.response.ApiResponse;
 import com.golfcomp.api.dto.response.PlayerResponse;
 import com.golfcomp.api.service.PlayerService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Players", description = "Manage competition players")
 @RestController
 @RequestMapping("/api/v1/competitions/{competitionId}/players")
 public class PlayerController {

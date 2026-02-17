@@ -14,6 +14,7 @@
 
 plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.21.1'
+    id 'org.sonarqube' version '6.0.1.5171'
 }
 
 // ============================================================================
@@ -28,6 +29,32 @@ scmVersion {
 }
 
 project.version = scmVersion.version
+
+// ============================================================================
+// SonarQube / SonarCloud Configuration
+// ============================================================================
+sonar {
+    properties {
+        property 'sonar.projectKey', 'martinbo66_golf-competition-app'
+        property 'sonar.organization', 'martinbo66'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+
+        // Coverage reports
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'spring-golfcomp/build/reports/jacoco/test/jacocoTestReport.xml'
+
+        // Exclusions
+        property 'sonar.exclusions', '**/node_modules/**,**/dist/**,**/build/**,**/static/**'
+
+        // Include JavaScript analysis
+        property 'sonar.sources', 'vue-golfcomp/src'
+        property 'sonar.tests', 'vue-golfcomp/tests'
+    }
+}
+
+// Ensure coverage report exists before running sonar
+tasks.named('sonar').configure {
+    dependsOn ':spring-golfcomp:jacocoTestReport'
+}
 
 // Detect npm or use npx as fallback
 def npmCommand = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
@@ -132,6 +159,12 @@ task backendClean {
     dependsOn ':spring-golfcomp:clean'
 }
 
+task backendCoverage {
+    description = 'Generate backend code coverage report'
+    group = 'backend'
+    dependsOn ':spring-golfcomp:jacocoTestReport'
+}
+
 // ============================================================================
 // Unified CI/CD Tasks
 // ============================================================================
@@ -146,6 +179,19 @@ task test {
     description = 'Run all tests (backend and frontend)'
     group = 'verification'
     dependsOn backendTest, frontendTest
+}
+
+task coverage {
+    description = 'Generate code coverage reports for all projects'
+    group = 'verification'
+    dependsOn backendCoverage
+
+    doLast {
+        println "\n" + "=" * 80
+        println "Coverage reports generated:"
+        println "  Backend: file://${projectDir}/spring-golfcomp/build/reports/jacoco/test/html/index.html"
+        println "=" * 80
+    }
 }
 
 task lint {
@@ -178,13 +224,18 @@ task bootRun {
 // ============================================================================
 
 task ci {
-    description = 'Full CI pipeline: clean, build, test, lint'
+    description = 'Full CI pipeline: clean, build, test, lint, coverage, and sonar'
     group = 'ci'
-    dependsOn clean, build, test, lint
+    dependsOn clean, build, test, lint, coverage, 'sonar'
 
+    // Ensure proper execution order: clean -> build -> test -> lint -> coverage -> sonar
     build.mustRunAfter clean
     test.mustRunAfter build
     lint.mustRunAfter test
+    coverage.mustRunAfter lint
+    tasks.named('sonar').configure {
+        mustRunAfter coverage
+    }
 }
 
 // ============================================================================
@@ -204,13 +255,18 @@ task showTasks {
 ║   ./gradlew build      Build backend and frontend                              ║
 ║   ./gradlew test       Run all tests                                           ║
 ║   ./gradlew lint       Run ESLint                                              ║
-║   ./gradlew clean      Clean all build artifacts                              ║
-║   ./gradlew ci         Full CI: clean, build, test, lint                        ║
+║   ./gradlew clean      Clean all build artifacts                               ║
+║   ./gradlew ci         Full CI: clean, build, test, lint, coverage, sonar      ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║ CODE QUALITY                                                                   ║
+║   ./gradlew sonar      Run SonarCloud analysis only (requires SONAR_TOKEN)     ║
+║   ./gradlew coverage   Generate code coverage reports                          ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║ BACKEND (Spring Boot)                                                           ║
 ║   ./gradlew bootRun          Run the Spring Boot application                  ║
 ║   ./gradlew backendBuild     Build backend only                                ║
 ║   ./gradlew backendTest      Run backend tests only                            ║
+║   ./gradlew backendCoverage  Generate code coverage report                     ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║ FRONTEND (Vue.js)                                                              ║
 ║   ./gradlew frontendDev      Start dev server (http://localhost:8080)          ║
