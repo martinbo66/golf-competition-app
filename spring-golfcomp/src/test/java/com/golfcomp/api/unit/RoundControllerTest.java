@@ -85,4 +85,15 @@ class RoundControllerTest {
         mockMvc.perform(delete("/api/v1/competitions/{cId}/rounds/{rId}", competitionId, UUID.randomUUID()))
             .andExpect(status().isNoContent());
     }
+
+    @Test
+    @DisplayName("GET /rounds/{id} - returns 200 with round")
+    void findById_returns200() throws Exception {
+        UUID roundId = UUID.randomUUID();
+        when(roundService.findById(competitionId, roundId)).thenReturn(sampleRound());
+
+        mockMvc.perform(get("/api/v1/competitions/{cId}/rounds/{rId}", competitionId, roundId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.roundNumber").value(1));
+    }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golfcomp.api.controller.PlayerController;
 import com.golfcomp.api.dto.request.AssignPlayerRequest;
 import com.golfcomp.api.dto.request.CreatePlayerRequest;
+import com.golfcomp.api.dto.request.UpdatePlayerRequest;
 import com.golfcomp.api.dto.response.PlayerResponse;
 import com.golfcomp.api.exception.GlobalExceptionHandler;
 import com.golfcomp.api.exception.ResourceNotFoundException;
@@ -125,5 +126,31 @@ class PlayerControllerTest {
 
         mockMvc.perform(get("/api/v1/competitions/{cId}/players/{pId}", competitionId, playerId))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET /players/{id} - returns 200 with player")
+    void findById_returns200() throws Exception {
+        UUID playerId = UUID.randomUUID();
+        when(playerService.findById(competitionId, playerId)).thenReturn(samplePlayer());
+
+        mockMvc.perform(get("/api/v1/competitions/{cId}/players/{pId}", competitionId, playerId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.name").value("Erik Bathe"));
+    }
+
+    @Test
+    @DisplayName("PUT /players/{id} - returns 200 with updated player")
+    void update_returns200() throws Exception {
+        UUID playerId = UUID.randomUUID();
+        when(playerService.update(eq(competitionId), eq(playerId), any())).thenReturn(samplePlayer());
+        UpdatePlayerRequest req = new UpdatePlayerRequest(
+            "Updated Name", TalentRating.B, null, null);
+
+        mockMvc.perform(put("/api/v1/competitions/{cId}/players/{pId}", competitionId, playerId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.name").value("Erik Bathe"));
     }
 }

@@ -213,4 +213,98 @@ class LeaderboardServiceTest {
         assertEquals(170, entries.get(0).totalScore()); // 80 + 90
         assertEquals(2, entries.get(0).playerCount());
     }
+
+    @Test
+    @DisplayName("getTeamLeaderboard - throws when competition not found")
+    void getTeamLeaderboard_throwsWhenNotFound() {
+        when(competitionRepository.existsById(competitionId)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> leaderboardService.getTeamLeaderboard(competitionId));
+    }
+
+    @Test
+    @DisplayName("getTeamLeaderboard - assigns same rank to tied teams")
+    void getTeamLeaderboard_handlesTies() {
+        Team teamTwo = Team.builder()
+            .id(UUID.randomUUID()).competition(competition).name("Team Beta")
+            .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
+        Player playerC = Player.builder()
+            .id(UUID.randomUUID()).competition(competition).team(teamTwo)
+            .name("Player C").talentRating(TalentRating.C)
+            .entryFee(BigDecimal.ZERO).winnings(BigDecimal.ZERO)
+            .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
+        Score scoreC = Score.builder()
+            .id(UUID.randomUUID()).competition(competition).round(round)
+            .player(playerC).value(170)
+            .createdAt(Instant.now()).updatedAt(Instant.now()).build();
+
+        when(competitionRepository.existsById(competitionId)).thenReturn(true);
+        when(teamRepository.findByCompetitionId(competitionId)).thenReturn(List.of(team, teamTwo));
+        when(playerRepository.findByCompetitionId(competitionId))
+            .thenReturn(List.of(playerA, playerB, playerC));
+        when(scoreRepository.findByCompetitionId(competitionId))
+            .thenReturn(List.of(scoreA, scoreB, scoreC));
+
+        List<TeamLeaderboardEntry> entries = leaderboardService.getTeamLeaderboard(competitionId);
+
+        assertEquals(2, entries.size());
+        assertEquals(1, entries.get(0).rank());
+        assertEquals(1, entries.get(1).rank()); // tied at 170
+    }
+
+    @Test
+    @DisplayName("getPlayerLeaderboard - handles players with no team assignment")
+    void getPlayerLeaderboard_handlesNullTeam() {
+        Player unassigned = Player.builder()
+            .id(UUID.randomUUID()).competition(competition).team(null)
+            .name("Lone Wolf").talentRating(TalentRating.D)
+            .entryFee(BigDecimal.ZERO).winnings(BigDecimal.ZERO)
+            .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
+        Score unassignedScore = Score.builder()
+            .id(UUID.randomUUID()).competition(competition).round(round)
+            .player(unassigned).value(75)
+            .createdAt(Instant.now()).updatedAt(Instant.now()).build();
+
+        when(competitionRepository.existsById(competitionId)).thenReturn(true);
+        when(playerRepository.findByCompetitionId(competitionId))
+            .thenReturn(List.of(unassigned, playerA));
+        when(scoreRepository.findByCompetitionId(competitionId))
+            .thenReturn(List.of(unassignedScore, scoreA));
+
+        List<PlayerLeaderboardEntry> entries = leaderboardService.getPlayerLeaderboard(competitionId);
+
+        assertEquals(2, entries.size());
+        // unassigned player with score 75 should rank first (lower is better)
+        assertEquals("Lone Wolf", entries.get(0).playerName());
+        assertNull(entries.get(0).teamId());
+        assertNull(entries.get(0).teamName());
+    }
+
+    @Test
+    @DisplayName("getTeamLeaderboard - excludes unassigned players from team totals")
+    void getTeamLeaderboard_excludesUnassignedPlayers() {
+        Player unassigned = Player.builder()
+            .id(UUID.randomUUID()).competition(competition).team(null)
+            .name("Free Agent").talentRating(TalentRating.D)
+            .entryFee(BigDecimal.ZERO).winnings(BigDecimal.ZERO)
+            .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
+        Score unassignedScore = Score.builder()
+            .id(UUID.randomUUID()).competition(competition).round(round)
+            .player(unassigned).value(100)
+            .createdAt(Instant.now()).updatedAt(Instant.now()).build();
+
+        when(competitionRepository.existsById(competitionId)).thenReturn(true);
+        when(teamRepository.findByCompetitionId(competitionId)).thenReturn(List.of(team));
+        when(playerRepository.findByCompetitionId(competitionId))
+            .thenReturn(List.of(playerA, playerB, unassigned));
+        when(scoreRepository.findByCompetitionId(competitionId))
+            .thenReturn(List.of(scoreA, scoreB, unassignedScore));
+
+        List<TeamLeaderboardEntry> entries = leaderboardService.getTeamLeaderboard(competitionId);
+
+        assertEquals(1, entries.size());
+        assertEquals(170, entries.get(0).totalScore()); // only 80 + 90, not 100
+        assertEquals(2, entries.get(0).playerCount());
+    }
 }

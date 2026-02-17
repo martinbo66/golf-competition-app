@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -192,5 +193,177 @@ class PlayerServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
             () -> playerService.findById(otherId, playerId));
+    }
+
+    @Test
+    @DisplayName("findById - returns player when found in correct competition")
+    void findById_returnsPlayerWhenFound() {
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+
+        PlayerResponse response = playerService.findById(competitionId, playerId);
+
+        assertNotNull(response);
+        assertEquals(playerId, response.id());
+        assertEquals("Erik Bathe", response.name());
+    }
+
+    @Test
+    @DisplayName("findById - throws when player not found")
+    void findById_throwsWhenNotFound() {
+        when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.findById(competitionId, playerId));
+    }
+
+    @Test
+    @DisplayName("findByCompetition - throws when competition not found")
+    void findByCompetition_throwsWhenCompetitionNotFound() {
+        when(competitionRepository.existsById(competitionId)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.findByCompetition(competitionId));
+    }
+
+    @Test
+    @DisplayName("create - uses provided entryFee and winnings when non-null")
+    void create_usesProvidedEntryFeeAndWinnings() {
+        when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
+        when(playerRepository.save(any(Player.class))).thenReturn(player);
+        CreatePlayerRequest request = new CreatePlayerRequest(
+            "Erik Bathe", TalentRating.A, BigDecimal.valueOf(150), BigDecimal.valueOf(50));
+
+        playerService.create(competitionId, request);
+
+        verify(playerRepository).save(argThat(p ->
+            p.getEntryFee().compareTo(BigDecimal.valueOf(150)) == 0
+            && p.getWinnings().compareTo(BigDecimal.valueOf(50)) == 0));
+    }
+
+    @Test
+    @DisplayName("update - updates player fields and returns response")
+    void update_updatesPlayerFields() {
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+        when(playerRepository.save(player)).thenReturn(player);
+        UpdatePlayerRequest request = new UpdatePlayerRequest(
+            "Updated Name", TalentRating.B, BigDecimal.valueOf(200), BigDecimal.valueOf(75));
+
+        PlayerResponse response = playerService.update(competitionId, playerId, request);
+
+        assertNotNull(response);
+        assertEquals("Updated Name", player.getName());
+        assertEquals(TalentRating.B, player.getTalentRating());
+        assertEquals(BigDecimal.valueOf(200), player.getEntryFee());
+        assertEquals(BigDecimal.valueOf(75), player.getWinnings());
+        verify(playerRepository).save(player);
+    }
+
+    @Test
+    @DisplayName("update - skips null entryFee and winnings")
+    void update_skipsNullOptionalFields() {
+        BigDecimal originalFee = player.getEntryFee();
+        BigDecimal originalWinnings = player.getWinnings();
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+        when(playerRepository.save(player)).thenReturn(player);
+        UpdatePlayerRequest request = new UpdatePlayerRequest(
+            "Updated Name", TalentRating.C, null, null);
+
+        playerService.update(competitionId, playerId, request);
+
+        assertEquals(originalFee, player.getEntryFee());
+        assertEquals(originalWinnings, player.getWinnings());
+    }
+
+    @Test
+    @DisplayName("update - throws when player not found")
+    void update_throwsWhenNotFound() {
+        when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
+        UpdatePlayerRequest request = new UpdatePlayerRequest(
+            "Name", TalentRating.A, null, null);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.update(competitionId, playerId, request));
+    }
+
+    @Test
+    @DisplayName("update - throws when player belongs to different competition")
+    void update_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+        UpdatePlayerRequest request = new UpdatePlayerRequest(
+            "Name", TalentRating.A, null, null);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.update(otherId, playerId, request));
+    }
+
+    @Test
+    @DisplayName("assignToTeam - throws when player not found")
+    void assignToTeam_throwsWhenPlayerNotFound() {
+        when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
+        AssignPlayerRequest request = new AssignPlayerRequest(teamId);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.assignToTeam(competitionId, playerId, request));
+    }
+
+    @Test
+    @DisplayName("assignToTeam - throws when player belongs to different competition")
+    void assignToTeam_throwsWhenPlayerInDifferentCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+        AssignPlayerRequest request = new AssignPlayerRequest(teamId);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.assignToTeam(otherId, playerId, request));
+    }
+
+    @Test
+    @DisplayName("assignToTeam - throws when team not found")
+    void assignToTeam_throwsWhenTeamNotFound() {
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+        when(teamRepository.findById(teamId)).thenReturn(Optional.empty());
+        AssignPlayerRequest request = new AssignPlayerRequest(teamId);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.assignToTeam(competitionId, playerId, request));
+    }
+
+    @Test
+    @DisplayName("unassignFromTeam - throws when player not found")
+    void unassignFromTeam_throwsWhenPlayerNotFound() {
+        when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.unassignFromTeam(competitionId, playerId));
+    }
+
+    @Test
+    @DisplayName("unassignFromTeam - throws when player belongs to different competition")
+    void unassignFromTeam_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.unassignFromTeam(otherId, playerId));
+    }
+
+    @Test
+    @DisplayName("delete - throws when player not found")
+    void delete_throwsWhenPlayerNotFound() {
+        when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.delete(competitionId, playerId));
+    }
+
+    @Test
+    @DisplayName("delete - throws when player belongs to different competition")
+    void delete_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> playerService.delete(otherId, playerId));
     }
 }

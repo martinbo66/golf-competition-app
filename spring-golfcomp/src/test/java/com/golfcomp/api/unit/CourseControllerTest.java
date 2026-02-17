@@ -3,6 +3,7 @@ package com.golfcomp.api.unit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golfcomp.api.controller.CourseController;
 import com.golfcomp.api.dto.request.CreateCourseRequest;
+import com.golfcomp.api.dto.request.UpdateCourseRequest;
 import com.golfcomp.api.dto.response.CourseResponse;
 import com.golfcomp.api.exception.GlobalExceptionHandler;
 import com.golfcomp.api.exception.ResourceNotFoundException;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -76,5 +78,30 @@ class CourseControllerTest {
     void delete_returns204() throws Exception {
         mockMvc.perform(delete("/api/v1/courses/{id}", UUID.randomUUID()))
             .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/courses/{id} - returns 200 with course")
+    void findById_returns200() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(courseService.findById(id)).thenReturn(sampleCourse());
+
+        mockMvc.perform(get("/api/v1/courses/{id}", id))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.name").value("Heathland"));
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/courses/{id} - returns 200 with updated course")
+    void update_returns200() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(courseService.update(eq(id), any())).thenReturn(sampleCourse());
+        UpdateCourseRequest req = new UpdateCourseRequest("Updated Name", "Legends", "Myrtle Beach, SC");
+
+        mockMvc.perform(put("/api/v1/courses/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.name").value("Heathland"));
     }
 }
