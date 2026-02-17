@@ -15,7 +15,7 @@ Progress across working sessions. Use this section to pick up where you left off
 
 | Story | Title | Status |
 |-------|-------|--------|
-| US-F001 | Add Axios and Create ApiService | Not Started |
+| US-F001 | Add Axios and Create ApiService | Complete |
 | US-F002 | Liquibase Seed Data for Courses | Not Started |
 | US-F003 | Competition Bootstrap on App Init | Not Started |
 | US-F004 | Vue Dev Server Proxy Configuration | Not Started |
@@ -371,7 +371,7 @@ graph TB
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Foundation |
