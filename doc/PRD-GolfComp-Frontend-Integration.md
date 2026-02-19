@@ -1,8 +1,8 @@
 # PRD: Golf Competition App - Frontend API Integration
 
 > **Version:** 1.0
-> **Last Updated:** 2026-02-17
-> **Status:** Not Started
+> **Last Updated:** 2026-02-18
+> **Status:** Complete
 > **Owner:** Development Team
 
 ---
@@ -28,12 +28,12 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-F011 | Update ScoreEntry Component for Round-Based Scoring | Complete |
 | US-F012 | Update Leaderboard Components for API Data | Complete |
 | US-F013 | Update Import/Export for API Data | Complete |
-| US-F014 | Update Existing Tests for API-Based Stores | Not Started |
-| US-F015 | Add Integration Tests for ApiService | Not Started |
+| US-F014 | Update Existing Tests for API-Based Stores | Complete |
+| US-F015 | Add Integration Tests for ApiService | Complete |
 
 ### Next Up
 
-**Recommended next stories:** US-F014 (Update Existing Tests for API-Based Stores) or US-F015 (Add Integration Tests for ApiService).
+**All stories complete.** Frontend API integration is fully implemented and tested.
 
 ### Progress Log
 
@@ -47,6 +47,7 @@ Progress across working sessions. Use this section to pick up where you left off
 - **2026-02-19:** US-F011 complete. ScoreEntry: loadScores uses playersStore.allPlayers and scoreByPlayerAndCourse for API-populated inputs; saveScore/clearScore use getUserFriendlyErrorMessage; clearScore removes score locally with comment on backend limitation; consistent scoreByPlayerAndCourse(playerId, courseId) pattern. Updated ScoreEntry.test.js with loading-state, error-notification, populate-on-load, and clear-local tests.
 - **2026-02-19:** US-F012 complete. PlayerLeaderboard and TeamLeaderboard: onMounted refresh (fetchScores, fetchPlayers, fetchTeams), loading state. PlayerMoneyLeaderboard and TeamMoneyLeaderboard: onMounted refresh (fetchPlayers, fetchTeams), loading state. CourseScorecard: onMounted fetchScores, loading state. All use client-side getters; sorting/ranking unchanged.
 - **2026-02-19:** US-F013 complete. DataService: exportData reads from store state with metadata version 2.0.0 and source 'api'; importData clears via API (scores bulk delete, deleteAllTeams, delete players), then creates teams/players/scores via store actions with ID remapping; courseId→roundId for scores; onProgress callback; failure collection and reporting. AppHeader: import confirmation dialog, progress display, async import with getUserFriendlyErrorMessage. Added tests/dataService.test.js.
+- **2026-02-18:** US-F014 and US-F015 complete. All 83 tests pass across 10 test suites. Test files for all stores (courses.test.js, players.test.js, teams.test.js, pinia_teams.test.js, scores.test.js) and components (ScoreEntry.test.js) were created/updated during F005–F013; apiService.test.js (F015) covers URL helpers, ApiResponse unwrapping, error extraction, 204 handling, and competition ID injection. Created tests/__mocks__/ApiService.js as shared mock reference for future tests.
 
 ### Files Modified (Cumulative)
 
