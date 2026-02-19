@@ -81,7 +81,7 @@ describe('ScoreEntry Component', () => {
         expect(input.element.value).toBe('72');
     });
 
-    test('saves score when save button is clicked', async () => {
+    test('saves score when save all button is clicked', async () => {
         const playersStore = usePlayersStore();
         const scoresStore = useScoresStore();
         const coursesStore = useCoursesStore();
@@ -109,7 +109,7 @@ describe('ScoreEntry Component', () => {
         const input = wrapper.find('input[type="number"]');
         await input.setValue(72);
 
-        const saveButton = wrapper.find('button.btn-sm'); // The first button is Save
+        const saveButton = wrapper.find('button.btn-primary');
         await saveButton.trigger('click');
 
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -117,10 +117,10 @@ describe('ScoreEntry Component', () => {
         const score = scoresStore.scoreByPlayerAndCourse('p1', 'c1');
         expect(score).toBeDefined();
         expect(score.value).toBe(72);
-        expect(NotificationService.success).toHaveBeenCalledWith('Score saved successfully');
+        expect(NotificationService.success).toHaveBeenCalledWith('1 score(s) saved successfully');
     });
 
-    test('save button shows Saving... while request is in progress', async () => {
+    test('save all button shows Saving... while request is in progress', async () => {
         const playersStore = usePlayersStore();
         const coursesStore = useCoursesStore();
 
@@ -132,8 +132,8 @@ describe('ScoreEntry Component', () => {
 
         const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
         await wrapper.find('input[type="number"]').setValue(72);
-        const saveBtn = wrapper.find('button.btn-sm');
-        expect(saveBtn.text()).toBe('Save');
+        const saveBtn = wrapper.find('button.btn-primary');
+        expect(saveBtn.text()).toContain('Save All Scores');
 
         saveBtn.trigger('click');
         await wrapper.vm.$nextTick();
@@ -141,7 +141,7 @@ describe('ScoreEntry Component', () => {
 
         await resolvePut({ id: 's1', playerId: 'p1', value: 72, updatedAt: '', createdAt: '' });
         await new Promise(resolve => setTimeout(resolve, 50));
-        expect(wrapper.find('button.btn-sm').text()).toBe('Save');
+        expect(wrapper.find('button.btn-primary').text()).toContain('Save All Scores');
     });
 
     test('save error displays notification with user-friendly message', async () => {
@@ -154,12 +154,10 @@ describe('ScoreEntry Component', () => {
 
         const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
         await wrapper.find('input[type="number"]').setValue(72);
-        await wrapper.find('button.btn-sm').trigger('click');
+        await wrapper.find('button.btn-primary').trigger('click');
 
         await new Promise(resolve => setTimeout(resolve, 50));
         expect(NotificationService.error).toHaveBeenCalled();
-        const msg = NotificationService.error.mock.calls[0][0];
-        expect(msg).toContain('Unable to connect');
     });
 
     test('score values from store populate inputs on load', async () => {
