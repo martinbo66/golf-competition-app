@@ -17,8 +17,8 @@ Progress across working sessions. Use this section to pick up where you left off
 |-------|-------|--------|
 | US-F001 | Add Axios and Create ApiService | Complete |
 | US-F002 | Liquibase Seed Data for Courses | Complete |
-| US-F003 | Competition Bootstrap on App Init | Not Started |
-| US-F004 | Vue Dev Server Proxy Configuration | Not Started |
+| US-F003 | Competition Bootstrap on App Init | Complete |
+| US-F004 | Vue Dev Server Proxy Configuration | Complete |
 | US-F005 | Migrate Courses Store to API | Not Started |
 | US-F006 | Migrate Players Store to API | Not Started |
 | US-F007 | Migrate Teams Store to API | Not Started |
@@ -33,12 +33,14 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next stories:** US-F003 (Competition Bootstrap) and US-F004 (Proxy Config) — these are the remaining foundation stories. US-F004 has no dependencies and can be done immediately. US-F003 depends on US-F001 (complete) and US-F004.
+**Recommended next stories:** US-F005 (Migrate Courses Store to API) — depends on US-F001 and US-F003 (complete).
 
 ### Progress Log
 
 - **2026-02-17:** US-F001 complete. Created ApiService wrapper with axios for HTTP communication.
 - **2026-02-17:** US-F002 complete. Added Liquibase seed migration for 4 golf courses with exact UUIDs matching frontend.
+- **2026-02-18:** US-F004 complete. Added Vue dev server proxy for `/api` to `http://localhost:8081` with WebSocket support.
+- **2026-02-18:** US-F003 complete. Created bootstrap module (find-or-create competition, ensure 4 rounds), wired in main.js, error state in App.vue, unit tests.
 
 ### Files Modified (Cumulative)
 
@@ -48,6 +50,11 @@ Progress across working sessions. Use this section to pick up where you left off
 - `spring-golfcomp/src/main/resources/db/changelog/changes/007-seed-courses.xml` — Liquibase seed migration
 - `spring-golfcomp/src/main/resources/db/changelog/db.changelog-master.xml` — Include new migration
 - `spring-golfcomp/src/test/java/com/golfcomp/api/integration/CourseRepositoryTest.java` — Updated test to avoid name conflicts with seeded courses
+- `vue-golfcomp/vue.config.js` — Dev server proxy for `/api` to backend (8081), ws: true
+- `vue-golfcomp/src/services/bootstrap.js` — Created; initializeApp() find-or-create competition and rounds
+- `vue-golfcomp/src/main.js` — Call initializeApp() before mount; set window.__bootstrapError on failure
+- `vue-golfcomp/src/App.vue` — Bootstrap error state UI and notification when backend unavailable
+- `vue-golfcomp/tests/bootstrap.test.js` — Unit tests for bootstrap scenarios
 
 ---
 
@@ -592,7 +599,7 @@ Run: `./gradlew backendTest`
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Foundation |
@@ -611,14 +618,14 @@ As a user, I want the app to automatically find or create a default competition 
 
 #### Acceptance Criteria
 
-- [ ] AC1: On app init, call `GET /api/v1/competitions` to check for existing competitions
-- [ ] AC2: If a competition exists, use its ID as the active competition
-- [ ] AC3: If no competition exists, create one via `POST /api/v1/competitions` with default values (name: `"Golf Competition"`, dates: today to today+7, location: null)
-- [ ] AC4: After obtaining competition ID, create 4 rounds (one per course) via `POST /api/v1/competitions/{compId}/rounds` if they do not exist. Use round numbers 1-4 matching course order and `playDate` = today.
-- [ ] AC5: Store the `competitionId` in `ApiService.competitionId`
-- [ ] AC6: Bootstrap runs before any store data loading
-- [ ] AC7: If bootstrap fails (backend not available), show an error notification and prevent app from loading into a broken state
-- [ ] AC8: Create a `bootstrap.js` module that exports an `initializeApp()` async function
+- [x] AC1: On app init, call `GET /api/v1/competitions` to check for existing competitions
+- [x] AC2: If a competition exists, use its ID as the active competition
+- [x] AC3: If no competition exists, create one via `POST /api/v1/competitions` with default values (name: `"Golf Competition"`, dates: today to today+7, location: null)
+- [x] AC4: After obtaining competition ID, create 4 rounds (one per course) via `POST /api/v1/competitions/{compId}/rounds` if they do not exist. Use round numbers 1-4 matching course order and `playDate` = today.
+- [x] AC5: Store the `competitionId` in `ApiService.competitionId`
+- [x] AC6: Bootstrap runs before any store data loading
+- [x] AC7: If bootstrap fails (backend not available), show an error notification and prevent app from loading into a broken state
+- [x] AC8: Create a `bootstrap.js` module that exports an `initializeApp()` async function
 
 #### Agent Instructions
 
@@ -712,11 +719,11 @@ Test scenarios:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] App starts correctly with running backend
-- [ ] App shows error state when backend is unavailable
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] App starts correctly with running backend
+- [x] App shows error state when backend is unavailable
 
 ---
 
@@ -724,7 +731,7 @@ Test scenarios:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~15 minutes |
 | **Epic** | Foundation |
@@ -742,10 +749,10 @@ As a developer, I want the Vue dev server to proxy API requests to the Spring Bo
 
 #### Acceptance Criteria
 
-- [ ] AC1: `vue.config.js` configures a proxy for `/api/**` requests to `http://localhost:8081`
-- [ ] AC2: Dev server on port 8080 successfully proxies API calls to backend on port 8081
-- [ ] AC3: WebSocket upgrade is enabled in proxy config (for future use)
-- [ ] AC4: Proxy does NOT affect static asset serving
+- [x] AC1: `vue.config.js` configures a proxy for `/api/**` requests to `http://localhost:8081`
+- [x] AC2: Dev server on port 8080 successfully proxies API calls to backend on port 8081
+- [x] AC3: WebSocket upgrade is enabled in proxy config (for future use)
+- [x] AC4: Proxy does NOT affect static asset serving
 
 #### Agent Instructions
 
@@ -792,10 +799,10 @@ Manual verification:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] `npm run lint` passes
-- [ ] `npm run build` succeeds
-- [ ] Proxy works when both servers are running
+- [x] All acceptance criteria met
+- [x] `npm run lint` passes
+- [x] `npm run build` succeeds
+- [x] Proxy works when both servers are running
 
 ---
 
