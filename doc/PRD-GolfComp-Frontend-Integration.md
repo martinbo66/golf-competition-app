@@ -26,14 +26,14 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-F009 | Remove localStorage Persistence, Add API Init Loading | Complete |
 | US-F010 | Add Loading States and Error Handling to Components | Complete |
 | US-F011 | Update ScoreEntry Component for Round-Based Scoring | Complete |
-| US-F012 | Update Leaderboard Components for API Data | Not Started |
+| US-F012 | Update Leaderboard Components for API Data | Complete |
 | US-F013 | Update Import/Export for API Data | Not Started |
 | US-F014 | Update Existing Tests for API-Based Stores | Not Started |
 | US-F015 | Add Integration Tests for ApiService | Not Started |
 
 ### Next Up
 
-**Recommended next stories:** US-F012 (Update Leaderboard Components for API Data) — depends on US-F010 (complete).
+**Recommended next stories:** US-F013 (Update Import/Export for API Data) — depends on US-F009 (complete).
 
 ### Progress Log
 
@@ -45,6 +45,7 @@ Progress across working sessions. Use this section to pick up where you left off
 - **2026-02-19:** US-F009 complete. Deleted persistence.js, removed pinia persistence plugin from main.js, moved data loading into bootstrap.js (courses → [players+teams] → scores), added loading state via ui store, error notification on data load failure, HTML loading spinner in index.html, removed uuid from package.json. Updated bootstrap.test.js with store mocks and 10 tests passing.
 - **2026-02-19:** US-F010 complete. Added global loading overlay in App.vue (ui store isLoading), loading/error handling in PlayerList, PlayerForm, TeamList, TeamForm, PlayerAssignment (isSubmitting/isDeleting/isGenerating, disabled buttons, user-friendly errors via getUserFriendlyErrorMessage). ConfirmationDialog supports confirmLoading; bootstrap already sets ui.isLoading. Added utils.test.js for getUserFriendlyErrorMessage.
 - **2026-02-19:** US-F011 complete. ScoreEntry: loadScores uses playersStore.allPlayers and scoreByPlayerAndCourse for API-populated inputs; saveScore/clearScore use getUserFriendlyErrorMessage; clearScore removes score locally with comment on backend limitation; consistent scoreByPlayerAndCourse(playerId, courseId) pattern. Updated ScoreEntry.test.js with loading-state, error-notification, populate-on-load, and clear-local tests.
+- **2026-02-19:** US-F012 complete. PlayerLeaderboard and TeamLeaderboard: onMounted refresh (fetchScores, fetchPlayers, fetchTeams), loading state. PlayerMoneyLeaderboard and TeamMoneyLeaderboard: onMounted refresh (fetchPlayers, fetchTeams), loading state. CourseScorecard: onMounted fetchScores, loading state. All use client-side getters; sorting/ranking unchanged.
 
 ### Files Modified (Cumulative)
 
@@ -84,6 +85,11 @@ Progress across working sessions. Use this section to pick up where you left off
 - `vue-golfcomp/tests/utils.test.js` — Unit tests for getUserFriendlyErrorMessage
 - `vue-golfcomp/src/components/scoring/ScoreEntry.vue` — loadScores from store (API data), getUserFriendlyErrorMessage for save/clear errors, Clear comment (backend no single-delete), consistent scoreByPlayerAndCourse usage
 - `vue-golfcomp/tests/ScoreEntry.test.js` — Mock NotificationService; tests for Saving... state, save error notification, scores populate on load, clear removes locally
+- `vue-golfcomp/src/components/scoring/PlayerLeaderboard.vue` — onMounted refresh (scores, players, teams), isRefreshing loading state
+- `vue-golfcomp/src/components/scoring/TeamLeaderboard.vue` — onMounted refresh (scores, players, teams), isRefreshing loading state
+- `vue-golfcomp/src/components/scoring/PlayerMoneyLeaderboard.vue` — onMounted refresh (players, teams), isRefreshing loading state
+- `vue-golfcomp/src/components/scoring/TeamMoneyLeaderboard.vue` — onMounted refresh (players, teams), isRefreshing loading state
+- `vue-golfcomp/src/components/scoring/CourseScorecard.vue` — onMounted fetchScores, isRefreshing loading state
 
 ---
 
@@ -1625,7 +1631,7 @@ The ScoreEntry component already has `isSaving` state and try/catch in `saveScor
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~3 hours |
 | **Epic** | Component Updates |
@@ -1644,13 +1650,13 @@ As a user, I want the leaderboard pages to display rankings using API-sourced da
 
 #### Acceptance Criteria
 
-- [ ] AC1: Player leaderboard uses API-fetched scores data, with per-course breakdown computed client-side
-- [ ] AC2: Team leaderboard uses API-fetched scores data, with per-course breakdown computed client-side
-- [ ] AC3: Money leaderboards continue to compute from player entryFee/winnings (client-side only)
-- [ ] AC4: Course scorecard component works with API-sourced data
-- [ ] AC5: Leaderboard data refreshes when navigating to the leaderboard page
-- [ ] AC6: Loading states shown while data is being fetched
-- [ ] AC7: Sorting/ranking behavior is preserved (total score, with name tiebreaker)
+- [x] AC1: Player leaderboard uses API-fetched scores data, with per-course breakdown computed client-side
+- [x] AC2: Team leaderboard uses API-fetched scores data, with per-course breakdown computed client-side
+- [x] AC3: Money leaderboards continue to compute from player entryFee/winnings (client-side only)
+- [x] AC4: Course scorecard component works with API-sourced data
+- [x] AC5: Leaderboard data refreshes when navigating to the leaderboard page
+- [x] AC6: Loading states shown while data is being fetched
+- [x] AC7: Sorting/ranking behavior is preserved (total score, with name tiebreaker)
 
 #### Agent Instructions
 
