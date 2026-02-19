@@ -4,14 +4,15 @@
       <h3>Player Money Leaderboard</h3>
     </div>
     <div class="card-body">
-      <div v-if="!players.length" class="empty-state">
+      <div v-if="isRefreshing" class="loading-state">
+        <p>Loading leaderboard...</p>
+      </div>
+      <div v-else-if="!players.length" class="empty-state">
         <p>No players available. Add players in the Player Management section first.</p>
       </div>
-      
       <div v-else-if="!hasAnyWinnings" class="empty-state">
         <p>No winnings recorded yet. Add winnings to players in the Player Management section.</p>
       </div>
-      
       <div v-else>
         <div class="leaderboard-filters">
           <div class="form-group">
@@ -73,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useTeamsStore } from '@/stores/teams';
 import { usePlayersStore } from '@/stores/players';
 import { useScoresStore } from '@/stores/scores';
@@ -85,6 +86,19 @@ const scoresStore = useScoresStore();
 
 const filterTeam = ref('');
 const filterTalent = ref('');
+const isRefreshing = ref(false);
+
+onMounted(async () => {
+  isRefreshing.value = true;
+  try {
+    await Promise.all([
+      playersStore.fetchPlayers(),
+      teamsStore.fetchTeams()
+    ]);
+  } finally {
+    isRefreshing.value = false;
+  }
+});
 
 const teams = computed(() => teamsStore.allTeams);
 const players = computed(() => playersStore.allPlayers);
@@ -121,6 +135,7 @@ const filteredLeaderboard = computed(() => {
   margin-bottom: 20px;
 }
 
+.loading-state,
 .empty-state {
   text-align: center;
   padding: 40px 0;

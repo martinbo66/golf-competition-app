@@ -1,8 +1,8 @@
 # PRD: Golf Competition App - Frontend API Integration
 
 > **Version:** 1.0
-> **Last Updated:** 2026-02-17
-> **Status:** Not Started
+> **Last Updated:** 2026-02-18
+> **Status:** Complete
 > **Owner:** Development Team
 
 ---
@@ -17,28 +17,37 @@ Progress across working sessions. Use this section to pick up where you left off
 |-------|-------|--------|
 | US-F001 | Add Axios and Create ApiService | Complete |
 | US-F002 | Liquibase Seed Data for Courses | Complete |
-| US-F003 | Competition Bootstrap on App Init | Not Started |
-| US-F004 | Vue Dev Server Proxy Configuration | Not Started |
-| US-F005 | Migrate Courses Store to API | Not Started |
-| US-F006 | Migrate Players Store to API | Not Started |
-| US-F007 | Migrate Teams Store to API | Not Started |
-| US-F008 | Migrate Scores Store to API | Not Started |
-| US-F009 | Remove localStorage Persistence, Add API Init Loading | Not Started |
-| US-F010 | Add Loading States and Error Handling to Components | Not Started |
-| US-F011 | Update ScoreEntry Component for Round-Based Scoring | Not Started |
-| US-F012 | Update Leaderboard Components for API Data | Not Started |
-| US-F013 | Update Import/Export for API Data | Not Started |
-| US-F014 | Update Existing Tests for API-Based Stores | Not Started |
-| US-F015 | Add Integration Tests for ApiService | Not Started |
+| US-F003 | Competition Bootstrap on App Init | Complete |
+| US-F004 | Vue Dev Server Proxy Configuration | Complete |
+| US-F005 | Migrate Courses Store to API | Complete |
+| US-F006 | Migrate Players Store to API | Complete |
+| US-F007 | Migrate Teams Store to API | Complete |
+| US-F008 | Migrate Scores Store to API | Complete |
+| US-F009 | Remove localStorage Persistence, Add API Init Loading | Complete |
+| US-F010 | Add Loading States and Error Handling to Components | Complete |
+| US-F011 | Update ScoreEntry Component for Round-Based Scoring | Complete |
+| US-F012 | Update Leaderboard Components for API Data | Complete |
+| US-F013 | Update Import/Export for API Data | Complete |
+| US-F014 | Update Existing Tests for API-Based Stores | Complete |
+| US-F015 | Add Integration Tests for ApiService | Complete |
 
 ### Next Up
 
-**Recommended next stories:** US-F003 (Competition Bootstrap) and US-F004 (Proxy Config) — these are the remaining foundation stories. US-F004 has no dependencies and can be done immediately. US-F003 depends on US-F001 (complete) and US-F004.
+**All stories complete.** Frontend API integration is fully implemented and tested.
 
 ### Progress Log
 
 - **2026-02-17:** US-F001 complete. Created ApiService wrapper with axios for HTTP communication.
 - **2026-02-17:** US-F002 complete. Added Liquibase seed migration for 4 golf courses with exact UUIDs matching frontend.
+- **2026-02-18:** US-F004 complete. Added Vue dev server proxy for `/api` to `http://localhost:8081` with WebSocket support.
+- **2026-02-18:** US-F003 complete. Created bootstrap module (find-or-create competition, ensure 4 rounds), wired in main.js, error state in App.vue, unit tests.
+- **2026-02-18:** US-F005 through US-F008 complete. Migrated courses, players, teams, and scores stores to API: fetchCourses/rounds/getters, player CRUD and assign/unassign, team CRUD and generate with player re-fetch, score fetch/update with courseId/roundId mapping; added init loading in main.js; updated components to await async store actions; added/updated store tests and ScoreEntry test.
+- **2026-02-19:** US-F009 complete. Deleted persistence.js, removed pinia persistence plugin from main.js, moved data loading into bootstrap.js (courses → [players+teams] → scores), added loading state via ui store, error notification on data load failure, HTML loading spinner in index.html, removed uuid from package.json. Updated bootstrap.test.js with store mocks and 10 tests passing.
+- **2026-02-19:** US-F010 complete. Added global loading overlay in App.vue (ui store isLoading), loading/error handling in PlayerList, PlayerForm, TeamList, TeamForm, PlayerAssignment (isSubmitting/isDeleting/isGenerating, disabled buttons, user-friendly errors via getUserFriendlyErrorMessage). ConfirmationDialog supports confirmLoading; bootstrap already sets ui.isLoading. Added utils.test.js for getUserFriendlyErrorMessage.
+- **2026-02-19:** US-F011 complete. ScoreEntry: loadScores uses playersStore.allPlayers and scoreByPlayerAndCourse for API-populated inputs; saveScore/clearScore use getUserFriendlyErrorMessage; clearScore removes score locally with comment on backend limitation; consistent scoreByPlayerAndCourse(playerId, courseId) pattern. Updated ScoreEntry.test.js with loading-state, error-notification, populate-on-load, and clear-local tests.
+- **2026-02-19:** US-F012 complete. PlayerLeaderboard and TeamLeaderboard: onMounted refresh (fetchScores, fetchPlayers, fetchTeams), loading state. PlayerMoneyLeaderboard and TeamMoneyLeaderboard: onMounted refresh (fetchPlayers, fetchTeams), loading state. CourseScorecard: onMounted fetchScores, loading state. All use client-side getters; sorting/ranking unchanged.
+- **2026-02-19:** US-F013 complete. DataService: exportData reads from store state with metadata version 2.0.0 and source 'api'; importData clears via API (scores bulk delete, deleteAllTeams, delete players), then creates teams/players/scores via store actions with ID remapping; courseId→roundId for scores; onProgress callback; failure collection and reporting. AppHeader: import confirmation dialog, progress display, async import with getUserFriendlyErrorMessage. Added tests/dataService.test.js.
+- **2026-02-18:** US-F014 and US-F015 complete. All 83 tests pass across 10 test suites. Test files for all stores (courses.test.js, players.test.js, teams.test.js, pinia_teams.test.js, scores.test.js) and components (ScoreEntry.test.js) were created/updated during F005–F013; apiService.test.js (F015) covers URL helpers, ApiResponse unwrapping, error extraction, 204 handling, and competition ID injection. Created tests/__mocks__/ApiService.js as shared mock reference for future tests.
 
 ### Files Modified (Cumulative)
 
@@ -48,6 +57,44 @@ Progress across working sessions. Use this section to pick up where you left off
 - `spring-golfcomp/src/main/resources/db/changelog/changes/007-seed-courses.xml` — Liquibase seed migration
 - `spring-golfcomp/src/main/resources/db/changelog/db.changelog-master.xml` — Include new migration
 - `spring-golfcomp/src/test/java/com/golfcomp/api/integration/CourseRepositoryTest.java` — Updated test to avoid name conflicts with seeded courses
+- `vue-golfcomp/vue.config.js` — Dev server proxy for `/api` to backend (8081), ws: true
+- `vue-golfcomp/src/services/bootstrap.js` — Created; initializeApp() find-or-create competition and rounds
+- `vue-golfcomp/src/main.js` — Call initializeApp() before mount; set window.__bootstrapError on failure
+- `vue-golfcomp/src/App.vue` — Bootstrap error state UI and notification when backend unavailable
+- `vue-golfcomp/tests/bootstrap.test.js` — Unit tests for bootstrap scenarios
+- `vue-golfcomp/src/stores/courses.js` — API fetch, rounds state, roundIdByCourseId/courseIdByRoundId getters, fallback courses
+- `vue-golfcomp/src/stores/players.js` — API CRUD, assign/unassign, fetchPlayers, response mapping (BigDecimal to number)
+- `vue-golfcomp/src/stores/teams.js` — API CRUD, generate, delete re-fetch players, uploadTeamLogo
+- `vue-golfcomp/src/stores/scores.js` — fetchScores per round, updateScore with roundId mapping, deleteScore local-only TODO
+- `vue-golfcomp/src/main.js` — loadStoresFromApi() after bootstrap (fetchCourses, fetchPlayers, fetchTeams, fetchScores)
+- `vue-golfcomp/src/components/admin/PlayerList.vue` — await store add/update/delete
+- `vue-golfcomp/src/components/admin/TeamList.vue` — await store add/update/delete
+- `vue-golfcomp/src/components/scoring/ScoreEntry.vue` — scoreByPlayerAndCourse two-arg form
+- `vue-golfcomp/tests/courses.test.js` — Courses store unit tests
+- `vue-golfcomp/tests/players.test.js` — Players store unit tests
+- `vue-golfcomp/tests/teams.test.js` — Teams store unit tests (API mocks)
+- `vue-golfcomp/tests/scores.test.js` — Scores store unit tests (API/courses mocks)
+- `vue-golfcomp/tests/pinia_teams.test.js` — generateTeams integration test with mocked API
+- `vue-golfcomp/tests/ScoreEntry.test.js` — ApiService/courses mock for save score test
+- `vue-golfcomp/src/App.vue` — Global loading overlay when ui.isLoading, setup() with useUiStore
+- `vue-golfcomp/src/utils/index.js` — getUserFriendlyErrorMessage for network/API errors
+- `vue-golfcomp/src/components/shared/ConfirmationDialog.vue` — confirmLoading, loadingText props
+- `vue-golfcomp/src/components/admin/PlayerList.vue` — isSubmitting/isDeleting, loading prop to form, user-friendly errors
+- `vue-golfcomp/src/components/admin/PlayerForm.vue` — loading prop, disabled submit/cancel when loading
+- `vue-golfcomp/src/components/admin/TeamList.vue` — isSubmitting/isDeleting/isGenerating, loading prop to form, user-friendly errors
+- `vue-golfcomp/src/components/admin/TeamForm.vue` — loading prop, disabled submit/cancel when loading
+- `vue-golfcomp/src/components/admin/PlayerAssignment.vue` — async assignPlayer, isSubmitting, user-friendly errors
+- `vue-golfcomp/tests/utils.test.js` — Unit tests for getUserFriendlyErrorMessage
+- `vue-golfcomp/src/components/scoring/ScoreEntry.vue` — loadScores from store (API data), getUserFriendlyErrorMessage for save/clear errors, Clear comment (backend no single-delete), consistent scoreByPlayerAndCourse usage
+- `vue-golfcomp/tests/ScoreEntry.test.js` — Mock NotificationService; tests for Saving... state, save error notification, scores populate on load, clear removes locally
+- `vue-golfcomp/src/components/scoring/PlayerLeaderboard.vue` — onMounted refresh (scores, players, teams), isRefreshing loading state
+- `vue-golfcomp/src/components/scoring/TeamLeaderboard.vue` — onMounted refresh (scores, players, teams), isRefreshing loading state
+- `vue-golfcomp/src/components/scoring/PlayerMoneyLeaderboard.vue` — onMounted refresh (players, teams), isRefreshing loading state
+- `vue-golfcomp/src/components/scoring/TeamMoneyLeaderboard.vue` — onMounted refresh (players, teams), isRefreshing loading state
+- `vue-golfcomp/src/components/scoring/CourseScorecard.vue` — onMounted fetchScores, isRefreshing loading state
+- `vue-golfcomp/src/services/DataService.js` — API-based export (store state, metadata 2.0.0/source api) and import (clear via API, create via store actions, ID remap, courseId→roundId, progress, error reporting)
+- `vue-golfcomp/src/components/layout/AppHeader.vue` — import confirmation, progress display, async importData with getUserFriendlyErrorMessage
+- `vue-golfcomp/tests/dataService.test.js` — unit tests for export and import (progress, clear, create, failures)
 
 ---
 
@@ -592,7 +639,7 @@ Run: `./gradlew backendTest`
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Foundation |
@@ -611,14 +658,14 @@ As a user, I want the app to automatically find or create a default competition 
 
 #### Acceptance Criteria
 
-- [ ] AC1: On app init, call `GET /api/v1/competitions` to check for existing competitions
-- [ ] AC2: If a competition exists, use its ID as the active competition
-- [ ] AC3: If no competition exists, create one via `POST /api/v1/competitions` with default values (name: `"Golf Competition"`, dates: today to today+7, location: null)
-- [ ] AC4: After obtaining competition ID, create 4 rounds (one per course) via `POST /api/v1/competitions/{compId}/rounds` if they do not exist. Use round numbers 1-4 matching course order and `playDate` = today.
-- [ ] AC5: Store the `competitionId` in `ApiService.competitionId`
-- [ ] AC6: Bootstrap runs before any store data loading
-- [ ] AC7: If bootstrap fails (backend not available), show an error notification and prevent app from loading into a broken state
-- [ ] AC8: Create a `bootstrap.js` module that exports an `initializeApp()` async function
+- [x] AC1: On app init, call `GET /api/v1/competitions` to check for existing competitions
+- [x] AC2: If a competition exists, use its ID as the active competition
+- [x] AC3: If no competition exists, create one via `POST /api/v1/competitions` with default values (name: `"Golf Competition"`, dates: today to today+7, location: null)
+- [x] AC4: After obtaining competition ID, create 4 rounds (one per course) via `POST /api/v1/competitions/{compId}/rounds` if they do not exist. Use round numbers 1-4 matching course order and `playDate` = today.
+- [x] AC5: Store the `competitionId` in `ApiService.competitionId`
+- [x] AC6: Bootstrap runs before any store data loading
+- [x] AC7: If bootstrap fails (backend not available), show an error notification and prevent app from loading into a broken state
+- [x] AC8: Create a `bootstrap.js` module that exports an `initializeApp()` async function
 
 #### Agent Instructions
 
@@ -712,11 +759,11 @@ Test scenarios:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] App starts correctly with running backend
-- [ ] App shows error state when backend is unavailable
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] App starts correctly with running backend
+- [x] App shows error state when backend is unavailable
 
 ---
 
@@ -724,7 +771,7 @@ Test scenarios:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~15 minutes |
 | **Epic** | Foundation |
@@ -742,10 +789,10 @@ As a developer, I want the Vue dev server to proxy API requests to the Spring Bo
 
 #### Acceptance Criteria
 
-- [ ] AC1: `vue.config.js` configures a proxy for `/api/**` requests to `http://localhost:8081`
-- [ ] AC2: Dev server on port 8080 successfully proxies API calls to backend on port 8081
-- [ ] AC3: WebSocket upgrade is enabled in proxy config (for future use)
-- [ ] AC4: Proxy does NOT affect static asset serving
+- [x] AC1: `vue.config.js` configures a proxy for `/api/**` requests to `http://localhost:8081`
+- [x] AC2: Dev server on port 8080 successfully proxies API calls to backend on port 8081
+- [x] AC3: WebSocket upgrade is enabled in proxy config (for future use)
+- [x] AC4: Proxy does NOT affect static asset serving
 
 #### Agent Instructions
 
@@ -792,10 +839,10 @@ Manual verification:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] `npm run lint` passes
-- [ ] `npm run build` succeeds
-- [ ] Proxy works when both servers are running
+- [x] All acceptance criteria met
+- [x] `npm run lint` passes
+- [x] `npm run build` succeeds
+- [x] Proxy works when both servers are running
 
 ---
 
@@ -803,7 +850,7 @@ Manual verification:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Store Migration |
@@ -822,13 +869,13 @@ As a developer, I want the courses store to fetch course and round data from the
 
 #### Acceptance Criteria
 
-- [ ] AC1: Courses store has a `fetchCourses()` action that calls `GET /api/v1/competitions/{compId}/rounds`
-- [ ] AC2: Store state includes `rounds` array (raw API data) in addition to `courses` array
-- [ ] AC3: Each course object in the store includes `id`, `name`, `order` (from roundNumber), and a `roundId` field
-- [ ] AC4: Store provides a `roundIdByCourseId(courseId)` getter for score operations
-- [ ] AC5: Store provides a `courseIdByRoundId(roundId)` getter for reverse lookups
-- [ ] AC6: Hardcoded courses array is kept as fallback only if API fetch fails
-- [ ] AC7: All existing getters (`allCourses`, `courseById`, `courseByName`, `coursesSorted`) continue to work
+- [x] AC1: Courses store has a `fetchCourses()` action that calls `GET /api/v1/competitions/{compId}/rounds`
+- [x] AC2: Store state includes `rounds` array (raw API data) in addition to `courses` array
+- [x] AC3: Each course object in the store includes `id`, `name`, `order` (from roundNumber), and a `roundId` field
+- [x] AC4: Store provides a `roundIdByCourseId(courseId)` getter for score operations
+- [x] AC5: Store provides a `courseIdByRoundId(roundId)` getter for reverse lookups
+- [x] AC6: Hardcoded courses array is kept as fallback only if API fetch fails
+- [x] AC7: All existing getters (`allCourses`, `courseById`, `courseByName`, `coursesSorted`) continue to work
 
 #### Agent Instructions
 
@@ -920,10 +967,10 @@ Test scenarios:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] Existing components using courses store still work
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] Existing components using courses store still work
 
 ---
 
@@ -931,7 +978,7 @@ Test scenarios:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~3 hours |
 | **Epic** | Store Migration |
@@ -950,17 +997,17 @@ As a developer, I want the players store to perform all CRUD and assignment oper
 
 #### Acceptance Criteria
 
-- [ ] AC1: `fetchPlayers()` action calls `GET /api/v1/competitions/{compId}/players` and populates state
-- [ ] AC2: `addPlayer()` action calls `POST` and adds returned player to state
-- [ ] AC3: `updatePlayer()` action calls `PUT` and updates state
-- [ ] AC4: `deletePlayer()` action calls `DELETE` and removes from state
-- [ ] AC5: `assignPlayerToTeam()` action calls `PUT .../players/{id}/assign` with `{ teamId }`
-- [ ] AC6: `unassignPlayerFromTeam()` action calls `PUT .../players/{id}/unassign`
-- [ ] AC7: `unassignAllPlayers()` iterates and calls unassign for each assigned player
-- [ ] AC8: All actions are async and propagate errors
-- [ ] AC9: `uuid` import is removed (server generates IDs)
-- [ ] AC10: All existing getters continue to work with API-sourced data
-- [ ] AC11: Player objects in state map backend `BigDecimal` entryFee/winnings to JavaScript numbers
+- [x] AC1: `fetchPlayers()` action calls `GET /api/v1/competitions/{compId}/players` and populates state
+- [x] AC2: `addPlayer()` action calls `POST` and adds returned player to state
+- [x] AC3: `updatePlayer()` action calls `PUT` and updates state
+- [x] AC4: `deletePlayer()` action calls `DELETE` and removes from state
+- [x] AC5: `assignPlayerToTeam()` action calls `PUT .../players/{id}/assign` with `{ teamId }`
+- [x] AC6: `unassignPlayerFromTeam()` action calls `PUT .../players/{id}/unassign`
+- [x] AC7: `unassignAllPlayers()` iterates and calls unassign for each assigned player
+- [x] AC8: All actions are async and propagate errors
+- [x] AC9: `uuid` import is removed (server generates IDs)
+- [x] AC10: All existing getters continue to work with API-sourced data
+- [x] AC11: Player objects in state map backend `BigDecimal` entryFee/winnings to JavaScript numbers
 
 #### Agent Instructions
 
@@ -1048,10 +1095,10 @@ Test scenarios:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] Player CRUD works end-to-end with running backend
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] Player CRUD works end-to-end with running backend
 
 ---
 
@@ -1059,7 +1106,7 @@ Test scenarios:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~3 hours |
 | **Epic** | Store Migration |
@@ -1079,16 +1126,16 @@ As a developer, I want the teams store to perform all operations via the REST AP
 
 #### Acceptance Criteria
 
-- [ ] AC1: `fetchTeams()` action calls `GET /api/v1/competitions/{compId}/teams` and populates state
-- [ ] AC2: `addTeam()` action calls `POST` with `{ name, logoUrl }`
-- [ ] AC3: `updateTeam()` action calls `PUT`
-- [ ] AC4: `deleteTeam()` action calls `DELETE` and re-fetches players (backend handles unassignment)
-- [ ] AC5: `deleteAllTeams()` action calls `DELETE /api/v1/competitions/{compId}/teams` and re-fetches players
-- [ ] AC6: `generateTeams()` action calls `POST .../teams/generate` with `{ numberOfTeams }` (depends on backend US-029)
-- [ ] AC7: `uploadTeamLogo()` updates team logo via `PUT .../teams/{id}` with `{ name, logoUrl }`
-- [ ] AC8: All actions are async and propagate errors
-- [ ] AC9: `uuid` import is removed
-- [ ] AC10: All existing getters continue to work
+- [x] AC1: `fetchTeams()` action calls `GET /api/v1/competitions/{compId}/teams` and populates state
+- [x] AC2: `addTeam()` action calls `POST` with `{ name, logoUrl }`
+- [x] AC3: `updateTeam()` action calls `PUT`
+- [x] AC4: `deleteTeam()` action calls `DELETE` and re-fetches players (backend handles unassignment)
+- [x] AC5: `deleteAllTeams()` action calls `DELETE /api/v1/competitions/{compId}/teams` and re-fetches players
+- [x] AC6: `generateTeams()` action calls `POST .../teams/generate` with `{ numberOfTeams }` (depends on backend US-029)
+- [x] AC7: `uploadTeamLogo()` updates team logo via `PUT .../teams/{id}` with `{ name, logoUrl }`
+- [x] AC8: All actions are async and propagate errors
+- [x] AC9: `uuid` import is removed
+- [x] AC10: All existing getters continue to work
 
 #### Agent Instructions
 
@@ -1163,10 +1210,10 @@ Test scenarios:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] Team CRUD works end-to-end with running backend
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] Team CRUD works end-to-end with running backend
 
 ---
 
@@ -1174,7 +1221,7 @@ Test scenarios:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~4 hours |
 | **Epic** | Store Migration |
@@ -1194,13 +1241,13 @@ As a developer, I want the scores store to perform all score operations via the 
 
 #### Acceptance Criteria
 
-- [ ] AC1: `fetchScores()` action fetches scores for ALL rounds and populates state
-- [ ] AC2: `updateScore({ playerId, courseId, value })` maps `courseId` to `roundId` via courses store, then calls `PUT .../rounds/{roundId}/scores` with `{ playerId, value }`
-- [ ] AC3: Score objects in state retain `courseId` field (mapped from roundId) for compatibility with existing getters
-- [ ] AC4: All existing getters (`scoreByPlayerAndCourse`, `playerTotalScore`, `teamTotalScore`, `playerLeaderboard`, `teamLeaderboard`, `playerMoneyLeaderboard`, `teamMoneyLeaderboard`, `courseScoresByTeam`) continue to work
-- [ ] AC5: `uuid` import is removed
-- [ ] AC6: All actions are async
-- [ ] AC7: `deleteScore` action handles the lack of a single-score-delete endpoint (local state removal with TODO comment)
+- [x] AC1: `fetchScores()` action fetches scores for ALL rounds and populates state
+- [x] AC2: `updateScore({ playerId, courseId, value })` maps `courseId` to `roundId` via courses store, then calls `PUT .../rounds/{roundId}/scores` with `{ playerId, value }`
+- [x] AC3: Score objects in state retain `courseId` field (mapped from roundId) for compatibility with existing getters
+- [x] AC4: All existing getters (`scoreByPlayerAndCourse`, `playerTotalScore`, `teamTotalScore`, `playerLeaderboard`, `teamLeaderboard`, `playerMoneyLeaderboard`, `teamMoneyLeaderboard`, `courseScoresByTeam`) continue to work
+- [x] AC5: `uuid` import is removed
+- [x] AC6: All actions are async
+- [x] AC7: `deleteScore` action handles the lack of a single-score-delete endpoint (local state removal with TODO comment)
 
 #### Agent Instructions
 
@@ -1307,10 +1354,10 @@ Test scenarios:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] Score entry works end-to-end with running backend
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] Score entry works end-to-end with running backend
 
 ---
 
@@ -1318,7 +1365,7 @@ Test scenarios:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Store Migration |
@@ -1339,14 +1386,14 @@ As a developer, I want to remove the localStorage persistence plugin and replace
 
 #### Acceptance Criteria
 
-- [ ] AC1: `persistence.js` is deleted
-- [ ] AC2: `main.js` no longer imports or uses `persistencePlugin`
-- [ ] AC3: App loads all data from API on init (after bootstrap): courses, players, teams, scores — in that order
-- [ ] AC4: Data loading is added to `bootstrap.js` (or a separate function called after bootstrap)
-- [ ] AC5: A global loading spinner is shown while data loads
-- [ ] AC6: If any data load fails, an error notification is shown but app still renders
-- [ ] AC7: `localStorage.removeItem('golf-competition-app')` is NOT called automatically (user's old data is left alone, just ignored)
-- [ ] AC8: The `uuid` package can be removed from `package.json` if no other code uses it
+- [x] AC1: `persistence.js` is deleted
+- [x] AC2: `main.js` no longer imports or uses `persistencePlugin`
+- [x] AC3: App loads all data from API on init (after bootstrap): courses, players, teams, scores — in that order
+- [x] AC4: Data loading is added to `bootstrap.js` (or a separate function called after bootstrap)
+- [x] AC5: A global loading spinner is shown while data loads
+- [x] AC6: If any data load fails, an error notification is shown but app still renders
+- [x] AC7: `localStorage.removeItem('golf-competition-app')` is NOT called automatically (user's old data is left alone, just ignored)
+- [x] AC8: The `uuid` package can be removed from `package.json` if no other code uses it
 
 #### Agent Instructions
 
@@ -1412,12 +1459,12 @@ Test scenarios:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] `npm run build` succeeds
-- [ ] App loads data from API on startup
-- [ ] No references to persistence plugin remain
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] `npm run build` succeeds
+- [x] App loads data from API on startup
+- [x] No references to persistence plugin remain
 
 ---
 
@@ -1425,7 +1472,7 @@ Test scenarios:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~3 hours |
 | **Epic** | Component Updates |
@@ -1443,13 +1490,13 @@ As a user, I want to see loading indicators when data is being saved or fetched,
 
 #### Acceptance Criteria
 
-- [ ] AC1: All components that call store actions show a loading state during API calls
-- [ ] AC2: All components that call store actions catch errors and show notification via NotificationService
-- [ ] AC3: The `ui` store's `isLoading` flag is set during initial data load
-- [ ] AC4: A global loading overlay or spinner is shown during app initialization
-- [ ] AC5: Form submit buttons are disabled while API calls are in progress
-- [ ] AC6: Delete confirmations work correctly with async operations
-- [ ] AC7: Network errors show user-friendly messages (not raw axios errors)
+- [x] AC1: All components that call store actions show a loading state during API calls
+- [x] AC2: All components that call store actions catch errors and show notification via NotificationService
+- [x] AC3: The `ui` store's `isLoading` flag is set during initial data load
+- [x] AC4: A global loading overlay or spinner is shown during app initialization
+- [x] AC5: Form submit buttons are disabled while API calls are in progress
+- [x] AC6: Delete confirmations work correctly with async operations
+- [x] AC7: Network errors show user-friendly messages (not raw axios errors)
 
 #### Agent Instructions
 
@@ -1522,7 +1569,7 @@ Visual verification:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Component Updates |
@@ -1541,12 +1588,12 @@ As a user, I want to enter scores on the scoring page and have them saved to the
 
 #### Acceptance Criteria
 
-- [ ] AC1: ScoreEntry component works with the migrated async scores store
-- [ ] AC2: Saving a score shows a loading state on the Save button
-- [ ] AC3: Score save errors are displayed via notification
-- [ ] AC4: The "Clear" button removes the score locally (with a comment noting the backend limitation)
-- [ ] AC5: Score values from the API populate the input fields correctly on page load
-- [ ] AC6: The component's calls to `scoreByPlayerAndCourse` use a consistent pattern
+- [x] AC1: ScoreEntry component works with the migrated async scores store
+- [x] AC2: Saving a score shows a loading state on the Save button
+- [x] AC3: Score save errors are displayed via notification
+- [x] AC4: The "Clear" button removes the score locally (with a comment noting the backend limitation)
+- [x] AC5: Score values from the API populate the input fields correctly on page load
+- [x] AC6: The component's calls to `scoreByPlayerAndCourse` use a consistent pattern
 
 #### Agent Instructions
 
@@ -1589,7 +1636,7 @@ The ScoreEntry component already has `isSaving` state and try/catch in `saveScor
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~3 hours |
 | **Epic** | Component Updates |
@@ -1608,13 +1655,13 @@ As a user, I want the leaderboard pages to display rankings using API-sourced da
 
 #### Acceptance Criteria
 
-- [ ] AC1: Player leaderboard uses API-fetched scores data, with per-course breakdown computed client-side
-- [ ] AC2: Team leaderboard uses API-fetched scores data, with per-course breakdown computed client-side
-- [ ] AC3: Money leaderboards continue to compute from player entryFee/winnings (client-side only)
-- [ ] AC4: Course scorecard component works with API-sourced data
-- [ ] AC5: Leaderboard data refreshes when navigating to the leaderboard page
-- [ ] AC6: Loading states shown while data is being fetched
-- [ ] AC7: Sorting/ranking behavior is preserved (total score, with name tiebreaker)
+- [x] AC1: Player leaderboard uses API-fetched scores data, with per-course breakdown computed client-side
+- [x] AC2: Team leaderboard uses API-fetched scores data, with per-course breakdown computed client-side
+- [x] AC3: Money leaderboards continue to compute from player entryFee/winnings (client-side only)
+- [x] AC4: Course scorecard component works with API-sourced data
+- [x] AC5: Leaderboard data refreshes when navigating to the leaderboard page
+- [x] AC6: Loading states shown while data is being fetched
+- [x] AC7: Sorting/ranking behavior is preserved (total score, with name tiebreaker)
 
 #### Agent Instructions
 
@@ -1674,7 +1721,7 @@ Manual verification:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~3 hours |
 | **Epic** | Data Features |
@@ -1692,13 +1739,13 @@ As a user, I want to import and export competition data so that I can back up my
 
 #### Acceptance Criteria
 
-- [ ] AC1: Export still produces a JSON file with players, teams, scores, courses, and metadata
-- [ ] AC2: Export data is read from current store state (already fetched from API)
-- [ ] AC3: Import reads JSON file and creates players, teams, and scores via API calls (not store patching)
-- [ ] AC4: Import shows progress as it processes each entity type
-- [ ] AC5: Import handles errors gracefully (e.g., duplicate team names) and reports which items failed
-- [ ] AC6: Import clears existing data before importing (with user confirmation)
-- [ ] AC7: Scores in import file use `courseId` format — the import maps to `roundId` for API calls
+- [x] AC1: Export still produces a JSON file with players, teams, scores, courses, and metadata
+- [x] AC2: Export data is read from current store state (already fetched from API)
+- [x] AC3: Import reads JSON file and creates players, teams, and scores via API calls (not store patching)
+- [x] AC4: Import shows progress as it processes each entity type
+- [x] AC5: Import handles errors gracefully (e.g., duplicate team names) and reports which items failed
+- [x] AC6: Import clears existing data before importing (with user confirmation)
+- [x] AC7: Scores in import file use `courseId` format — the import maps to `roundId` for API calls
 
 #### Agent Instructions
 
@@ -1789,10 +1836,10 @@ async importData(jsonData) {
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] Import/export round-trips data correctly
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] Import/export round-trips data correctly
 
 ---
 

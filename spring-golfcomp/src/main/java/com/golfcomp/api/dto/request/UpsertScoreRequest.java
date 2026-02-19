@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public record UpsertScoreRequest(
     @NotNull UUID playerId,
-    @NotNull @Min(18) @Max(150) Integer value
+    @NotNull @Min(0) @Max(72) Integer value
 ) {}

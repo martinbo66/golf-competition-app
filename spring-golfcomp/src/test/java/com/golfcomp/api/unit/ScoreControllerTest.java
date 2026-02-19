@@ -38,7 +38,7 @@ class ScoreControllerTest {
 
     private ScoreResponse sampleScore() {
         return new ScoreResponse(UUID.randomUUID(), competitionId, roundId, UUID.randomUUID(),
-            "Erik Bathe", 85, Instant.now(), Instant.now());
+            "Erik Bathe", 55, Instant.now(), Instant.now());
     }
 
     @Test
@@ -46,19 +46,19 @@ class ScoreControllerTest {
     void upsert_returns200() throws Exception {
         UUID playerId = UUID.randomUUID();
         when(scoreService.upsert(eq(competitionId), eq(roundId), any())).thenReturn(sampleScore());
-        UpsertScoreRequest req = new UpsertScoreRequest(playerId, 85);
+        UpsertScoreRequest req = new UpsertScoreRequest(playerId, 55);
 
         mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.value").value(85));
+            .andExpect(jsonPath("$.data.value").value(55));
     }
 
     @Test
     @DisplayName("PUT /scores - returns 400 when score out of range")
     void upsert_returns400OnInvalidScore() throws Exception {
-        UpsertScoreRequest req = new UpsertScoreRequest(UUID.randomUUID(), 200);
+        UpsertScoreRequest req = new UpsertScoreRequest(UUID.randomUUID(), 73);
 
         mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)

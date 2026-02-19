@@ -4,14 +4,15 @@
       <h3>Team Money Leaderboard</h3>
     </div>
     <div class="card-body">
-      <div v-if="!teams.length" class="empty-state">
+      <div v-if="isRefreshing" class="loading-state">
+        <p>Loading leaderboard...</p>
+      </div>
+      <div v-else-if="!teams.length" class="empty-state">
         <p>No teams available. Create teams in the Team Management section first.</p>
       </div>
-      
       <div v-else-if="!hasAnyWinnings" class="empty-state">
         <p>No winnings recorded yet. Add winnings to players in the Player Management section.</p>
       </div>
-      
       <div v-else>
         <table class="table">
           <thead>
@@ -51,7 +52,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useTeamsStore } from '@/stores/teams';
 import { usePlayersStore } from '@/stores/players';
 import { useScoresStore } from '@/stores/scores';
@@ -60,6 +61,20 @@ import { formatCurrency } from '@/utils';
 const teamsStore = useTeamsStore();
 const playersStore = usePlayersStore();
 const scoresStore = useScoresStore();
+
+const isRefreshing = ref(false);
+
+onMounted(async () => {
+  isRefreshing.value = true;
+  try {
+    await Promise.all([
+      playersStore.fetchPlayers(),
+      teamsStore.fetchTeams()
+    ]);
+  } finally {
+    isRefreshing.value = false;
+  }
+});
 
 const teams = computed(() => teamsStore.allTeams);
 const totalWinnings = computed(() => playersStore.totalWinnings);
@@ -75,6 +90,7 @@ const hasAnyWinnings = computed(() => {
   margin-bottom: 20px;
 }
 
+.loading-state,
 .empty-state {
   text-align: center;
   padding: 40px 0;

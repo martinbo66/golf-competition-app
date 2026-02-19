@@ -60,8 +60,8 @@
     </div>
     
     <div class="form-actions">
-      <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
-      <button type="submit" class="btn">{{ player ? 'Update' : 'Add' }} Player</button>
+      <button type="button" class="btn btn-secondary" @click="cancel" :disabled="loading">Cancel</button>
+      <button type="submit" class="btn" :disabled="loading">{{ player ? 'Update' : 'Add' }} Player</button>
     </div>
   </form>
 </template>
@@ -75,6 +75,10 @@ export default {
     player: {
       type: Object,
       default: null
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

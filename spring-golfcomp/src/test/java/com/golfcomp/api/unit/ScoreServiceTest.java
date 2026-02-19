@@ -104,7 +104,7 @@ class ScoreServiceTest {
             .competition(competition)
             .round(round)
             .player(player)
-            .value(85)
+            .value(55)
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
             .build();
@@ -117,12 +117,12 @@ class ScoreServiceTest {
         when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
         when(scoreRepository.findByRoundIdAndPlayerId(roundId, playerId)).thenReturn(Optional.empty());
         when(scoreRepository.save(any(Score.class))).thenReturn(score);
-        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 85);
+        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 55);
 
         ScoreResponse response = scoreService.upsert(competitionId, roundId, request);
 
         assertNotNull(response);
-        assertEquals(85, response.value());
+        assertEquals(55, response.value());
         verify(scoreRepository).save(any(Score.class));
     }
 
@@ -134,14 +134,14 @@ class ScoreServiceTest {
         when(scoreRepository.findByRoundIdAndPlayerId(roundId, playerId)).thenReturn(Optional.of(score));
         Score updatedScore = Score.builder()
             .id(scoreId).competition(competition).round(round).player(player)
-            .value(90).createdAt(Instant.now()).updatedAt(Instant.now()).build();
+            .value(60).createdAt(Instant.now()).updatedAt(Instant.now()).build();
         when(scoreRepository.save(score)).thenReturn(updatedScore);
-        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 90);
+        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 60);
 
         ScoreResponse response = scoreService.upsert(competitionId, roundId, request);
 
-        assertEquals(90, response.value());
-        assertEquals(90, score.getValue());
+        assertEquals(60, response.value());
+        assertEquals(60, score.getValue());
     }
 
     @Test
@@ -149,7 +149,7 @@ class ScoreServiceTest {
     void upsert_throwsWhenWrongCompetition() {
         UUID otherCompId = UUID.randomUUID();
         when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
-        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 85);
+        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 55);
 
         assertThrows(ResourceNotFoundException.class,
             () -> scoreService.upsert(otherCompId, roundId, request));
@@ -190,7 +190,7 @@ class ScoreServiceTest {
     @DisplayName("upsert - throws when round not found")
     void upsert_throwsWhenRoundNotFound() {
         when(roundRepository.findById(roundId)).thenReturn(Optional.empty());
-        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 85);
+        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 55);
 
         assertThrows(ResourceNotFoundException.class,
             () -> scoreService.upsert(competitionId, roundId, request));
@@ -201,7 +201,7 @@ class ScoreServiceTest {
     void upsert_throwsWhenPlayerNotFound() {
         when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
         when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
-        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 85);
+        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 55);
 
         assertThrows(ResourceNotFoundException.class,
             () -> scoreService.upsert(competitionId, roundId, request));
@@ -221,7 +221,7 @@ class ScoreServiceTest {
             .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
         when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
         when(playerRepository.findById(playerId)).thenReturn(Optional.of(otherPlayer));
-        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 85);
+        UpsertScoreRequest request = new UpsertScoreRequest(playerId, 55);
 
         assertThrows(ResourceNotFoundException.class,
             () -> scoreService.upsert(competitionId, roundId, request));

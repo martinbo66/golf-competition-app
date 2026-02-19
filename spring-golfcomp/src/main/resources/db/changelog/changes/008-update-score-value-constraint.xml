@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="008-update-score-value-constraint" author="golfcomp">
+        <comment>Update chk_scores_value constraint from 18-150 to 0-72 to match updated score range</comment>
+
+        <sql dbms="postgresql">
+            ALTER TABLE scores DROP CONSTRAINT IF EXISTS chk_scores_value;
+            ALTER TABLE scores ADD CONSTRAINT chk_scores_value CHECK (score_value &gt;= 0 AND score_value &lt;= 72);
+        </sql>
+
+        <rollback>
+            <sql dbms="postgresql">
+                ALTER TABLE scores DROP CONSTRAINT IF EXISTS chk_scores_value;
+                ALTER TABLE scores ADD CONSTRAINT chk_scores_value CHECK (score_value &gt;= 18 AND score_value &lt;= 150);
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

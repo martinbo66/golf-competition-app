@@ -1,17 +1,11 @@
 /**
  * Data Service for the Golf Competition App
- * 
- * This service abstracts the data storage operations, allowing for easy switching
- * between localStorage and a backend database in the future.
+ *
+ * Abstracts data storage operations. Export reads from store state (API-backed).
+ * Import creates entities via API with ID remapping; clears existing data first.
  */
 
-/**
- * Data Service for the Golf Competition App
- * 
- * This service abstracts the data storage operations, allowing for easy switching
- * between localStorage and a backend database in the future.
- */
-
+import ApiService from '@/services/ApiService';
 import { usePlayersStore } from '@/stores/players';
 import { useTeamsStore } from '@/stores/teams';
 import { useScoresStore } from '@/stores/scores';
@@ -186,50 +180,133 @@ class DataService {
   }
 
   /**
-   * Data Import/Export Methods
+   * Data Import/Export Methods (API-based)
    */
 
-  // Export data
+  /**
+   * Export current competition data to JSON (from store state, already from API).
+   * @returns {string} JSON string with players, teams, scores, courses, metadata
+   */
   exportData() {
-    const data = {
+    return exportDataToJson({
       players: this.playersStore.allPlayers,
       teams: this.teamsStore.allTeams,
       scores: this.scoresStore.allScores,
       courses: this.coursesStore.allCourses,
       appMetadata: {
-        version: '1.0.0',
-        exportDate: new Date().toISOString()
+        version: '2.0.0',
+        exportDate: new Date().toISOString(),
+        source: 'api'
       }
-    };
-
-    return exportDataToJson(data);
+    });
   }
 
-  // Import data
-  importData(jsonData) {
+  /**
+   * Import data from JSON: clears existing data via API, then creates players,
+   * teams, and scores via API. Maps old IDs to new (server-generated) IDs.
+   * Scores in file use courseId; import maps to roundId for API.
+   * @param {string} jsonData - JSON string from export
+   * @param {Object} [options] - Optional { onProgress: (message: string) => void }
+   * @returns {Promise<void>}
+   * @throws {Error} Invalid data format, or list of failed items after partial import
+   */
+  async importData(jsonData, options = {}) {
+    const { onProgress = () => {} } = options;
     const data = parseImportedJson(jsonData);
+    if (!data) throw new Error('Invalid data format');
 
-    if (!data) {
-      throw new Error('Invalid data format');
+    const failures = [];
+
+    // 1. Clear existing data via API
+    onProgress('Clearing existing data…');
+    try {
+      await ApiService.delete(ApiService.compUrl + '/scores');
+      this.scoresStore.$patch({ scores: [] });
+    } catch (err) {
+      failures.push({ type: 'clear', message: err.message || String(err) });
+    }
+    await this.teamsStore.deleteAllTeams();
+    const players = [...this.playersStore.allPlayers];
+    for (const player of players) {
+      try {
+        await this.playersStore.deletePlayer(player.id);
+      } catch (err) {
+        failures.push({ type: 'player', id: player.id, message: err.message || String(err) });
+      }
     }
 
-    // Update store with imported data
-    // Note: In Pinia we can patch the state directly or use actions
-    // Here we'll assume we can patch the state if the stores expose it, 
-    // or we might need to add specific actions for bulk update if not.
-    // For now, let's assume we can use $patch or specific setters if available.
-    // Since we don't have explicit SET mutations in Pinia, we'll use $patch.
-
-    if (data.players) this.playersStore.$patch({ players: data.players });
-    if (data.teams) this.teamsStore.$patch({ teams: data.teams });
-    if (data.scores) this.scoresStore.$patch({ scores: data.scores });
-
-    // Only update courses if they exist and match the expected format
-    if (data.courses && data.courses.length === 4) {
-      this.coursesStore.$patch({ courses: data.courses });
+    // 2. Create teams (new IDs from server)
+    const teamIdMap = {};
+    const teams = data.teams || [];
+    onProgress(`Importing teams (0/${teams.length})…`);
+    for (let i = 0; i < teams.length; i++) {
+      const team = teams[i];
+      try {
+        const newId = await this.teamsStore.addTeam({
+          name: team.name,
+          logoUrl: team.logoUrl || null
+        });
+        teamIdMap[team.id] = newId;
+      } catch (err) {
+        failures.push({ type: 'team', name: team.name, message: err.message || String(err) });
+      }
+      onProgress(`Importing teams (${i + 1}/${teams.length})…`);
     }
 
-    return true;
+    // 3. Create players and assign to teams
+    const playerIdMap = {};
+    const playersToImport = data.players || [];
+    onProgress(`Importing players (0/${playersToImport.length})…`);
+    for (let i = 0; i < playersToImport.length; i++) {
+      const player = playersToImport[i];
+      try {
+        const newId = await this.playersStore.addPlayer({
+          name: player.name,
+          talentRating: player.talentRating,
+          entryFee: player.entryFee != null ? Number(player.entryFee) : 0,
+          winnings: player.winnings != null ? Number(player.winnings) : 0
+        });
+        playerIdMap[player.id] = newId;
+        if (player.teamId && teamIdMap[player.teamId]) {
+          await this.playersStore.assignPlayerToTeam({
+            playerId: newId,
+            teamId: teamIdMap[player.teamId]
+          });
+        }
+      } catch (err) {
+        failures.push({ type: 'player', name: player.name, message: err.message || String(err) });
+      }
+      onProgress(`Importing players (${i + 1}/${playersToImport.length})…`);
+    }
+
+    // 4. Create scores (courseId from file → roundId for API via store)
+    const scores = data.scores || [];
+    onProgress(`Importing scores (0/${scores.length})…`);
+    for (let i = 0; i < scores.length; i++) {
+      const score = scores[i];
+      const newPlayerId = playerIdMap[score.playerId];
+      if (!newPlayerId) continue;
+      try {
+        await this.scoresStore.updateScore({
+          playerId: newPlayerId,
+          courseId: score.courseId,
+          value: score.value
+        });
+      } catch (err) {
+        failures.push({
+          type: 'score',
+          playerId: score.playerId,
+          courseId: score.courseId,
+          message: err.message || String(err)
+        });
+      }
+      onProgress(`Importing scores (${i + 1}/${scores.length})…`);
+    }
+
+    if (failures.length > 0) {
+      const details = failures.map(f => `${f.type}: ${f.name || f.id || ''} - ${f.message}`).join('; ');
+      throw new Error(`Import completed with errors: ${details}`);
+    }
   }
 }
 

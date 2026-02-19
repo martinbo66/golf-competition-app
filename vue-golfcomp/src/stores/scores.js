@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { v4 as uuidv4 } from 'uuid';
+import ApiService from '@/services/ApiService';
 import { usePlayersStore } from './players';
 import { useTeamsStore } from './teams';
 import { useCoursesStore } from './courses';
@@ -25,7 +25,6 @@ export const useScoresStore = defineStore('scores', {
             const playersStore = usePlayersStore();
             const teamPlayers = playersStore.playersByTeam(teamId);
             return teamPlayers.reduce((total, player) => {
-                // We need to call the getter function
                 const pTotal = state.scores
                     .filter(score => score.playerId === player.id)
                     .reduce((t, s) => t + s.value, 0);
@@ -63,7 +62,6 @@ export const useScoresStore = defineStore('scores', {
                     totalScore
                 };
             }).sort((a, b) => {
-                // Sort by total score (highest first), then by name if scores are equal
                 const scoreDiff = (b.totalScore || 0) - (a.totalScore || 0);
                 if (scoreDiff !== 0) return scoreDiff;
                 return a.name.localeCompare(b.name);
@@ -92,7 +90,6 @@ export const useScoresStore = defineStore('scores', {
                     courseScores[course.name] = courseTotal;
                 });
 
-                // Calculate team total score manually to avoid circular getter issues or complexity
                 const teamTotalScore = teamPlayers.reduce((total, player) => {
                     const pTotal = state.scores
                         .filter(score => score.playerId === player.id)
@@ -109,7 +106,6 @@ export const useScoresStore = defineStore('scores', {
                     totalScore: teamTotalScore
                 };
             }).sort((a, b) => {
-                // Sort by total score (highest first), then by name if scores are equal
                 const scoreDiff = (b.totalScore || 0) - (a.totalScore || 0);
                 if (scoreDiff !== 0) return scoreDiff;
                 return a.name.localeCompare(b.name);
@@ -208,39 +204,70 @@ export const useScoresStore = defineStore('scores', {
     },
 
     actions: {
-        updateScore({ playerId, courseId, value }) {
-            // Validate score value
-            const scoreValue = parseInt(value);
-            if (isNaN(scoreValue)) {
-                throw new Error('Score must be a valid number');
+        async fetchScores() {
+            const coursesStore = useCoursesStore();
+            const allScores = [];
+
+            for (const course of coursesStore.allCourses) {
+                if (!course.roundId) continue;
+                const roundScores = await ApiService.get(ApiService.scoresUrl(course.roundId));
+                const mapped = (roundScores || []).map(score => ({
+                    id: score.id,
+                    playerId: score.playerId,
+                    courseId: course.id,
+                    value: score.value,
+                    timestamp: score.updatedAt || score.createdAt
+                }));
+                allScores.push(...mapped);
             }
 
-            const existingScore = this.scores.find(score => score.playerId === playerId && score.courseId === courseId);
+            this.scores = allScores;
+        },
 
-            if (existingScore) {
-                existingScore.value = scoreValue;
-                existingScore.timestamp = new Date().toISOString();
+        async updateScore({ playerId, courseId, value }) {
+            const coursesStore = useCoursesStore();
+            const roundId = coursesStore.roundIdByCourseId(courseId);
+            if (!roundId) throw new Error(`No round found for course ${courseId}`);
+
+            const scoreValue = parseInt(value, 10);
+            if (isNaN(scoreValue)) throw new Error('Score must be a valid number');
+
+            const result = await ApiService.put(ApiService.scoresUrl(roundId), {
+                playerId,
+                value: scoreValue
+            });
+
+            const mappedScore = {
+                id: result.id,
+                playerId: result.playerId,
+                courseId,
+                value: result.value,
+                timestamp: result.updatedAt || result.createdAt
+            };
+
+            const existingIndex = this.scores.findIndex(
+                s => s.playerId === playerId && s.courseId === courseId
+            );
+            if (existingIndex !== -1) {
+                this.scores[existingIndex] = mappedScore;
             } else {
-                const newScore = {
-                    id: uuidv4(),
-                    playerId,
-                    courseId,
-                    value: scoreValue,
-                    timestamp: new Date().toISOString()
-                };
-                this.scores.push(newScore);
+                this.scores.push(mappedScore);
             }
         },
 
         deleteScore(id) {
+            // TODO: Backend needs DELETE /api/v1/.../scores/{id} endpoint.
+            // For now, remove from local state only. Score will reappear on next fetchScores().
             this.scores = this.scores.filter(score => score.id !== id);
         },
 
         deletePlayerScores(playerId) {
+            // TODO: Backend may cascade on player delete; or add bulk delete. Local-only for now.
             this.scores = this.scores.filter(score => score.playerId !== playerId);
         },
 
         deleteCourseScores(courseId) {
+            // TODO: Backend has no per-round clear. Local-only for now.
             this.scores = this.scores.filter(score => score.courseId !== courseId);
         }
     }

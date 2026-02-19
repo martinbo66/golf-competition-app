@@ -19,12 +19,12 @@
         </div>
       </div>
       
-      <div v-if="!teams.length" class="empty-state">
+      <div v-if="isRefreshing" class="loading-state">
+        <p>Loading scorecard...</p>
+      </div>
+      <div v-else-if="!teams.length" class="empty-state">
         <p>No teams available. Create teams in the Team Management section first.</p>
       </div>
-      
-
-      
       <div v-else>
         <div class="scorecard-container">
           <div v-for="teamScore in courseScoresByTeam" :key="teamScore.teamId" class="team-scorecard">
@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useTeamsStore } from '@/stores/teams';
 import { useCoursesStore } from '@/stores/courses';
 import { useScoresStore } from '@/stores/scores';
@@ -88,6 +88,17 @@ const props = defineProps({
 const teamsStore = useTeamsStore();
 const coursesStore = useCoursesStore();
 const scoresStore = useScoresStore();
+
+const isRefreshing = ref(false);
+
+onMounted(async () => {
+  isRefreshing.value = true;
+  try {
+    await scoresStore.fetchScores();
+  } finally {
+    isRefreshing.value = false;
+  }
+});
 
 const courseData = computed(() => {
   return coursesStore.courseById(props.courseId) || { name: 'Unknown Course' };
@@ -149,6 +160,7 @@ const handleImageError = () => {
   color: #6c757d;
 }
 
+.loading-state,
 .empty-state {
   text-align: center;
   padding: 40px 0;

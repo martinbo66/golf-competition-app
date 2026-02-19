@@ -111,7 +111,7 @@ class ScoreLeaderboardApiIntegrationTest {
     @Test
     @DisplayName("score upsert - creates new score then updates the same slot (idempotent)")
     void upsertScore_createsAndThenUpdates() throws Exception {
-        UpsertScoreRequest firstReq = new UpsertScoreRequest(playerAId, 85);
+        UpsertScoreRequest firstReq = new UpsertScoreRequest(playerAId, 55);
 
         // First call: creates a new score
         String firstBody = mockMvc.perform(
@@ -119,20 +119,20 @@ class ScoreLeaderboardApiIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(firstReq)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.value").value(85))
+            .andExpect(jsonPath("$.data.value").value(55))
             .andExpect(jsonPath("$.data.playerName").value("Erik Bathe"))
             .andReturn().getResponse().getContentAsString();
 
         String scoreId = objectMapper.readTree(firstBody).at("/data/id").asText();
 
         // Second call with different value: updates the same score row
-        UpsertScoreRequest updateReq = new UpsertScoreRequest(playerAId, 90);
+        UpsertScoreRequest updateReq = new UpsertScoreRequest(playerAId, 60);
         String secondBody = mockMvc.perform(
                 put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateReq)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.value").value(90))
+            .andExpect(jsonPath("$.data.value").value(60))
             .andReturn().getResponse().getContentAsString();
 
         // Same score ID — it was an update, not an insert
@@ -142,19 +142,19 @@ class ScoreLeaderboardApiIntegrationTest {
     }
 
     @Test
-    @DisplayName("score upsert - returns 400 when value out of range (18-150)")
+    @DisplayName("score upsert - returns 400 when value out of range (0-72)")
     void upsertScore_returns400WhenValueOutOfRange() throws Exception {
         mockMvc.perform(
                 put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 17))))
+                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, -1))))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
 
         mockMvc.perform(
                 put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 151))))
+                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 73))))
             .andExpect(status().isBadRequest());
     }
 
@@ -164,11 +164,11 @@ class ScoreLeaderboardApiIntegrationTest {
         // Submit two scores for the round
         mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 80))))
+                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 50))))
             .andExpect(status().isOk());
         mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerBId, 90))))
+                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerBId, 60))))
             .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId))
@@ -179,40 +179,40 @@ class ScoreLeaderboardApiIntegrationTest {
     @Test
     @DisplayName("player leaderboard - lower score ranks higher; unscored players rank last")
     void playerLeaderboard_ranksByScoreAscending() throws Exception {
-        // playerA scores 80 (better), playerB scores 95 (worse)
+        // playerA scores 50 (better), playerB scores 65 (worse)
         mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 80))))
+                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 50))))
             .andExpect(status().isOk());
         mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerBId, 95))))
+                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerBId, 65))))
             .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/v1/competitions/{id}/leaderboards/players", competitionId))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.length()").value(2))
-            // rank 1 = lowest score = 80
+            // rank 1 = lowest score = 50
             .andExpect(jsonPath("$.data[0].rank").value(1))
-            .andExpect(jsonPath("$.data[0].totalScore").value(80))
+            .andExpect(jsonPath("$.data[0].totalScore").value(50))
             .andExpect(jsonPath("$.data[0].playerName").value("Erik Bathe"))
-            // rank 2 = 95
+            // rank 2 = 65
             .andExpect(jsonPath("$.data[1].rank").value(2))
-            .andExpect(jsonPath("$.data[1].totalScore").value(95))
+            .andExpect(jsonPath("$.data[1].totalScore").value(65))
             .andExpect(jsonPath("$.data[1].playerName").value("Steve Smith"));
     }
 
     @Test
     @DisplayName("team leaderboard - aggregates player scores and ranks teams")
     void teamLeaderboard_aggregatesAndRanks() throws Exception {
-        // Both players are on Team Alpha; total = 80 + 90 = 170
+        // Both players are on Team Alpha; total = 50 + 60 = 110
         mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 80))))
+                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 50))))
             .andExpect(status().isOk());
         mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerBId, 90))))
+                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerBId, 60))))
             .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/v1/competitions/{id}/leaderboards/teams", competitionId))
@@ -220,7 +220,7 @@ class ScoreLeaderboardApiIntegrationTest {
             .andExpect(jsonPath("$.data.length()").value(1))
             .andExpect(jsonPath("$.data[0].rank").value(1))
             .andExpect(jsonPath("$.data[0].teamName").value("Team Alpha"))
-            .andExpect(jsonPath("$.data[0].totalScore").value(170))
+            .andExpect(jsonPath("$.data[0].totalScore").value(110))
             .andExpect(jsonPath("$.data[0].playerCount").value(2));
     }
 
@@ -229,7 +229,7 @@ class ScoreLeaderboardApiIntegrationTest {
     void deleteAllScores_clearsLeaderboard() throws Exception {
         mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}/scores", competitionId, roundId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 80))))
+                .content(objectMapper.writeValueAsString(new UpsertScoreRequest(playerAId, 50))))
             .andExpect(status().isOk());
 
         mockMvc.perform(delete("/api/v1/competitions/{cId}/scores", competitionId))

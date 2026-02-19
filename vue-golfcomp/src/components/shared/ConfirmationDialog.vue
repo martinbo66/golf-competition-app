@@ -17,9 +17,10 @@
         <button 
           class="btn" 
           :class="confirmButtonClass" 
+          :disabled="confirmLoading"
           @click="confirm"
         >
-          {{ confirmText }}
+          {{ confirmLoading ? loadingText : confirmText }}
         </button>
       </div>
     </div>
@@ -54,6 +55,14 @@ export default {
       type: String,
       default: 'primary',
       validator: value => ['primary', 'danger', 'warning'].includes(value)
+    },
+    confirmLoading: {
+      type: Boolean,
+      default: false
+    },
+    loadingText: {
+      type: String,
+      default: 'Please wait...'
     }
   },
   computed: {

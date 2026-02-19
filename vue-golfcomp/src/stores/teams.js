@@ -1,6 +1,16 @@
 import { defineStore } from 'pinia';
-import { v4 as uuidv4 } from 'uuid';
+import ApiService from '@/services/ApiService';
 import { usePlayersStore } from './players';
+
+function mapTeamResponse(response) {
+    return {
+        id: response.id,
+        name: response.name,
+        logoUrl: response.logoUrl || null,
+        createdAt: response.createdAt,
+        updatedAt: response.updatedAt
+    };
+}
 
 export const useTeamsStore = defineStore('teams', {
     state: () => ({
@@ -15,102 +25,65 @@ export const useTeamsStore = defineStore('teams', {
     },
 
     actions: {
-        addTeam(team) {
-            const newTeam = {
-                id: uuidv4(),
-                name: team.name,
-                logoUrl: team.logoUrl || null,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-            this.teams.push(newTeam);
-            return Promise.resolve(newTeam.id);
+        async fetchTeams() {
+            const list = await ApiService.get(ApiService.teamsUrl());
+            this.teams = (list || []).map(mapTeamResponse);
         },
 
-        updateTeam({ id, updates }) {
-            const index = this.teams.findIndex(team => team.id === id);
+        async addTeam(team) {
+            const created = await ApiService.post(ApiService.teamsUrl(), {
+                name: team.name,
+                logoUrl: team.logoUrl || null
+            });
+            const mapped = mapTeamResponse(created);
+            this.teams.push(mapped);
+            return Promise.resolve(mapped.id);
+        },
+
+        async updateTeam({ id, updates }) {
+            const existing = this.teamById(id);
+            const updated = await ApiService.put(ApiService.teamsUrl(id), {
+                name: updates.name !== undefined ? updates.name : (existing?.name ?? ''),
+                logoUrl: updates.logoUrl !== undefined ? updates.logoUrl : (existing?.logoUrl ?? null)
+            });
+            const mapped = mapTeamResponse(updated);
+            const index = this.teams.findIndex(t => t.id === id);
             if (index !== -1) {
-                const team = this.teams[index];
-                this.teams[index] = {
-                    ...team,
-                    ...updates,
-                    updatedAt: new Date().toISOString()
-                };
+                this.teams[index] = mapped;
+            } else {
+                this.teams.push(mapped);
             }
         },
 
-        deleteTeam(id) {
-            // Unassign all players from this team first
-            const playersStore = usePlayersStore();
-            const teamPlayers = playersStore.playersByTeam(id);
-
-            teamPlayers.forEach(player => {
-                playersStore.assignPlayerToTeam({ playerId: player.id, teamId: null });
-            });
-
+        async deleteTeam(id) {
+            await ApiService.delete(ApiService.teamsUrl(id));
             this.teams = this.teams.filter(team => team.id !== id);
+            const playersStore = usePlayersStore();
+            await playersStore.fetchPlayers();
         },
 
-        deleteAllTeams() {
-            // Unassign all players from teams first
-            const playersStore = usePlayersStore();
-            playersStore.unassignAllPlayers();
-
-            // Then delete all teams
+        async deleteAllTeams() {
+            await ApiService.delete(ApiService.teamsUrl());
             this.teams = [];
+            const playersStore = usePlayersStore();
+            await playersStore.fetchPlayers();
         },
 
         async generateTeams(numberOfTeams) {
-            // Delete existing teams
-            this.deleteAllTeams();
-
-            // Create new teams
-            const teamIds = [];
-            for (let i = 0; i < numberOfTeams; i++) {
-                const teamName = `Team ${i + 1}`;
-                const teamId = await this.addTeam({ name: teamName });
-                teamIds.push(teamId);
-            }
-
-            // Implement team formation algorithm
-            this.assignPlayersToTeams({ teamIds });
-
-            return teamIds;
-        },
-
-        assignPlayersToTeams({ teamIds }) {
+            // Depends on backend US-029 (Snake Draft). Endpoint may 404 until implemented.
+            await ApiService.post(ApiService.teamsUrl() + '/generate', { numberOfTeams });
+            await this.fetchTeams();
             const playersStore = usePlayersStore();
-            const players = playersStore.allPlayers;
-
-            if (teamIds.length === 0 || players.length === 0) {
-                return;
-            }
-
-            // Calculate talent points for sorting
-            const talentPoints = { 'A': 4, 'B': 3, 'C': 2, 'D': 1 };
-
-            // Sort players by talent rating (highest to lowest)
-            const sortedPlayers = [...players].sort((a, b) => {
-                return talentPoints[b.talentRating] - talentPoints[a.talentRating];
-            });
-
-            // Use a simple round-robin assignment to ensure balanced teams
-            sortedPlayers.forEach((player, index) => {
-                const teamIndex = index % teamIds.length;
-                playersStore.assignPlayerToTeam({
-                    playerId: player.id,
-                    teamId: teamIds[teamIndex]
-                });
-            });
+            await playersStore.fetchPlayers();
+            return this.teams.map(t => t.id);
         },
 
-        uploadTeamLogo({ teamId, logoUrl }) {
-            this.updateTeam({
+        async uploadTeamLogo({ teamId, logoUrl }) {
+            const team = this.teamById(teamId);
+            if (!team) return;
+            await this.updateTeam({
                 id: teamId,
-                updates: {
-                    logoUrl,
-                    updatedAt: new Date().toISOString()
-                }
+                updates: { name: team.name, logoUrl }
             });
         }
     }
