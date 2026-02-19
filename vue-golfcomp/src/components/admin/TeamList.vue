@@ -81,6 +81,7 @@
         <div class="modal-body">
           <team-form 
             :team="editingTeam" 
+            :loading="isSubmitting"
             @save="saveTeam" 
             @cancel="closeTeamForm"
           ></team-form>
@@ -116,8 +117,8 @@
           </div>
           
           <div class="form-actions">
-            <button type="button" class="btn btn-secondary" @click="showGenerateTeamsModal = false">Cancel</button>
-            <button type="button" class="btn" @click="generateTeams">Generate Teams</button>
+            <button type="button" class="btn btn-secondary" @click="showGenerateTeamsModal = false" :disabled="isGenerating">Cancel</button>
+            <button type="button" class="btn" @click="generateTeams" :disabled="isGenerating">Generate Teams</button>
           </div>
         </div>
       </div>
@@ -131,6 +132,8 @@
       confirm-text="Delete"
       cancel-text="Cancel"
       type="danger"
+      :confirm-loading="isDeleting"
+      loading-text="Deleting..."
       @confirm="deleteTeam"
       @cancel="cancelDeleteTeam"
     ></confirmation-dialog>
@@ -141,6 +144,7 @@
 import { ref, computed } from 'vue';
 import { useTeamsStore } from '@/stores/teams';
 import { usePlayersStore } from '@/stores/players';
+import { getUserFriendlyErrorMessage } from '@/utils';
 import NotificationService from '@/services/NotificationService';
 import TeamForm from './TeamForm.vue';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog.vue';
@@ -154,6 +158,9 @@ const showDeleteConfirmation = ref(false);
 const teamToDelete = ref(null);
 const showGenerateTeamsModal = ref(false);
 const numberOfTeams = ref(4);
+const isSubmitting = ref(false);
+const isDeleting = ref(false);
+const isGenerating = ref(false);
 
 const teams = computed(() => teamsStore.allTeams);
 
@@ -205,13 +212,15 @@ const confirmDeleteTeam = (team) => {
 };
 
 const deleteTeam = async () => {
+  isDeleting.value = true;
   try {
     await teamsStore.deleteTeam(teamToDelete.value.id);
     NotificationService.success(`Team ${teamToDelete.value.name} deleted successfully.`);
-  } catch (error) {
-    NotificationService.error(`Error deleting team: ${error.message}`);
-  } finally {
     cancelDeleteTeam();
+  } catch (error) {
+    NotificationService.error(getUserFriendlyErrorMessage(error));
+  } finally {
+    isDeleting.value = false;
   }
 };
 
@@ -221,6 +230,7 @@ const cancelDeleteTeam = () => {
 };
 
 const saveTeam = async (team) => {
+  isSubmitting.value = true;
   try {
     if (team.id) {
       await teamsStore.updateTeam({ id: team.id, updates: team });
@@ -231,7 +241,9 @@ const saveTeam = async (team) => {
     }
     closeTeamForm();
   } catch (error) {
-    NotificationService.error(`Error saving team: ${error.message}`);
+    NotificationService.error(getUserFriendlyErrorMessage(error));
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
@@ -241,17 +253,19 @@ const closeTeamForm = () => {
 };
 
 const generateTeams = async () => {
+  if (numberOfTeams.value < 2 || numberOfTeams.value > 10) {
+    NotificationService.warning('Please choose between 2 and 10 teams.');
+    return;
+  }
+  isGenerating.value = true;
   try {
-    if (numberOfTeams.value < 2 || numberOfTeams.value > 10) {
-      NotificationService.warning('Please choose between 2 and 10 teams.');
-      return;
-    }
-    
     await teamsStore.generateTeams(numberOfTeams.value);
     NotificationService.success(`${numberOfTeams.value} teams generated successfully.`);
     showGenerateTeamsModal.value = false;
   } catch (error) {
-    NotificationService.error(`Error generating teams: ${error.message}`);
+    NotificationService.error(getUserFriendlyErrorMessage(error));
+  } finally {
+    isGenerating.value = false;
   }
 };
 </script>

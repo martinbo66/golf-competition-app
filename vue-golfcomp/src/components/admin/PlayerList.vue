@@ -76,6 +76,7 @@
         <div class="modal-body">
           <player-form 
             :player="editingPlayer" 
+            :loading="isSubmitting"
             @save="savePlayer" 
             @cancel="closePlayerForm"
           ></player-form>
@@ -91,6 +92,8 @@
       confirm-text="Delete"
       cancel-text="Cancel"
       type="danger"
+      :confirm-loading="isDeleting"
+      loading-text="Deleting..."
       @confirm="deletePlayer"
       @cancel="cancelDeletePlayer"
     ></confirmation-dialog>
@@ -101,7 +104,7 @@
 import { ref, computed } from 'vue';
 import { usePlayersStore } from '@/stores/players';
 import { useTeamsStore } from '@/stores/teams';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, getUserFriendlyErrorMessage } from '@/utils';
 import NotificationService from '@/services/NotificationService';
 import PlayerForm from './PlayerForm.vue';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog.vue';
@@ -115,6 +118,8 @@ const showDeleteConfirmation = ref(false);
 const playerToDelete = ref(null);
 const sortKey = ref('name');
 const sortDirection = ref('asc');
+const isSubmitting = ref(false);
+const isDeleting = ref(false);
 
 const players = computed(() => {
   return playersStore.allPlayers.map(player => ({
@@ -171,13 +176,15 @@ const confirmDeletePlayer = (player) => {
 };
 
 const deletePlayer = async () => {
+  isDeleting.value = true;
   try {
     await playersStore.deletePlayer(playerToDelete.value.id);
     NotificationService.success(`Player ${playerToDelete.value.name} deleted successfully.`);
-  } catch (error) {
-    NotificationService.error(`Error deleting player: ${error.message}`);
-  } finally {
     cancelDeletePlayer();
+  } catch (error) {
+    NotificationService.error(getUserFriendlyErrorMessage(error));
+  } finally {
+    isDeleting.value = false;
   }
 };
 
@@ -187,6 +194,7 @@ const cancelDeletePlayer = () => {
 };
 
 const savePlayer = async (player) => {
+  isSubmitting.value = true;
   try {
     if (player.id) {
       await playersStore.updatePlayer({ id: player.id, updates: player });
@@ -197,7 +205,9 @@ const savePlayer = async (player) => {
     }
     closePlayerForm();
   } catch (error) {
-    NotificationService.error(`Error saving player: ${error.message}`);
+    NotificationService.error(getUserFriendlyErrorMessage(error));
+  } finally {
+    isSubmitting.value = false;
   }
 };
 

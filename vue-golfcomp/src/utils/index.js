@@ -204,3 +204,23 @@ export const parseImportedJson = (jsonString) => {
   }
 };
 
+/**
+ * Returns a user-friendly error message for API/network errors (AC7).
+ * @param {Error} error - The caught error (e.g. from axios or ApiService)
+ * @returns {string} Message suitable for NotificationService
+ */
+export const getUserFriendlyErrorMessage = (error) => {
+  if (!error) return 'Something went wrong. Please try again.';
+  const msg = error.message || String(error);
+  if (msg === 'Network Error' || (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK')) {
+    return 'Unable to connect. Please check your connection and try again.';
+  }
+  if (error.response?.status === 404) {
+    return 'The requested item was not found.';
+  }
+  if (error.response?.status >= 500) {
+    return 'The server encountered an error. Please try again later.';
+  }
+  return msg;
+};
+

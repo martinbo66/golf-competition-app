@@ -24,7 +24,7 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-F007 | Migrate Teams Store to API | Complete |
 | US-F008 | Migrate Scores Store to API | Complete |
 | US-F009 | Remove localStorage Persistence, Add API Init Loading | Complete |
-| US-F010 | Add Loading States and Error Handling to Components | Not Started |
+| US-F010 | Add Loading States and Error Handling to Components | Complete |
 | US-F011 | Update ScoreEntry Component for Round-Based Scoring | Not Started |
 | US-F012 | Update Leaderboard Components for API Data | Not Started |
 | US-F013 | Update Import/Export for API Data | Not Started |
@@ -33,7 +33,7 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next stories:** US-F010 (Add Loading States and Error Handling to Components) — depends on US-F009 (complete).
+**Recommended next stories:** US-F011 (Update ScoreEntry Component for Round-Based Scoring) — depends on US-F010 (complete).
 
 ### Progress Log
 
@@ -43,6 +43,7 @@ Progress across working sessions. Use this section to pick up where you left off
 - **2026-02-18:** US-F003 complete. Created bootstrap module (find-or-create competition, ensure 4 rounds), wired in main.js, error state in App.vue, unit tests.
 - **2026-02-18:** US-F005 through US-F008 complete. Migrated courses, players, teams, and scores stores to API: fetchCourses/rounds/getters, player CRUD and assign/unassign, team CRUD and generate with player re-fetch, score fetch/update with courseId/roundId mapping; added init loading in main.js; updated components to await async store actions; added/updated store tests and ScoreEntry test.
 - **2026-02-19:** US-F009 complete. Deleted persistence.js, removed pinia persistence plugin from main.js, moved data loading into bootstrap.js (courses → [players+teams] → scores), added loading state via ui store, error notification on data load failure, HTML loading spinner in index.html, removed uuid from package.json. Updated bootstrap.test.js with store mocks and 10 tests passing.
+- **2026-02-19:** US-F010 complete. Added global loading overlay in App.vue (ui store isLoading), loading/error handling in PlayerList, PlayerForm, TeamList, TeamForm, PlayerAssignment (isSubmitting/isDeleting/isGenerating, disabled buttons, user-friendly errors via getUserFriendlyErrorMessage). ConfirmationDialog supports confirmLoading; bootstrap already sets ui.isLoading. Added utils.test.js for getUserFriendlyErrorMessage.
 
 ### Files Modified (Cumulative)
 
@@ -71,6 +72,15 @@ Progress across working sessions. Use this section to pick up where you left off
 - `vue-golfcomp/tests/scores.test.js` — Scores store unit tests (API/courses mocks)
 - `vue-golfcomp/tests/pinia_teams.test.js` — generateTeams integration test with mocked API
 - `vue-golfcomp/tests/ScoreEntry.test.js` — ApiService/courses mock for save score test
+- `vue-golfcomp/src/App.vue` — Global loading overlay when ui.isLoading, setup() with useUiStore
+- `vue-golfcomp/src/utils/index.js` — getUserFriendlyErrorMessage for network/API errors
+- `vue-golfcomp/src/components/shared/ConfirmationDialog.vue` — confirmLoading, loadingText props
+- `vue-golfcomp/src/components/admin/PlayerList.vue` — isSubmitting/isDeleting, loading prop to form, user-friendly errors
+- `vue-golfcomp/src/components/admin/PlayerForm.vue` — loading prop, disabled submit/cancel when loading
+- `vue-golfcomp/src/components/admin/TeamList.vue` — isSubmitting/isDeleting/isGenerating, loading prop to form, user-friendly errors
+- `vue-golfcomp/src/components/admin/TeamForm.vue` — loading prop, disabled submit/cancel when loading
+- `vue-golfcomp/src/components/admin/PlayerAssignment.vue` — async assignPlayer, isSubmitting, user-friendly errors
+- `vue-golfcomp/tests/utils.test.js` — Unit tests for getUserFriendlyErrorMessage
 
 ---
 
@@ -1448,7 +1458,7 @@ Test scenarios:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~3 hours |
 | **Epic** | Component Updates |
@@ -1466,13 +1476,13 @@ As a user, I want to see loading indicators when data is being saved or fetched,
 
 #### Acceptance Criteria
 
-- [ ] AC1: All components that call store actions show a loading state during API calls
-- [ ] AC2: All components that call store actions catch errors and show notification via NotificationService
-- [ ] AC3: The `ui` store's `isLoading` flag is set during initial data load
-- [ ] AC4: A global loading overlay or spinner is shown during app initialization
-- [ ] AC5: Form submit buttons are disabled while API calls are in progress
-- [ ] AC6: Delete confirmations work correctly with async operations
-- [ ] AC7: Network errors show user-friendly messages (not raw axios errors)
+- [x] AC1: All components that call store actions show a loading state during API calls
+- [x] AC2: All components that call store actions catch errors and show notification via NotificationService
+- [x] AC3: The `ui` store's `isLoading` flag is set during initial data load
+- [x] AC4: A global loading overlay or spinner is shown during app initialization
+- [x] AC5: Form submit buttons are disabled while API calls are in progress
+- [x] AC6: Delete confirmations work correctly with async operations
+- [x] AC7: Network errors show user-friendly messages (not raw axios errors)
 
 #### Agent Instructions
 

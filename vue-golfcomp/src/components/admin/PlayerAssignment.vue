@@ -84,10 +84,10 @@
           </div>
           
           <div class="action-buttons">
-            <button class="btn" @click="assignPlayer" :disabled="!canAssign">
+            <button class="btn" @click="assignPlayer" :disabled="!canAssign || isSubmitting">
               {{ assignButtonText }}
             </button>
-            <button class="btn btn-secondary" @click="cancelSelection">
+            <button class="btn btn-secondary" @click="cancelSelection" :disabled="isSubmitting">
               Cancel
             </button>
           </div>
@@ -101,6 +101,7 @@
 import { ref, computed } from 'vue';
 import { useTeamsStore } from '@/stores/teams';
 import { usePlayersStore } from '@/stores/players';
+import { getUserFriendlyErrorMessage } from '@/utils';
 import NotificationService from '@/services/NotificationService';
 
 const teamsStore = useTeamsStore();
@@ -111,6 +112,7 @@ const filterTeam = ref('');
 const sortBy = ref('name');
 const selectedPlayer = ref(null);
 const selectedTeam = ref('');
+const isSubmitting = ref(false);
 
 const teams = computed(() => teamsStore.allTeams);
 
@@ -198,16 +200,15 @@ const getPlayerTalent = (playerId) => {
   return player ? player.talentRating : '';
 };
 
-const assignPlayer = () => {
+const assignPlayer = async () => {
+  isSubmitting.value = true;
   try {
     const player = playersStore.playerById(selectedPlayer.value);
     const oldTeamId = player.teamId;
     const newTeamId = selectedTeam.value || null;
-    
-    // Assign player to team
-    playersStore.assignPlayerToTeam({ playerId: selectedPlayer.value, teamId: newTeamId });
-    
-    // Show success notification
+
+    await playersStore.assignPlayerToTeam({ playerId: selectedPlayer.value, teamId: newTeamId });
+
     if (!newTeamId) {
       NotificationService.success(`${player.name} has been unassigned.`);
     } else if (!oldTeamId) {
@@ -218,11 +219,12 @@ const assignPlayer = () => {
       const newTeam = teamsStore.teamById(newTeamId);
       NotificationService.success(`${player.name} has been moved from ${oldTeam.name} to ${newTeam.name}.`);
     }
-    
-    // Reset selection
+
     cancelSelection();
   } catch (error) {
-    NotificationService.error(`Error assigning player: ${error.message}`);
+    NotificationService.error(getUserFriendlyErrorMessage(error));
+  } finally {
+    isSubmitting.value = false;
   }
 };
 

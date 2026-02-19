@@ -37,8 +37,8 @@
     </div>
     
     <div class="form-actions">
-      <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
-      <button type="submit" class="btn">{{ team ? 'Update' : 'Add' }} Team</button>
+      <button type="button" class="btn btn-secondary" @click="cancel" :disabled="loading">Cancel</button>
+      <button type="submit" class="btn" :disabled="loading">{{ team ? 'Update' : 'Add' }} Team</button>
     </div>
   </form>
 </template>
@@ -50,6 +50,10 @@ export default {
     team: {
       type: Object,
       default: null
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
