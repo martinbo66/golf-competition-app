@@ -25,4 +25,7 @@
     <!-- Seed data -->
     <include file="changes/007-seed-courses.xml" relativeToChangelogFile="true"/>
 
+    <!-- Schema corrections -->
+    <include file="changes/008-update-score-value-constraint.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
