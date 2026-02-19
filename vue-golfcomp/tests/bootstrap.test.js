@@ -13,16 +13,62 @@ jest.mock('@/services/ApiService', () => {
   return { __esModule: true, default: api };
 });
 
+jest.mock('@/stores/ui', () => ({
+  useUiStore: jest.fn()
+}));
+
+jest.mock('@/stores/courses', () => ({
+  useCoursesStore: jest.fn()
+}));
+
+jest.mock('@/stores/players', () => ({
+  usePlayersStore: jest.fn()
+}));
+
+jest.mock('@/stores/teams', () => ({
+  useTeamsStore: jest.fn()
+}));
+
+jest.mock('@/stores/scores', () => ({
+  useScoresStore: jest.fn()
+}));
+
+jest.mock('@/services/NotificationService', () => ({
+  __esModule: true,
+  default: { error: jest.fn() }
+}));
+
 import ApiService from '@/services/ApiService';
+import { useUiStore } from '@/stores/ui';
+import { useCoursesStore } from '@/stores/courses';
+import { usePlayersStore } from '@/stores/players';
+import { useTeamsStore } from '@/stores/teams';
+import { useScoresStore } from '@/stores/scores';
+import NotificationService from '@/services/NotificationService';
 import { initializeApp } from '@/services/bootstrap';
 
 describe('bootstrap', () => {
+  let mockUiStore, mockCoursesStore, mockPlayersStore, mockTeamsStore, mockScoresStore;
+
   beforeEach(() => {
     ApiService._competitionId = null;
     ApiService.get.mockReset();
     ApiService.post.mockReset();
     ApiService.roundsUrl.mockReset();
     ApiService.roundsUrl.mockReturnValue('/competitions/comp/rounds');
+    NotificationService.error.mockClear();
+
+    mockUiStore = { setLoading: jest.fn() };
+    mockCoursesStore = { fetchCourses: jest.fn().mockResolvedValue() };
+    mockPlayersStore = { fetchPlayers: jest.fn().mockResolvedValue() };
+    mockTeamsStore = { fetchTeams: jest.fn().mockResolvedValue() };
+    mockScoresStore = { fetchScores: jest.fn().mockResolvedValue() };
+
+    useUiStore.mockReturnValue(mockUiStore);
+    useCoursesStore.mockReturnValue(mockCoursesStore);
+    usePlayersStore.mockReturnValue(mockPlayersStore);
+    useTeamsStore.mockReturnValue(mockTeamsStore);
+    useScoresStore.mockReturnValue(mockScoresStore);
   });
 
   test('when competitions exist, uses first competition ID', async () => {
@@ -97,5 +143,66 @@ describe('bootstrap', () => {
     ApiService.get.mockRejectedValue(new Error('Network Error'));
 
     await expect(initializeApp()).rejects.toThrow('Network Error');
+  });
+
+  test('sets ui loading state during initialization', async () => {
+    ApiService.get
+      .mockResolvedValueOnce([{ id: 'comp-1' }])
+      .mockResolvedValueOnce([{ id: 'r1' }]);
+
+    await initializeApp();
+
+    expect(mockUiStore.setLoading).toHaveBeenCalledWith(true);
+    expect(mockUiStore.setLoading).toHaveBeenCalledWith(false);
+  });
+
+  test('clears loading state even when API is unavailable', async () => {
+    ApiService.get.mockRejectedValue(new Error('Network Error'));
+
+    await expect(initializeApp()).rejects.toThrow('Network Error');
+
+    expect(mockUiStore.setLoading).toHaveBeenCalledWith(false);
+  });
+
+  test('loads all store data after competition bootstrap', async () => {
+    ApiService.get
+      .mockResolvedValueOnce([{ id: 'comp-1' }])
+      .mockResolvedValueOnce([{ id: 'r1' }]);
+
+    await initializeApp();
+
+    expect(mockCoursesStore.fetchCourses).toHaveBeenCalled();
+    expect(mockPlayersStore.fetchPlayers).toHaveBeenCalled();
+    expect(mockTeamsStore.fetchTeams).toHaveBeenCalled();
+    expect(mockScoresStore.fetchScores).toHaveBeenCalled();
+  });
+
+  test('courses are fetched before scores', async () => {
+    const callOrder = [];
+    ApiService.get
+      .mockResolvedValueOnce([{ id: 'comp-1' }])
+      .mockResolvedValueOnce([{ id: 'r1' }]);
+    mockCoursesStore.fetchCourses.mockImplementation(() => {
+      callOrder.push('courses');
+      return Promise.resolve();
+    });
+    mockScoresStore.fetchScores.mockImplementation(() => {
+      callOrder.push('scores');
+      return Promise.resolve();
+    });
+
+    await initializeApp();
+
+    expect(callOrder.indexOf('courses')).toBeLessThan(callOrder.indexOf('scores'));
+  });
+
+  test('shows notification when data load fails but does not throw', async () => {
+    ApiService.get
+      .mockResolvedValueOnce([{ id: 'comp-1' }])
+      .mockResolvedValueOnce([{ id: 'r1' }]);
+    mockPlayersStore.fetchPlayers.mockRejectedValue(new Error('Players fetch failed'));
+
+    await expect(initializeApp()).resolves.not.toThrow();
+    expect(NotificationService.error).toHaveBeenCalled();
   });
 });

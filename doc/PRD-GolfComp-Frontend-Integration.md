@@ -23,7 +23,7 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-F006 | Migrate Players Store to API | Complete |
 | US-F007 | Migrate Teams Store to API | Complete |
 | US-F008 | Migrate Scores Store to API | Complete |
-| US-F009 | Remove localStorage Persistence, Add API Init Loading | Not Started |
+| US-F009 | Remove localStorage Persistence, Add API Init Loading | Complete |
 | US-F010 | Add Loading States and Error Handling to Components | Not Started |
 | US-F011 | Update ScoreEntry Component for Round-Based Scoring | Not Started |
 | US-F012 | Update Leaderboard Components for API Data | Not Started |
@@ -33,7 +33,7 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next stories:** US-F009 (Remove localStorage Persistence, Add API Init Loading) — depends on US-F005 through US-F008 (complete).
+**Recommended next stories:** US-F010 (Add Loading States and Error Handling to Components) — depends on US-F009 (complete).
 
 ### Progress Log
 
@@ -42,6 +42,7 @@ Progress across working sessions. Use this section to pick up where you left off
 - **2026-02-18:** US-F004 complete. Added Vue dev server proxy for `/api` to `http://localhost:8081` with WebSocket support.
 - **2026-02-18:** US-F003 complete. Created bootstrap module (find-or-create competition, ensure 4 rounds), wired in main.js, error state in App.vue, unit tests.
 - **2026-02-18:** US-F005 through US-F008 complete. Migrated courses, players, teams, and scores stores to API: fetchCourses/rounds/getters, player CRUD and assign/unassign, team CRUD and generate with player re-fetch, score fetch/update with courseId/roundId mapping; added init loading in main.js; updated components to await async store actions; added/updated store tests and ScoreEntry test.
+- **2026-02-19:** US-F009 complete. Deleted persistence.js, removed pinia persistence plugin from main.js, moved data loading into bootstrap.js (courses → [players+teams] → scores), added loading state via ui store, error notification on data load failure, HTML loading spinner in index.html, removed uuid from package.json. Updated bootstrap.test.js with store mocks and 10 tests passing.
 
 ### Files Modified (Cumulative)
 
@@ -1340,7 +1341,7 @@ Test scenarios:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Store Migration |
@@ -1361,14 +1362,14 @@ As a developer, I want to remove the localStorage persistence plugin and replace
 
 #### Acceptance Criteria
 
-- [ ] AC1: `persistence.js` is deleted
-- [ ] AC2: `main.js` no longer imports or uses `persistencePlugin`
-- [ ] AC3: App loads all data from API on init (after bootstrap): courses, players, teams, scores — in that order
-- [ ] AC4: Data loading is added to `bootstrap.js` (or a separate function called after bootstrap)
-- [ ] AC5: A global loading spinner is shown while data loads
-- [ ] AC6: If any data load fails, an error notification is shown but app still renders
-- [ ] AC7: `localStorage.removeItem('golf-competition-app')` is NOT called automatically (user's old data is left alone, just ignored)
-- [ ] AC8: The `uuid` package can be removed from `package.json` if no other code uses it
+- [x] AC1: `persistence.js` is deleted
+- [x] AC2: `main.js` no longer imports or uses `persistencePlugin`
+- [x] AC3: App loads all data from API on init (after bootstrap): courses, players, teams, scores — in that order
+- [x] AC4: Data loading is added to `bootstrap.js` (or a separate function called after bootstrap)
+- [x] AC5: A global loading spinner is shown while data loads
+- [x] AC6: If any data load fails, an error notification is shown but app still renders
+- [x] AC7: `localStorage.removeItem('golf-competition-app')` is NOT called automatically (user's old data is left alone, just ignored)
+- [x] AC8: The `uuid` package can be removed from `package.json` if no other code uses it
 
 #### Agent Instructions
 
@@ -1434,12 +1435,12 @@ Test scenarios:
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] `npm run build` succeeds
-- [ ] App loads data from API on startup
-- [ ] No references to persistence plugin remain
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] `npm run build` succeeds
+- [x] App loads data from API on startup
+- [x] No references to persistence plugin remain
 
 ---
 
