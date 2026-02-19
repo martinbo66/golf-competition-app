@@ -68,12 +68,15 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3>Import Data</h3>
-          <button class="close-btn" @click="showImportModal = false">&times;</button>
+          <button class="close-btn" @click="closeImportModal" :disabled="isImporting">&times;</button>
         </div>
         <div class="modal-body">
           <p>Import competition data from a JSON file. This will replace all current data.</p>
           <div class="import-warning alert alert-warning">
-            <strong>Warning:</strong> Importing data will overwrite all existing data. Make sure to export your current data first if you want to keep it.
+            <strong>Warning:</strong> Importing will clear all existing players, teams, and scores, then create new data from the file. Export your current data first if you want to keep it.
+          </div>
+          <div v-if="importProgress" class="import-progress">
+            {{ importProgress }}
           </div>
           <div class="import-options">
             <textarea 
@@ -81,10 +84,11 @@
               class="form-control" 
               placeholder="Paste JSON data here"
               rows="10"
+              :disabled="isImporting"
             ></textarea>
             <div class="form-actions">
-              <button class="btn" @click="importDataFromJson" :disabled="!importData">
-                <i class="fas fa-upload"></i> Import Data
+              <button class="btn" @click="importDataFromJson" :disabled="!importData || isImporting">
+                <i class="fas fa-upload"></i> {{ isImporting ? 'Importing…' : 'Import Data' }}
               </button>
             </div>
           </div>
@@ -100,6 +104,7 @@ import { useUiStore } from '@/stores/ui';
 import { useCoursesStore } from '@/stores/courses';
 import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
+import { getUserFriendlyErrorMessage } from '@/utils';
 
 const uiStore = useUiStore();
 const coursesStore = useCoursesStore();
@@ -118,6 +123,8 @@ const navItems = computed(() => [
 const showExportModal = ref(false);
 const showImportModal = ref(false);
 const importData = ref('');
+const importProgress = ref('');
+const isImporting = ref(false);
 const isDarkMode = ref(false);
 
 const activeSection = computed(() => uiStore.activeSection);
@@ -167,25 +174,39 @@ const exportData = () => {
   }
 };
 
-const importDataFromJson = () => {
+const closeImportModal = () => {
+  if (!isImporting.value) {
+    showImportModal.value = false;
+    importProgress.value = '';
+  }
+};
+
+const importDataFromJson = async () => {
+  if (!importData.value) {
+    NotificationService.warning('Please paste JSON data to import');
+    return;
+  }
+  const confirmed = window.confirm(
+    'This will delete all existing players, teams, and scores and replace them with the imported data. Continue?'
+  );
+  if (!confirmed) return;
+
+  isImporting.value = true;
+  importProgress.value = 'Starting…';
   try {
-    if (!importData.value) {
-      NotificationService.warning('Please paste JSON data to import');
-      return;
-    }
-    
-    DataService.importData(importData.value);
-    
+    await DataService.importData(importData.value, {
+      onProgress: (message) => { importProgress.value = message; }
+    });
     importData.value = '';
+    importProgress.value = '';
     showImportModal.value = false;
     NotificationService.success('Data imported successfully');
-    
-    // Refresh the page to show the imported data
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
+    setTimeout(() => window.location.reload(), 500);
   } catch (error) {
-    NotificationService.error(`Error importing data: ${error.message}`);
+    NotificationService.error(getUserFriendlyErrorMessage(error));
+    importProgress.value = '';
+  } finally {
+    isImporting.value = false;
   }
 };
 
@@ -389,6 +410,15 @@ onMounted(() => {
 
 .import-warning {
   margin-bottom: 20px;
+}
+
+.import-progress {
+  margin-bottom: 15px;
+  padding: 8px 12px;
+  background-color: var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: var(--text-color);
 }
 
 .form-actions {

@@ -27,13 +27,13 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-F010 | Add Loading States and Error Handling to Components | Complete |
 | US-F011 | Update ScoreEntry Component for Round-Based Scoring | Complete |
 | US-F012 | Update Leaderboard Components for API Data | Complete |
-| US-F013 | Update Import/Export for API Data | Not Started |
+| US-F013 | Update Import/Export for API Data | Complete |
 | US-F014 | Update Existing Tests for API-Based Stores | Not Started |
 | US-F015 | Add Integration Tests for ApiService | Not Started |
 
 ### Next Up
 
-**Recommended next stories:** US-F013 (Update Import/Export for API Data) — depends on US-F009 (complete).
+**Recommended next stories:** US-F014 (Update Existing Tests for API-Based Stores) or US-F015 (Add Integration Tests for ApiService).
 
 ### Progress Log
 
@@ -46,6 +46,7 @@ Progress across working sessions. Use this section to pick up where you left off
 - **2026-02-19:** US-F010 complete. Added global loading overlay in App.vue (ui store isLoading), loading/error handling in PlayerList, PlayerForm, TeamList, TeamForm, PlayerAssignment (isSubmitting/isDeleting/isGenerating, disabled buttons, user-friendly errors via getUserFriendlyErrorMessage). ConfirmationDialog supports confirmLoading; bootstrap already sets ui.isLoading. Added utils.test.js for getUserFriendlyErrorMessage.
 - **2026-02-19:** US-F011 complete. ScoreEntry: loadScores uses playersStore.allPlayers and scoreByPlayerAndCourse for API-populated inputs; saveScore/clearScore use getUserFriendlyErrorMessage; clearScore removes score locally with comment on backend limitation; consistent scoreByPlayerAndCourse(playerId, courseId) pattern. Updated ScoreEntry.test.js with loading-state, error-notification, populate-on-load, and clear-local tests.
 - **2026-02-19:** US-F012 complete. PlayerLeaderboard and TeamLeaderboard: onMounted refresh (fetchScores, fetchPlayers, fetchTeams), loading state. PlayerMoneyLeaderboard and TeamMoneyLeaderboard: onMounted refresh (fetchPlayers, fetchTeams), loading state. CourseScorecard: onMounted fetchScores, loading state. All use client-side getters; sorting/ranking unchanged.
+- **2026-02-19:** US-F013 complete. DataService: exportData reads from store state with metadata version 2.0.0 and source 'api'; importData clears via API (scores bulk delete, deleteAllTeams, delete players), then creates teams/players/scores via store actions with ID remapping; courseId→roundId for scores; onProgress callback; failure collection and reporting. AppHeader: import confirmation dialog, progress display, async import with getUserFriendlyErrorMessage. Added tests/dataService.test.js.
 
 ### Files Modified (Cumulative)
 
@@ -90,6 +91,9 @@ Progress across working sessions. Use this section to pick up where you left off
 - `vue-golfcomp/src/components/scoring/PlayerMoneyLeaderboard.vue` — onMounted refresh (players, teams), isRefreshing loading state
 - `vue-golfcomp/src/components/scoring/TeamMoneyLeaderboard.vue` — onMounted refresh (players, teams), isRefreshing loading state
 - `vue-golfcomp/src/components/scoring/CourseScorecard.vue` — onMounted fetchScores, isRefreshing loading state
+- `vue-golfcomp/src/services/DataService.js` — API-based export (store state, metadata 2.0.0/source api) and import (clear via API, create via store actions, ID remap, courseId→roundId, progress, error reporting)
+- `vue-golfcomp/src/components/layout/AppHeader.vue` — import confirmation, progress display, async importData with getUserFriendlyErrorMessage
+- `vue-golfcomp/tests/dataService.test.js` — unit tests for export and import (progress, clear, create, failures)
 
 ---
 
@@ -1716,7 +1720,7 @@ Manual verification:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~3 hours |
 | **Epic** | Data Features |
@@ -1734,13 +1738,13 @@ As a user, I want to import and export competition data so that I can back up my
 
 #### Acceptance Criteria
 
-- [ ] AC1: Export still produces a JSON file with players, teams, scores, courses, and metadata
-- [ ] AC2: Export data is read from current store state (already fetched from API)
-- [ ] AC3: Import reads JSON file and creates players, teams, and scores via API calls (not store patching)
-- [ ] AC4: Import shows progress as it processes each entity type
-- [ ] AC5: Import handles errors gracefully (e.g., duplicate team names) and reports which items failed
-- [ ] AC6: Import clears existing data before importing (with user confirmation)
-- [ ] AC7: Scores in import file use `courseId` format — the import maps to `roundId` for API calls
+- [x] AC1: Export still produces a JSON file with players, teams, scores, courses, and metadata
+- [x] AC2: Export data is read from current store state (already fetched from API)
+- [x] AC3: Import reads JSON file and creates players, teams, and scores via API calls (not store patching)
+- [x] AC4: Import shows progress as it processes each entity type
+- [x] AC5: Import handles errors gracefully (e.g., duplicate team names) and reports which items failed
+- [x] AC6: Import clears existing data before importing (with user confirmation)
+- [x] AC7: Scores in import file use `courseId` format — the import maps to `roundId` for API calls
 
 #### Agent Instructions
 
@@ -1831,10 +1835,10 @@ async importData(jsonData) {
 
 #### Definition of Done
 
-- [ ] All acceptance criteria met
-- [ ] All tests written and passing
-- [ ] `npm run lint` passes
-- [ ] Import/export round-trips data correctly
+- [x] All acceptance criteria met
+- [x] All tests written and passing
+- [x] `npm run lint` passes
+- [x] Import/export round-trips data correctly
 
 ---
 
