@@ -90,28 +90,28 @@ class ScoreRepositoryTest {
     @Test
     @DisplayName("Should save and retrieve a score by ID")
     void shouldSaveAndFindById() {
-        Score saved = scoreRepository.save(buildScore(85));
+        Score saved = scoreRepository.save(buildScore(55));
 
         assertNotNull(saved.getId());
         Optional<Score> found = scoreRepository.findById(saved.getId());
         assertTrue(found.isPresent());
-        assertEquals(85, found.get().getValue());
+        assertEquals(55,found.get().getValue());
     }
 
     @Test
     @DisplayName("Should find scores by round ID")
     void shouldFindByRoundId() {
-        scoreRepository.save(buildScore(85));
+        scoreRepository.save(buildScore(55));
 
         List<Score> scores = scoreRepository.findByRoundId(round.getId());
         assertEquals(1, scores.size());
-        assertEquals(85, scores.get(0).getValue());
+        assertEquals(55,scores.get(0).getValue());
     }
 
     @Test
     @DisplayName("Should find scores by competition ID")
     void shouldFindByCompetitionId() {
-        scoreRepository.save(buildScore(90));
+        scoreRepository.save(buildScore(60));
 
         List<Score> scores = scoreRepository.findByCompetitionId(competition.getId());
         assertEquals(1, scores.size());
@@ -120,21 +120,21 @@ class ScoreRepositoryTest {
     @Test
     @DisplayName("Should find scores by player ID")
     void shouldFindByPlayerId() {
-        scoreRepository.save(buildScore(75));
+        scoreRepository.save(buildScore(55));
 
         List<Score> scores = scoreRepository.findByPlayerId(player.getId());
         assertEquals(1, scores.size());
-        assertEquals(75, scores.get(0).getValue());
+        assertEquals(55, scores.get(0).getValue());
     }
 
     @Test
     @DisplayName("Should find score by round ID and player ID")
     void shouldFindByRoundIdAndPlayerId() {
-        scoreRepository.save(buildScore(80));
+        scoreRepository.save(buildScore(50));
 
         Optional<Score> found = scoreRepository.findByRoundIdAndPlayerId(round.getId(), player.getId());
         assertTrue(found.isPresent());
-        assertEquals(80, found.get().getValue());
+        assertEquals(50, found.get().getValue());
     }
 
     @Test
@@ -147,7 +147,7 @@ class ScoreRepositoryTest {
     @Test
     @DisplayName("Should delete scores by competition ID")
     void shouldDeleteByCompetitionId() {
-        scoreRepository.save(buildScore(85));
+        scoreRepository.save(buildScore(55));
 
         scoreRepository.deleteByCompetitionId(competition.getId());
 

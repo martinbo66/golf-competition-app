@@ -29,7 +29,7 @@ import java.util.UUID;
  * 
  * <p>Constraints:</p>
  * <ul>
- *   <li>Score value must be between 18 and 150 strokes</li>
+ *   <li>Score value must be between 0 and 72</li>
  *   <li>Only one score per player per round (unique constraint on round_id, player_id)</li>
  * </ul>
  */
@@ -78,11 +78,11 @@ public class Score {
     private Player player;
 
     /**
-     * The score value (number of strokes).
-     * Valid range is 18 (theoretical minimum for 18 holes) to 150 (practical maximum).
+     * The score value (points).
+     * Valid range is 0 to 72.
      */
-    @Min(value = 18, message = "Score must be at least 18")
-    @Max(value = 150, message = "Score must not exceed 150")
+    @Min(value = 0, message = "Score must be at least 0")
+    @Max(value = 72, message = "Score must not exceed 72")
     @Column(name = "score_value", nullable = false)
     private Integer value;
 
