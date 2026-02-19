@@ -113,7 +113,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useTeamsStore } from '@/stores/teams';
 import { usePlayersStore } from '@/stores/players';
 import { useScoresStore } from '@/stores/scores';
-import { validateScore } from '@/utils';
+import { validateScore, getUserFriendlyErrorMessage } from '@/utils';
 import NotificationService from '@/services/NotificationService';
 
 const props = defineProps({
@@ -216,30 +216,16 @@ const worstScore = computed(() => {
 });
 
 const loadScores = () => {
-  // Reset local state
   scores.value = {};
   scoreErrors.value = {};
   isSaving.value = {};
 
-  players.value.forEach(player => {
-    if (typeof player.id === 'object') {
-        console.error('ScoreEntry: Player ID is an object!', player);
-    }
+  if (!props.courseId) return;
 
-    if (!props.courseId) {
-        console.warn('ScoreEntry: No courseId provided to loadScores');
-        // Decide how to handle this case, maybe skip loading for this player or set a default
-        scoreErrors.value[player.id] = 'No course ID provided.';
-        return;
-    }
-
+  // Populate local inputs from store (API data from fetchScores)
+  playersStore.allPlayers.forEach(player => {
     const score = scoresStore.scoreByPlayerAndCourse(player.id, props.courseId);
-
-    if (score) {
-      scores.value[player.id] = score.value;
-    } else {
-      scores.value[player.id] = '';
-    }
+    scores.value[player.id] = score ? score.value : '';
     scoreErrors.value[player.id] = null;
     isSaving.value[player.id] = false;
   });
@@ -285,36 +271,36 @@ const saveScore = async (playerId) => {
     await scoresStore.updateScore({ playerId, courseId: props.courseId, value: scores.value[playerId] });
     NotificationService.success('Score saved successfully');
   } catch (error) {
-    NotificationService.error(`Error saving score: ${error.message}`);
+    NotificationService.error(getUserFriendlyErrorMessage(error));
   } finally {
     isSaving.value[playerId] = false;
   }
 };
 
 const clearScore = async (playerId) => {
-  const player = players.value.find(p => p.id === playerId);
+  const player = playersStore.playerById(playerId);
   if (!player) return;
-  
+
   if (!confirm(`Are you sure you want to clear the score for ${player.name}?`)) {
     return;
   }
-  
+
   isSaving.value[playerId] = true;
-  
+
   try {
-    // Delete the score by setting it to null
+    // Backend has no single-delete score endpoint; remove from local state only.
+    // Score will reappear on next fetchScores() unless backend adds DELETE support.
     const score = scoresStore.scoreByPlayerAndCourse(playerId, props.courseId);
     if (score) {
-      await scoresStore.deleteScore(score.id);
+      scoresStore.deleteScore(score.id);
     }
-    
-    // Clear the input
+
     scores.value[playerId] = '';
     scoreErrors.value[playerId] = null;
-    
+
     NotificationService.success('Score cleared successfully');
   } catch (error) {
-    NotificationService.error(`Error clearing score: ${error.message}`);
+    NotificationService.error(getUserFriendlyErrorMessage(error));
   } finally {
     isSaving.value[playerId] = false;
   }

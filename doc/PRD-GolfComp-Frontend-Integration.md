@@ -25,7 +25,7 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-F008 | Migrate Scores Store to API | Complete |
 | US-F009 | Remove localStorage Persistence, Add API Init Loading | Complete |
 | US-F010 | Add Loading States and Error Handling to Components | Complete |
-| US-F011 | Update ScoreEntry Component for Round-Based Scoring | Not Started |
+| US-F011 | Update ScoreEntry Component for Round-Based Scoring | Complete |
 | US-F012 | Update Leaderboard Components for API Data | Not Started |
 | US-F013 | Update Import/Export for API Data | Not Started |
 | US-F014 | Update Existing Tests for API-Based Stores | Not Started |
@@ -33,7 +33,7 @@ Progress across working sessions. Use this section to pick up where you left off
 
 ### Next Up
 
-**Recommended next stories:** US-F011 (Update ScoreEntry Component for Round-Based Scoring) — depends on US-F010 (complete).
+**Recommended next stories:** US-F012 (Update Leaderboard Components for API Data) — depends on US-F010 (complete).
 
 ### Progress Log
 
@@ -44,6 +44,7 @@ Progress across working sessions. Use this section to pick up where you left off
 - **2026-02-18:** US-F005 through US-F008 complete. Migrated courses, players, teams, and scores stores to API: fetchCourses/rounds/getters, player CRUD and assign/unassign, team CRUD and generate with player re-fetch, score fetch/update with courseId/roundId mapping; added init loading in main.js; updated components to await async store actions; added/updated store tests and ScoreEntry test.
 - **2026-02-19:** US-F009 complete. Deleted persistence.js, removed pinia persistence plugin from main.js, moved data loading into bootstrap.js (courses → [players+teams] → scores), added loading state via ui store, error notification on data load failure, HTML loading spinner in index.html, removed uuid from package.json. Updated bootstrap.test.js with store mocks and 10 tests passing.
 - **2026-02-19:** US-F010 complete. Added global loading overlay in App.vue (ui store isLoading), loading/error handling in PlayerList, PlayerForm, TeamList, TeamForm, PlayerAssignment (isSubmitting/isDeleting/isGenerating, disabled buttons, user-friendly errors via getUserFriendlyErrorMessage). ConfirmationDialog supports confirmLoading; bootstrap already sets ui.isLoading. Added utils.test.js for getUserFriendlyErrorMessage.
+- **2026-02-19:** US-F011 complete. ScoreEntry: loadScores uses playersStore.allPlayers and scoreByPlayerAndCourse for API-populated inputs; saveScore/clearScore use getUserFriendlyErrorMessage; clearScore removes score locally with comment on backend limitation; consistent scoreByPlayerAndCourse(playerId, courseId) pattern. Updated ScoreEntry.test.js with loading-state, error-notification, populate-on-load, and clear-local tests.
 
 ### Files Modified (Cumulative)
 
@@ -81,6 +82,8 @@ Progress across working sessions. Use this section to pick up where you left off
 - `vue-golfcomp/src/components/admin/TeamForm.vue` — loading prop, disabled submit/cancel when loading
 - `vue-golfcomp/src/components/admin/PlayerAssignment.vue` — async assignPlayer, isSubmitting, user-friendly errors
 - `vue-golfcomp/tests/utils.test.js` — Unit tests for getUserFriendlyErrorMessage
+- `vue-golfcomp/src/components/scoring/ScoreEntry.vue` — loadScores from store (API data), getUserFriendlyErrorMessage for save/clear errors, Clear comment (backend no single-delete), consistent scoreByPlayerAndCourse usage
+- `vue-golfcomp/tests/ScoreEntry.test.js` — Mock NotificationService; tests for Saving... state, save error notification, scores populate on load, clear removes locally
 
 ---
 
@@ -1555,7 +1558,7 @@ Visual verification:
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Frontend` |
 | **Estimated Effort** | ~2 hours |
 | **Epic** | Component Updates |
@@ -1574,12 +1577,12 @@ As a user, I want to enter scores on the scoring page and have them saved to the
 
 #### Acceptance Criteria
 
-- [ ] AC1: ScoreEntry component works with the migrated async scores store
-- [ ] AC2: Saving a score shows a loading state on the Save button
-- [ ] AC3: Score save errors are displayed via notification
-- [ ] AC4: The "Clear" button removes the score locally (with a comment noting the backend limitation)
-- [ ] AC5: Score values from the API populate the input fields correctly on page load
-- [ ] AC6: The component's calls to `scoreByPlayerAndCourse` use a consistent pattern
+- [x] AC1: ScoreEntry component works with the migrated async scores store
+- [x] AC2: Saving a score shows a loading state on the Save button
+- [x] AC3: Score save errors are displayed via notification
+- [x] AC4: The "Clear" button removes the score locally (with a comment noting the backend limitation)
+- [x] AC5: Score values from the API populate the input fields correctly on page load
+- [x] AC6: The component's calls to `scoreByPlayerAndCourse` use a consistent pattern
 
 #### Agent Instructions
 

@@ -6,9 +6,18 @@ jest.mock('@/services/ApiService', () => ({
     }
 }));
 
+jest.mock('@/services/NotificationService', () => ({
+    __esModule: true,
+    default: {
+        success: jest.fn(),
+        error: jest.fn()
+    }
+}));
+
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import ApiService from '@/services/ApiService';
+import NotificationService from '@/services/NotificationService';
 import ScoreEntry from '../src/components/scoring/ScoreEntry.vue';
 import { usePlayersStore } from '../src/stores/players';
 import { useTeamsStore } from '../src/stores/teams';
@@ -19,6 +28,8 @@ describe('ScoreEntry Component', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
         ApiService.put.mockReset();
+        NotificationService.success.mockClear();
+        NotificationService.error.mockClear();
     });
 
     test('renders player list correctly', async () => {
@@ -106,5 +117,90 @@ describe('ScoreEntry Component', () => {
         const score = scoresStore.scoreByPlayerAndCourse('p1', 'c1');
         expect(score).toBeDefined();
         expect(score.value).toBe(72);
+        expect(NotificationService.success).toHaveBeenCalledWith('Score saved successfully');
+    });
+
+    test('save button shows Saving... while request is in progress', async () => {
+        const playersStore = usePlayersStore();
+        const coursesStore = useCoursesStore();
+
+        playersStore.players = [{ id: 'p1', name: 'Player 1', talentRating: 'A' }];
+        coursesStore.courses = [{ id: 'c1', name: 'Course 1', order: 1, roundId: 'round1' }];
+
+        let resolvePut;
+        ApiService.put.mockImplementation(() => new Promise(resolve => { resolvePut = resolve; }));
+
+        const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
+        await wrapper.find('input[type="number"]').setValue(72);
+        const saveBtn = wrapper.find('button.btn-sm');
+        expect(saveBtn.text()).toBe('Save');
+
+        saveBtn.trigger('click');
+        await wrapper.vm.$nextTick();
+        expect(saveBtn.text()).toBe('Saving...');
+
+        await resolvePut({ id: 's1', playerId: 'p1', value: 72, updatedAt: '', createdAt: '' });
+        await new Promise(resolve => setTimeout(resolve, 50));
+        expect(wrapper.find('button.btn-sm').text()).toBe('Save');
+    });
+
+    test('save error displays notification with user-friendly message', async () => {
+        const playersStore = usePlayersStore();
+        const coursesStore = useCoursesStore();
+
+        playersStore.players = [{ id: 'p1', name: 'Player 1', talentRating: 'A' }];
+        coursesStore.courses = [{ id: 'c1', name: 'Course 1', order: 1, roundId: 'round1' }];
+        ApiService.put.mockRejectedValue(new Error('Network Error'));
+
+        const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
+        await wrapper.find('input[type="number"]').setValue(72);
+        await wrapper.find('button.btn-sm').trigger('click');
+
+        await new Promise(resolve => setTimeout(resolve, 50));
+        expect(NotificationService.error).toHaveBeenCalled();
+        const msg = NotificationService.error.mock.calls[0][0];
+        expect(msg).toContain('Unable to connect');
+    });
+
+    test('score values from store populate inputs on load', async () => {
+        const playersStore = usePlayersStore();
+        const scoresStore = useScoresStore();
+        const coursesStore = useCoursesStore();
+
+        playersStore.players = [{ id: 'p1', name: 'Player 1', talentRating: 'A' }];
+        coursesStore.courses = [{ id: 'c1', name: 'Course 1', order: 1, roundId: 'round1' }];
+        scoresStore.scores = [
+            { id: 's1', playerId: 'p1', courseId: 'c1', value: 68 }
+        ];
+
+        const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
+        await wrapper.vm.$nextTick();
+        const input = wrapper.find('input[type="number"]');
+        expect(Number(input.element.value)).toBe(68);
+    });
+
+    test('clear removes score locally', async () => {
+        const playersStore = usePlayersStore();
+        const scoresStore = useScoresStore();
+        const coursesStore = useCoursesStore();
+
+        playersStore.players = [{ id: 'p1', name: 'Player 1', talentRating: 'A' }];
+        coursesStore.courses = [{ id: 'c1', name: 'Course 1', order: 1, roundId: 'round1' }];
+        scoresStore.scores = [
+            { id: 's1', playerId: 'p1', courseId: 'c1', value: 72 }
+        ];
+
+        const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('input[type="number"]').element.value).toBe('72');
+
+        const clearBtn = wrapper.findAll('button.btn-danger').find(b => b.text() === 'Clear');
+        expect(clearBtn).toBeDefined();
+        window.confirm = jest.fn(() => true);
+        await clearBtn.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(scoresStore.scores).toHaveLength(0);
+        expect(wrapper.find('input[type="number"]').element.value).toBe('');
     });
 });
