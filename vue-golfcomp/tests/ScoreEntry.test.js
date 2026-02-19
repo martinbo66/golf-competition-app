@@ -1,5 +1,14 @@
+jest.mock('@/services/ApiService', () => ({
+    __esModule: true,
+    default: {
+        put: jest.fn(),
+        scoresUrl: jest.fn((roundId) => `/competitions/c1/rounds/${roundId}/scores`)
+    }
+}));
+
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import ApiService from '@/services/ApiService';
 import ScoreEntry from '../src/components/scoring/ScoreEntry.vue';
 import { usePlayersStore } from '../src/stores/players';
 import { useTeamsStore } from '../src/stores/teams';
@@ -9,6 +18,7 @@ import { useScoresStore } from '../src/stores/scores';
 describe('ScoreEntry Component', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        ApiService.put.mockReset();
     });
 
     test('renders player list correctly', async () => {
@@ -63,10 +73,21 @@ describe('ScoreEntry Component', () => {
     test('saves score when save button is clicked', async () => {
         const playersStore = usePlayersStore();
         const scoresStore = useScoresStore();
+        const coursesStore = useCoursesStore();
 
         playersStore.players = [
             { id: 'p1', name: 'Player 1', talentRating: 'A' }
         ];
+        coursesStore.courses = [
+            { id: 'c1', name: 'Course 1', order: 1, roundId: 'round1' }
+        ];
+        ApiService.put.mockResolvedValue({
+            id: 'score-1',
+            playerId: 'p1',
+            value: 72,
+            updatedAt: '2026-01-01',
+            createdAt: '2026-01-01'
+        });
 
         const wrapper = mount(ScoreEntry, {
             props: {
@@ -80,8 +101,7 @@ describe('ScoreEntry Component', () => {
         const saveButton = wrapper.find('button.btn-sm'); // The first button is Save
         await saveButton.trigger('click');
 
-        // Wait for async operations
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 50));
 
         const score = scoresStore.scoreByPlayerAndCourse('p1', 'c1');
         expect(score).toBeDefined();

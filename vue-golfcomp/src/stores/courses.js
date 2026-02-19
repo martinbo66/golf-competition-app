@@ -1,27 +1,55 @@
 import { defineStore } from 'pinia';
+import ApiService from '@/services/ApiService';
+
+const FALLBACK_COURSES = [
+    { id: '071aaf93-773e-49d0-935e-4b825e25670f', name: 'Parkland', order: 1, roundId: null },
+    { id: '2b81e674-816a-42ea-b524-54a96bfb2b14', name: 'Heathland', order: 2, roundId: null },
+    { id: '38a5c806-7f44-4ebb-9472-6ec79431c5ff', name: 'Heritage Club', order: 3, roundId: null },
+    { id: 'd3d8aa11-5320-477b-9602-6501dd63b186', name: 'Moorland', order: 4, roundId: null }
+];
 
 export const useCoursesStore = defineStore('courses', {
     state: () => ({
-        courses: [
-            { id: '071aaf93-773e-49d0-935e-4b825e25670f', name: 'Parkland', order: 1 },
-            { id: '2b81e674-816a-42ea-b524-54a96bfb2b14', name: 'Heathland', order: 2 },
-            { id: '38a5c806-7f44-4ebb-9472-6ec79431c5ff', name: 'Heritage Club', order: 3 },
-            { id: 'd3d8aa11-5320-477b-9602-6501dd63b186', name: 'Moorland', order: 4 }
-        ]
+        courses: [...FALLBACK_COURSES],
+        rounds: [],
+        loaded: false
     }),
 
     getters: {
         allCourses: (state) => state.courses,
         courseById: (state) => (id) => state.courses.find(course => course.id === id),
         courseByName: (state) => (name) => state.courses.find(course => course.name.toLowerCase() === name.toLowerCase()),
-        coursesSorted: (state) => [...state.courses].sort((a, b) => a.order - b.order)
+        coursesSorted: (state) => [...state.courses].sort((a, b) => a.order - b.order),
+        roundIdByCourseId: (state) => (courseId) => {
+            const course = state.courses.find(c => c.id === courseId);
+            return course ? course.roundId : null;
+        },
+        courseIdByRoundId: (state) => (roundId) => {
+            const course = state.courses.find(c => c.roundId === roundId);
+            return course ? course.id : null;
+        }
     },
 
     actions: {
-        // Courses are predefined, so we only need basic actions
-        fetchCourses() {
-            // In a real app, this might be an API call
-            // For now, we use the predefined courses
+        async fetchCourses() {
+            try {
+                const rounds = await ApiService.get(ApiService.roundsUrl());
+                this.rounds = rounds || [];
+                if (this.rounds.length > 0) {
+                    this.courses = this.rounds
+                        .map(round => ({
+                            id: round.course.id,
+                            name: round.course.name,
+                            order: round.roundNumber,
+                            roundId: round.id
+                        }))
+                        .sort((a, b) => a.order - b.order);
+                }
+                this.loaded = true;
+            } catch (_err) {
+                // Keep fallback courses (roundId remains null)
+                this.loaded = true;
+            }
         }
     }
 });

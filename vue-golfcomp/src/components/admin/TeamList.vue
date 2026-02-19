@@ -204,9 +204,9 @@ const confirmDeleteTeam = (team) => {
   showDeleteConfirmation.value = true;
 };
 
-const deleteTeam = () => {
+const deleteTeam = async () => {
   try {
-    teamsStore.deleteTeam(teamToDelete.value.id);
+    await teamsStore.deleteTeam(teamToDelete.value.id);
     NotificationService.success(`Team ${teamToDelete.value.name} deleted successfully.`);
   } catch (error) {
     NotificationService.error(`Error deleting team: ${error.message}`);
@@ -220,15 +220,13 @@ const cancelDeleteTeam = () => {
   teamToDelete.value = null;
 };
 
-const saveTeam = (team) => {
+const saveTeam = async (team) => {
   try {
     if (team.id) {
-      // Update existing team
-      teamsStore.updateTeam({ id: team.id, updates: team });
+      await teamsStore.updateTeam({ id: team.id, updates: team });
       NotificationService.success(`Team ${team.name} updated successfully.`);
     } else {
-      // Add new team
-      teamsStore.addTeam(team);
+      await teamsStore.addTeam(team);
       NotificationService.success(`Team ${team.name} added successfully.`);
     }
     closeTeamForm();

@@ -170,9 +170,9 @@ const confirmDeletePlayer = (player) => {
   showDeleteConfirmation.value = true;
 };
 
-const deletePlayer = () => {
+const deletePlayer = async () => {
   try {
-    playersStore.deletePlayer(playerToDelete.value.id);
+    await playersStore.deletePlayer(playerToDelete.value.id);
     NotificationService.success(`Player ${playerToDelete.value.name} deleted successfully.`);
   } catch (error) {
     NotificationService.error(`Error deleting player: ${error.message}`);
@@ -186,15 +186,13 @@ const cancelDeletePlayer = () => {
   playerToDelete.value = null;
 };
 
-const savePlayer = (player) => {
+const savePlayer = async (player) => {
   try {
     if (player.id) {
-      // Update existing player
-      playersStore.updatePlayer({ id: player.id, updates: player });
+      await playersStore.updatePlayer({ id: player.id, updates: player });
       NotificationService.success(`Player ${player.name} updated successfully.`);
     } else {
-      // Add new player
-      playersStore.addPlayer(player);
+      await playersStore.addPlayer(player);
       NotificationService.success(`Player ${player.name} added successfully.`);
     }
     closePlayerForm();

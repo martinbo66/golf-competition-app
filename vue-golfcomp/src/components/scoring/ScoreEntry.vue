@@ -136,7 +136,7 @@ const filterScored = ref('all');
 const teams = computed(() => teamsStore.allTeams);
 
 const getPlayerScore = (playerId) => {
-  const score = scoresStore.scoreByPlayerAndCourse({ playerId, courseId: props.courseId });
+  const score = scoresStore.scoreByPlayerAndCourse(playerId, props.courseId);
   return score ? score.value : null;
 };
 
@@ -233,7 +233,7 @@ const loadScores = () => {
         return;
     }
 
-    const score = scoresStore.scoreByPlayerAndCourse({ playerId: player.id, courseId: props.courseId });
+    const score = scoresStore.scoreByPlayerAndCourse(player.id, props.courseId);
 
     if (score) {
       scores.value[player.id] = score.value;
@@ -303,7 +303,7 @@ const clearScore = async (playerId) => {
   
   try {
     // Delete the score by setting it to null
-    const score = scoresStore.scoreByPlayerAndCourse({ playerId, courseId: props.courseId });
+    const score = scoresStore.scoreByPlayerAndCourse(playerId, props.courseId);
     if (score) {
       await scoresStore.deleteScore(score.id);
     }
