@@ -3,6 +3,7 @@ package com.golfcomp.api.unit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golfcomp.api.controller.TeamController;
 import com.golfcomp.api.dto.request.CreateTeamRequest;
+import com.golfcomp.api.dto.request.GenerateTeamsRequest;
 import com.golfcomp.api.dto.request.UpdateTeamRequest;
 import com.golfcomp.api.dto.response.TeamResponse;
 import com.golfcomp.api.exception.BusinessRuleException;
@@ -128,5 +129,34 @@ class TeamControllerTest {
                 .content(objectMapper.writeValueAsString(req)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.name").value("Bathe's Bombers"));
+    }
+
+    @Test
+    @DisplayName("POST /teams/generate - returns 201 with generated teams")
+    void generate_returns201() throws Exception {
+        when(teamService.generateTeams(eq(competitionId), any()))
+            .thenReturn(List.of(sampleTeam(competitionId), sampleTeam(competitionId)));
+        GenerateTeamsRequest req = new GenerateTeamsRequest(4);
+
+        mockMvc.perform(post("/api/v1/competitions/{id}/teams/generate", competitionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.data").isArray())
+            .andExpect(jsonPath("$.data.length()").value(2));
+    }
+
+    @Test
+    @DisplayName("POST /teams/generate - returns 409 on INSUFFICIENT_PLAYERS")
+    void generate_returns409OnInsufficientPlayers() throws Exception {
+        when(teamService.generateTeams(eq(competitionId), any()))
+            .thenThrow(new BusinessRuleException("INSUFFICIENT_PLAYERS", "Not enough players"));
+        GenerateTeamsRequest req = new GenerateTeamsRequest(4);
+
+        mockMvc.perform(post("/api/v1/competitions/{id}/teams/generate", competitionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.error.code").value("INSUFFICIENT_PLAYERS"));
     }
 }

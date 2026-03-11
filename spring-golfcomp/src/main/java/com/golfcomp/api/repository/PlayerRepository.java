@@ -34,4 +34,9 @@ public interface PlayerRepository extends JpaRepository<Player, UUID> {
     @Transactional
     @Query("DELETE FROM Player p WHERE p.competition.id = :competitionId")
     void deleteByCompetitionId(@Param("competitionId") UUID competitionId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Player p SET p.team = null WHERE p.competition.id = :competitionId")
+    void unassignAllByCompetitionId(@Param("competitionId") UUID competitionId);
 }

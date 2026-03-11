@@ -1,13 +1,17 @@
 package com.golfcomp.api.unit;
 
 import com.golfcomp.api.dto.request.CreateTeamRequest;
+import com.golfcomp.api.dto.request.GenerateTeamsRequest;
 import com.golfcomp.api.dto.request.UpdateTeamRequest;
 import com.golfcomp.api.dto.response.TeamResponse;
 import com.golfcomp.api.exception.BusinessRuleException;
 import com.golfcomp.api.exception.ResourceNotFoundException;
 import com.golfcomp.api.model.Competition;
+import com.golfcomp.api.model.Player;
 import com.golfcomp.api.model.Team;
+import com.golfcomp.api.model.TalentRating;
 import com.golfcomp.api.repository.CompetitionRepository;
+import com.golfcomp.api.repository.PlayerRepository;
 import com.golfcomp.api.repository.TeamRepository;
 import com.golfcomp.api.service.TeamService;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,6 +38,7 @@ class TeamServiceTest {
 
     @Mock private TeamRepository teamRepository;
     @Mock private CompetitionRepository competitionRepository;
+    @Mock private PlayerRepository playerRepository;
 
     @InjectMocks
     private TeamService teamService;
@@ -241,5 +247,66 @@ class TeamServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
             () -> teamService.deleteAll(competitionId));
+    }
+
+    @Test
+    @DisplayName("generateTeams - creates N teams with auto names and distributes players via snake draft")
+    void generateTeams_createsTeamsAndDistributes() {
+        when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
+        Player p1 = player(competitionId, "Alice", TalentRating.A);
+        Player p2 = player(competitionId, "Bob", TalentRating.B);
+        Player p3 = player(competitionId, "Carol", TalentRating.C);
+        Player p4 = player(competitionId, "Dave", TalentRating.D);
+        List<Player> players = List.of(p1, p2, p3, p4);
+        when(playerRepository.findByCompetitionIdOrderByTalentRatingAsc(competitionId)).thenReturn(players);
+
+        UUID team1Id = UUID.randomUUID();
+        UUID team2Id = UUID.randomUUID();
+        LocalDateTime now = LocalDateTime.now();
+        Team team1 = Team.builder().id(team1Id).competition(competition).name("Team 1").createdAt(now).updatedAt(now).build();
+        Team team2 = Team.builder().id(team2Id).competition(competition).name("Team 2").createdAt(now).updatedAt(now).build();
+        when(teamRepository.save(any(Team.class))).thenReturn(team1, team2);
+
+        List<TeamResponse> result = teamService.generateTeams(competitionId, new GenerateTeamsRequest(2));
+
+        verify(playerRepository).unassignAllByCompetitionId(competitionId);
+        verify(teamRepository).deleteByCompetitionId(competitionId);
+        verify(teamRepository, times(2)).save(any(Team.class));
+        assertEquals(2, result.size());
+        assertTrue(result.get(0).name().startsWith("Team "));
+        assertTrue(result.get(1).name().startsWith("Team "));
+        verify(playerRepository, times(4)).save(any(Player.class));
+    }
+
+    @Test
+    @DisplayName("generateTeams - throws INSUFFICIENT_PLAYERS when fewer players than teams")
+    void generateTeams_throwsInsufficientPlayers() {
+        when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
+        when(playerRepository.findByCompetitionIdOrderByTalentRatingAsc(competitionId)).thenReturn(List.of());
+
+        BusinessRuleException ex = assertThrows(BusinessRuleException.class,
+            () -> teamService.generateTeams(competitionId, new GenerateTeamsRequest(4)));
+        assertEquals("INSUFFICIENT_PLAYERS", ex.getErrorCode());
+        verify(teamRepository, never()).deleteByCompetitionId(any());
+    }
+
+    @Test
+    @DisplayName("generateTeams - throws when competition not found")
+    void generateTeams_throwsWhenCompetitionNotFound() {
+        when(competitionRepository.findById(competitionId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> teamService.generateTeams(competitionId, new GenerateTeamsRequest(2)));
+    }
+
+    private static Player player(UUID competitionId, String name, TalentRating rating) {
+        return Player.builder()
+            .id(UUID.randomUUID())
+            .competition(Competition.builder().id(competitionId).build())
+            .name(name)
+            .talentRating(rating)
+            .entryFee(BigDecimal.ZERO)
+            .winnings(BigDecimal.ZERO)
+            .build();
     }
 }
