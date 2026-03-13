@@ -1,4 +1,5 @@
 import ApiService from './ApiService';
+import { useCompetitionsStore } from '@/stores/competitions';
 import { useCoursesStore } from '@/stores/courses';
 import { usePlayersStore } from '@/stores/players';
 import { useTeamsStore } from '@/stores/teams';
@@ -25,24 +26,25 @@ export async function initializeApp() {
 
   try {
     // 1. Find or create competition
-    const competitions = await ApiService.get('/competitions');
+    const competitionsStore = useCompetitionsStore();
+    await competitionsStore.fetchCompetitions();
 
-    let competitionId;
-    if (competitions && competitions.length > 0) {
-      competitionId = competitions[0].id;
+    let competition;
+    if (competitionsStore.competitions.length > 0) {
+      competition = competitionsStore.competitions[0];
     } else {
       const today = new Date().toISOString().split('T')[0];
       const endDate = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
-      const newComp = await ApiService.post('/competitions', {
+      competition = await competitionsStore.createCompetition({
         name: 'Golf Competition',
         startDate: today,
         endDate,
         location: null
       });
-      competitionId = newComp.id;
     }
 
-    ApiService.competitionId = competitionId;
+    competitionsStore.activeCompetition = competition;
+    ApiService.competitionId = competition.id;
 
     // 2. Ensure rounds exist (one per course)
     const rounds = await ApiService.get(ApiService.roundsUrl());

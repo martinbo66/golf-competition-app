@@ -9,7 +9,12 @@ import CourseScoring from '@/views/CourseScoring.vue';
 const routes = [
   {
     path: '/',
-    redirect: '/admin/players'
+    redirect: '/admin/competitions'
+  },
+  {
+    path: '/admin/competitions',
+    name: 'CompetitionManagement',
+    component: () => import('@/views/CompetitionManagement.vue')
   },
   {
     path: '/admin/players',
@@ -79,7 +84,9 @@ router.beforeEach((to, from, next) => {
   }
 
   // Set active sidebar item based on route
-  if (to.path === '/admin/players') {
+  if (to.path === '/admin/competitions') {
+    uiStore.setActiveSidebarItem('competitions');
+  } else if (to.path === '/admin/players') {
     uiStore.setActiveSidebarItem('players');
   } else if (to.path === '/admin/teams') {
     uiStore.setActiveSidebarItem('teams');

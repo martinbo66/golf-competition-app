@@ -38,6 +38,7 @@ class ApiService {
 
   get compUrl() { return `/competitions/${this._competitionId}`; }
 
+  competitionsUrl(id) { return id ? `/competitions/${id}` : '/competitions'; }
   playersUrl(id) { return `${this.compUrl}/players${id ? '/' + id : ''}`; }
   teamsUrl(id) { return `${this.compUrl}/teams${id ? '/' + id : ''}`; }
   roundsUrl(id) { return `${this.compUrl}/rounds${id ? '/' + id : ''}`; }
