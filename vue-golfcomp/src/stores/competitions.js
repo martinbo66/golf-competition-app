@@ -70,6 +70,34 @@ export const useCompetitionsStore = defineStore('competitions', {
         },
 
         /**
+         * Create a round for the active competition, then refresh courses (round mapping).
+         * @param {{ courseId: string, playDate: string, roundNumber: number }} data
+         */
+        async createRound(data) {
+            const id = this.activeCompetition?.id;
+            if (!id) throw new Error('No active competition');
+            await ApiService.post(ApiService.roundsUrl(), {
+                courseId: data.courseId,
+                playDate: data.playDate,
+                roundNumber: data.roundNumber
+            });
+            const coursesStore = useCoursesStore();
+            await coursesStore.fetchCourses();
+        },
+
+        /**
+         * Delete a round for the active competition, then refresh courses.
+         * @param {string} roundId
+         */
+        async deleteRound(roundId) {
+            const id = this.activeCompetition?.id;
+            if (!id) throw new Error('No active competition');
+            await ApiService.delete(ApiService.roundsUrl(roundId));
+            const coursesStore = useCoursesStore();
+            await coursesStore.fetchCourses();
+        },
+
+        /**
          * Set the active competition and reload all data (courses, players, teams, scores).
          * Shows global loading overlay during reload. Call after user confirms switch.
          */

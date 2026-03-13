@@ -17,7 +17,10 @@ jest.mock('@/services/ApiService', () => ({
     get competitionId() { return this._competitionId; },
     set competitionId(id) { this._competitionId = id; },
     get: jest.fn(),
-    competitionsUrl: jest.fn(id => (id ? `/competitions/${id}` : '/competitions'))
+    post: jest.fn(),
+    delete: jest.fn(),
+    competitionsUrl: jest.fn(id => (id ? `/competitions/${id}` : '/competitions')),
+    roundsUrl: jest.fn(id => (id ? `/competitions/comp/rounds/${id}` : '/competitions/comp/rounds'))
   }
 }));
 
@@ -28,6 +31,8 @@ describe('competitions store', () => {
     setActivePinia(createPinia());
     ApiService._competitionId = null;
     ApiService.get.mockReset();
+    ApiService.post.mockReset();
+    ApiService.delete.mockReset();
 
     mockUiStore = useUiStore();
     mockCoursesStore = useCoursesStore();
@@ -65,6 +70,60 @@ describe('competitions store', () => {
 
       await expect(store.setActiveCompetition({ id: 'c1', name: 'Test' })).rejects.toThrow('Network error');
       expect(mockUiStore.setLoading).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe('createRound', () => {
+    test('POSTs round and refreshes courses when active competition set', async () => {
+      const store = useCompetitionsStore();
+      store.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      ApiService.competitionId = 'comp';
+      ApiService.post.mockResolvedValue({});
+
+      await store.createRound({
+        courseId: 'course-1',
+        playDate: '2026-06-14',
+        roundNumber: 1
+      });
+
+      expect(ApiService.post).toHaveBeenCalledWith('/competitions/comp/rounds', {
+        courseId: 'course-1',
+        playDate: '2026-06-14',
+        roundNumber: 1
+      });
+      expect(mockCoursesStore.fetchCourses).toHaveBeenCalled();
+    });
+
+    test('throws when no active competition', async () => {
+      const store = useCompetitionsStore();
+      store.activeCompetition = null;
+
+      await expect(
+        store.createRound({ courseId: 'c1', playDate: '2026-06-14', roundNumber: 1 })
+      ).rejects.toThrow('No active competition');
+      expect(ApiService.post).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteRound', () => {
+    test('DELETEs round and refreshes courses when active competition set', async () => {
+      const store = useCompetitionsStore();
+      store.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      ApiService.competitionId = 'comp';
+      ApiService.delete.mockResolvedValue(null);
+
+      await store.deleteRound('round-1');
+
+      expect(ApiService.delete).toHaveBeenCalledWith('/competitions/comp/rounds/round-1');
+      expect(mockCoursesStore.fetchCourses).toHaveBeenCalled();
+    });
+
+    test('throws when no active competition', async () => {
+      const store = useCompetitionsStore();
+      store.activeCompetition = null;
+
+      await expect(store.deleteRound('round-1')).rejects.toThrow('No active competition');
+      expect(ApiService.delete).not.toHaveBeenCalled();
     });
   });
 });

@@ -2,11 +2,13 @@
   <div class="competition-management">
     <h1>Competition Management</h1>
     <CompetitionList />
+    <RoundList />
   </div>
 </template>
 
 <script setup>
 import CompetitionList from '@/components/admin/CompetitionList.vue';
+import RoundList from '@/components/admin/RoundList.vue';
 </script>
 
 <style scoped>
