@@ -1,5 +1,5 @@
 /**
- * RoundList component tests (CM-07: add rounds to active competition).
+ * RoundList component tests (CM-07: add rounds, CM-08: delete round).
  */
 jest.mock('@/services/ApiService', () => ({
   __esModule: true,
@@ -125,5 +125,81 @@ describe('RoundList', () => {
       roundNumber: 1
     });
     expect(NotificationService.success).toHaveBeenCalledWith('Round added');
+  });
+
+  describe('delete round (CM-08)', () => {
+    test('each round row has a Delete button', () => {
+      const compStore = useCompetitionsStore();
+      compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      useCoursesStore().rounds = [
+        { id: 'r1', course: { name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+
+      const wrapper = mount(RoundList, {
+        global: { stubs: { ConfirmationDialog: true } }
+      });
+
+      const deleteButtons = wrapper.findAll('button.btn-danger');
+      expect(deleteButtons.length).toBe(1);
+      expect(deleteButtons[0].text()).toContain('Delete');
+    });
+
+    test('clicking Delete opens confirmation dialog with round details', async () => {
+      const compStore = useCompetitionsStore();
+      compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      useCoursesStore().rounds = [
+        { id: 'r1', course: { name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+
+      const wrapper = mount(RoundList, {
+        global: { stubs: { ConfirmationDialog: true } }
+      });
+
+      await wrapper.find('button.btn-danger').trigger('click');
+
+      const dialog = wrapper.findComponent({ name: 'ConfirmationDialog' });
+      expect(dialog.exists()).toBe(true);
+      expect(dialog.props('show')).toBe(true);
+      expect(dialog.props('title')).toBe('Delete Round');
+      expect(dialog.props('message')).toContain('round 1');
+      expect(dialog.props('message')).toContain('Parkland');
+    });
+
+    test('confirming delete calls deleteRound and shows success', async () => {
+      const compStore = useCompetitionsStore();
+      compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      useCoursesStore().rounds = [
+        { id: 'r1', course: { name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+      jest.spyOn(compStore, 'deleteRound').mockResolvedValue();
+
+      const wrapper = mount(RoundList, {
+        global: { stubs: { ConfirmationDialog: true } }
+      });
+
+      await wrapper.find('button.btn-danger').trigger('click');
+      await wrapper.findComponent({ name: 'ConfirmationDialog' }).vm.$emit('confirm');
+
+      expect(compStore.deleteRound).toHaveBeenCalledWith('r1');
+      expect(NotificationService.success).toHaveBeenCalledWith('Round deleted');
+    });
+
+    test('when delete fails, shows error and keeps dialog state', async () => {
+      const compStore = useCompetitionsStore();
+      compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      useCoursesStore().rounds = [
+        { id: 'r1', course: { name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+      jest.spyOn(compStore, 'deleteRound').mockRejectedValue(new Error('Network error'));
+
+      const wrapper = mount(RoundList, {
+        global: { stubs: { ConfirmationDialog: true } }
+      });
+
+      await wrapper.find('button.btn-danger').trigger('click');
+      await wrapper.findComponent({ name: 'ConfirmationDialog' }).vm.$emit('confirm');
+
+      expect(NotificationService.error).toHaveBeenCalledWith('Network error');
+    });
   });
 });

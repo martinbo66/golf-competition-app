@@ -52,7 +52,7 @@ Add competition and round management UI to the Administration section, surfacing
 | CM-05 | ✅ Done | As an organiser, I want to switch the active competition (with a confirmation prompt), so I can work on a different event without accidentally losing context. |
 | CM-06 | ✅ Done | As an organiser, I want to see the active competition name in the header at all times, so I always know which event I'm working on. |
 | CM-07 | ✅ Done | As an organiser, I want to add rounds to the active competition by choosing a course and play date, so I can schedule the event. |
-| CM-08 | 🔲 To Do | As an organiser, I want to delete a round from the active competition, so I can remove incorrectly scheduled rounds. |
+| CM-08 | ✅ Done | As an organiser, I want to delete a round from the active competition, so I can remove incorrectly scheduled rounds. |
 
 ---
 
