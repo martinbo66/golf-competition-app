@@ -1,5 +1,10 @@
 import { defineStore } from 'pinia';
 import ApiService from '@/services/ApiService';
+import { useCoursesStore } from '@/stores/courses';
+import { usePlayersStore } from '@/stores/players';
+import { useTeamsStore } from '@/stores/teams';
+import { useScoresStore } from '@/stores/scores';
+import { useUiStore } from '@/stores/ui';
 
 function mapCompetitionResponse(response) {
     return {
@@ -62,6 +67,33 @@ export const useCompetitionsStore = defineStore('competitions', {
         async deleteCompetition(id) {
             await ApiService.delete(ApiService.competitionsUrl(id));
             this.competitions = this.competitions.filter(c => c.id !== id);
+        },
+
+        /**
+         * Set the active competition and reload all data (courses, players, teams, scores).
+         * Shows global loading overlay during reload. Call after user confirms switch.
+         */
+        async setActiveCompetition(comp) {
+            this.activeCompetition = comp;
+            ApiService.competitionId = comp.id;
+
+            const uiStore = useUiStore();
+            const coursesStore = useCoursesStore();
+            const playersStore = usePlayersStore();
+            const teamsStore = useTeamsStore();
+            const scoresStore = useScoresStore();
+
+            uiStore.setLoading(true);
+            try {
+                await coursesStore.fetchCourses();
+                await Promise.all([
+                    playersStore.fetchPlayers(),
+                    teamsStore.fetchTeams()
+                ]);
+                await scoresStore.fetchScores();
+            } finally {
+                uiStore.setLoading(false);
+            }
         }
     }
 });

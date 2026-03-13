@@ -43,6 +43,14 @@
 
             <div class="comp-card__actions">
               <button
+                v-if="!isActive(comp)"
+                class="btn btn-primary"
+                @click="confirmSwitch(comp)"
+                title="Set as active competition"
+              >
+                Set Active
+              </button>
+              <button
                 class="btn btn-secondary"
                 @click="editComp(comp)"
                 title="Edit competition"
@@ -75,6 +83,20 @@
       loading-text="Deleting..."
       @confirm="handleDelete"
       @cancel="cancelDelete"
+    />
+
+    <!-- Switch Competition Confirmation -->
+    <confirmation-dialog
+      :show="showSwitchConfirmation"
+      title="Switch Competition?"
+      :message="switchDialogMessage"
+      confirm-text="Switch Competition"
+      cancel-text="Cancel"
+      type="primary"
+      :confirm-loading="isSwitching"
+      loading-text="Loading..."
+      @confirm="handleSwitch"
+      @cancel="cancelSwitch"
     />
 
     <!-- Create / Edit Modal -->
@@ -115,7 +137,10 @@ export default {
       saving: false,
       showDeleteConfirmation: false,
       compToDelete: null,
-      isDeleting: false
+      isDeleting: false,
+      showSwitchConfirmation: false,
+      compToSwitch: null,
+      isSwitching: false
     };
   },
 
@@ -125,6 +150,10 @@ export default {
     },
     activeCompetition() {
       return useCompetitionsStore().activeCompetition;
+    },
+    switchDialogMessage() {
+      if (!this.compToSwitch) return '';
+      return `Switch to "${this.compToSwitch.name}"? All data will reload for this competition.`;
     }
   },
 
@@ -181,6 +210,30 @@ export default {
     cancelDelete() {
       this.showDeleteConfirmation = false;
       this.compToDelete = null;
+    },
+
+    confirmSwitch(comp) {
+      this.compToSwitch = comp;
+      this.showSwitchConfirmation = true;
+    },
+
+    cancelSwitch() {
+      this.showSwitchConfirmation = false;
+      this.compToSwitch = null;
+    },
+
+    async handleSwitch() {
+      this.isSwitching = true;
+      try {
+        await useCompetitionsStore().setActiveCompetition(this.compToSwitch);
+        NotificationService.success(`Active competition set to ${this.compToSwitch.name}`);
+        this.showSwitchConfirmation = false;
+        this.compToSwitch = null;
+      } catch (err) {
+        NotificationService.error(err.message || 'Failed to switch competition');
+      } finally {
+        this.isSwitching = false;
+      }
     },
 
     async handleDelete() {
