@@ -57,6 +57,11 @@ export const useCompetitionsStore = defineStore('competitions', {
             if (this.activeCompetition?.id === id) {
                 this.activeCompetition = mapped;
             }
+        },
+
+        async deleteCompetition(id) {
+            await ApiService.delete(ApiService.competitionsUrl(id));
+            this.competitions = this.competitions.filter(c => c.id !== id);
         }
     }
 });

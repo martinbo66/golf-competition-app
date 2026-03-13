@@ -48,7 +48,7 @@ Add competition and round management UI to the Administration section, surfacing
 | CM-01 | ✅ Done | As an organiser, I want to create a named competition with optional start/end dates and location, so I can track multiple events. |
 | CM-02 | ✅ Done | As an organiser, I want to see all competitions listed with their status (Upcoming / Active / Past), so I know which event is current. |
 | CM-03 | ✅ Done | As an organiser, I want to edit a competition's name, dates, and location, so I can correct mistakes. |
-| CM-04 | 🔲 To Do | As an organiser, I want to delete a competition that is not the active one, so I can clean up test data. |
+| CM-04 | ✅ Done | As an organiser, I want to delete a competition that is not the active one, so I can clean up test data. |
 | CM-05 | 🔲 To Do | As an organiser, I want to switch the active competition (with a confirmation prompt), so I can work on a different event without accidentally losing context. |
 | CM-06 | 🔲 To Do | As an organiser, I want to see the active competition name in the header at all times, so I always know which event I'm working on. |
 | CM-07 | 🔲 To Do | As an organiser, I want to add rounds to the active competition by choosing a course and play date, so I can schedule the event. |

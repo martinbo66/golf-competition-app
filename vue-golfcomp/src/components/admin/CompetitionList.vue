@@ -49,11 +49,33 @@
               >
                 <i class="fas fa-edit"></i> Edit
               </button>
+              <button
+                class="btn btn-danger"
+                :disabled="isActive(comp)"
+                :title="isActive(comp) ? 'Cannot delete active competition' : 'Delete competition'"
+                @click="confirmDelete(comp)"
+              >
+                <i class="fas fa-trash"></i> Delete
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Delete Confirmation -->
+    <confirmation-dialog
+      :show="showDeleteConfirmation"
+      title="Delete Competition"
+      :message="`Are you sure you want to delete '${compToDelete && compToDelete.name}'? This cannot be undone.`"
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      type="danger"
+      :confirm-loading="isDeleting"
+      loading-text="Deleting..."
+      @confirm="handleDelete"
+      @cancel="cancelDelete"
+    />
 
     <!-- Create / Edit Modal -->
     <div v-if="showForm" class="modal" @click.self="closeForm">
@@ -78,18 +100,22 @@
 <script>
 import { useCompetitionsStore } from '@/stores/competitions';
 import CompetitionForm from './CompetitionForm.vue';
+import ConfirmationDialog from '@/components/shared/ConfirmationDialog.vue';
 import NotificationService from '@/services/NotificationService';
 
 export default {
   name: 'CompetitionList',
 
-  components: { CompetitionForm },
+  components: { CompetitionForm, ConfirmationDialog },
 
   data() {
     return {
       showForm: false,
       editingComp: null,
-      saving: false
+      saving: false,
+      showDeleteConfirmation: false,
+      compToDelete: null,
+      isDeleting: false
     };
   },
 
@@ -145,6 +171,30 @@ export default {
     closeForm() {
       this.showForm = false;
       this.editingComp = null;
+    },
+
+    confirmDelete(comp) {
+      this.compToDelete = comp;
+      this.showDeleteConfirmation = true;
+    },
+
+    cancelDelete() {
+      this.showDeleteConfirmation = false;
+      this.compToDelete = null;
+    },
+
+    async handleDelete() {
+      this.isDeleting = true;
+      try {
+        await useCompetitionsStore().deleteCompetition(this.compToDelete.id);
+        NotificationService.success('Competition deleted');
+        this.showDeleteConfirmation = false;
+        this.compToDelete = null;
+      } catch (err) {
+        NotificationService.error(err.message || 'Failed to delete competition');
+      } finally {
+        this.isDeleting = false;
+      }
     },
 
     async handleSave(formData) {
@@ -265,6 +315,11 @@ export default {
 .comp-card__actions .btn {
   font-size: 0.85rem;
   padding: 5px 12px;
+}
+
+.comp-card__actions .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Modal */
