@@ -22,11 +22,11 @@
               <td class="round-list__td-actions">
                 <button
                   type="button"
-                  class="btn btn-danger btn-sm"
+                  class="btn-icon btn-icon--danger"
                   title="Delete round"
                   @click="confirmDelete(round)"
                 >
-                  <i class="fas fa-trash"></i> Delete
+                  <i class="fas fa-trash"></i>
                 </button>
               </td>
             </tr>
@@ -156,8 +156,22 @@ export default {
     }
   },
 
+  watch: {
+    activeCompetition: {
+      immediate: true,
+      handler(competition) {
+        if (competition?.startDate && !this.form.playDate) {
+          this.form.playDate = competition.startDate.split('T')[0];
+        }
+      }
+    }
+  },
+
   created() {
     this.form.roundNumber = this.nextRoundNumber;
+    if (this.activeCompetition?.startDate && !this.form.playDate) {
+      this.form.playDate = this.activeCompetition.startDate.split('T')[0];
+    }
   },
 
   methods: {
@@ -177,7 +191,7 @@ export default {
 
     resetForm() {
       this.form.courseId = '';
-      this.form.playDate = '';
+      this.form.playDate = this.activeCompetition?.startDate?.split('T')[0] || '';
       this.form.roundNumber = this.nextRoundNumber;
     },
 
@@ -289,9 +303,22 @@ export default {
   display: inline-block;
 }
 
-.btn-sm {
-  font-size: 0.85rem;
-  padding: 4px 10px;
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-icon--danger {
+  color: var(--danger-color, #dc3545);
+}
+
+.btn-icon--danger:hover {
+  background-color: rgba(220, 53, 69, 0.1);
 }
 
 @media (max-width: 768px) {
