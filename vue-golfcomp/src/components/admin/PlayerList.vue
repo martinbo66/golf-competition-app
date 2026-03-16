@@ -46,9 +46,13 @@
               <td>{{ formatCurrency(player.entryFee) }}</td>
               <td>{{ formatCurrency(player.winnings) }}</td>
               <td>{{ player.teamName || 'Unassigned' }}</td>
-              <td>
-                <button class="btn btn-sm" @click="editPlayer(player)">Edit</button>
-                <button class="btn btn-sm btn-danger" @click="confirmDeletePlayer(player)">Delete</button>
+              <td class="action-cell">
+                <button class="icon-btn" title="Edit player" @click="editPlayer(player)">
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button class="icon-btn icon-btn-danger" title="Delete player" @click="confirmDeletePlayer(player)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -290,10 +294,29 @@ const closePlayerForm = () => {
   color: #333;
 }
 
-.btn-sm {
-  padding: 4px 8px;
-  font-size: 12px;
-  margin-right: 5px;
+.action-cell {
+  white-space: nowrap;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.icon-btn:hover {
+  color: var(--primary-color);
+  background-color: var(--border-color);
+}
+
+.icon-btn-danger:hover {
+  color: var(--danger-color, #dc3545);
+  background-color: rgba(220, 53, 69, 0.1);
 }
 
 .sort-asc::after {

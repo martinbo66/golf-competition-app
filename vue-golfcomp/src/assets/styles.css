@@ -218,6 +218,7 @@ body {
   border-bottom: 2px solid var(--border-color);
   background-color: rgba(0, 0, 0, 0.03);
   font-weight: 500;
+  text-align: left;
 }
 
 .table tbody tr:hover {

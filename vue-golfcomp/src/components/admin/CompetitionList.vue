@@ -51,19 +51,19 @@
                 Set Active
               </button>
               <button
-                class="btn btn-secondary"
+                class="icon-btn"
                 @click="editComp(comp)"
                 title="Edit competition"
               >
-                <i class="fas fa-edit"></i> Edit
+                <i class="fas fa-pencil-alt"></i>
               </button>
               <button
-                class="btn btn-danger"
+                class="icon-btn icon-btn-danger"
                 :disabled="isActive(comp)"
                 :title="isActive(comp) ? 'Cannot delete active competition' : 'Delete competition'"
                 @click="confirmDelete(comp)"
               >
-                <i class="fas fa-trash"></i> Delete
+                <i class="fas fa-trash-alt"></i>
               </button>
             </div>
           </div>
@@ -370,9 +370,35 @@ export default {
   padding: 5px 12px;
 }
 
-.comp-card__actions .btn:disabled {
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.icon-btn:hover {
+  color: var(--primary-color);
+  background-color: var(--border-color);
+}
+
+.icon-btn-danger:hover {
+  color: var(--danger-color, #dc3545);
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.icon-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.icon-btn:disabled:hover {
+  color: var(--text-muted);
+  background-color: transparent;
 }
 
 /* Modal */
