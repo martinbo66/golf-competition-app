@@ -98,7 +98,7 @@ export default {
       this.initForm();
     },
     'form.startDate'(newVal) {
-      if (newVal && !this.form.endDate) {
+      if (newVal && !this.form.endDate && !this.competition) {
         this.form.endDate = newVal;
       }
     }

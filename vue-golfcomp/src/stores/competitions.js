@@ -67,6 +67,10 @@ export const useCompetitionsStore = defineStore('competitions', {
         async deleteCompetition(id) {
             await ApiService.delete(ApiService.competitionsUrl(id));
             this.competitions = this.competitions.filter(c => c.id !== id);
+            if (this.activeCompetition?.id === id) {
+                this.activeCompetition = null;
+                ApiService.competitionId = null;
+            }
         },
 
         /**
