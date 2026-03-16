@@ -90,6 +90,18 @@ export const useCompetitionsStore = defineStore('competitions', {
         },
 
         /**
+         * Update a round's courseId and/or playDate, then refresh courses.
+         * @param {{ roundId: string, courseId: string, playDate: string }} data
+         */
+        async updateRound({ roundId, courseId, playDate }) {
+            const id = this.activeCompetition?.id;
+            if (!id) throw new Error('No active competition');
+            await ApiService.put(ApiService.roundsUrl(roundId), { courseId, playDate });
+            const coursesStore = useCoursesStore();
+            await coursesStore.fetchCourses();
+        },
+
+        /**
          * Delete a round for the active competition, then refresh courses.
          * @param {string} roundId
          */

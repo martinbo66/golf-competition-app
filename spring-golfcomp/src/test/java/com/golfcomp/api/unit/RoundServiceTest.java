@@ -1,6 +1,7 @@
 package com.golfcomp.api.unit;
 
 import com.golfcomp.api.dto.request.CreateRoundRequest;
+import com.golfcomp.api.dto.request.UpdateRoundRequest;
 import com.golfcomp.api.dto.response.RoundResponse;
 import com.golfcomp.api.exception.ResourceNotFoundException;
 import com.golfcomp.api.model.Competition;
@@ -176,6 +177,56 @@ class RoundServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
             () -> roundService.findById(competitionId, roundId));
+    }
+
+    @Test
+    @DisplayName("update - updates course and date when round belongs to competition")
+    void update_updatesRound() {
+        UUID newCourseId = UUID.randomUUID();
+        Course newCourse = Course.builder().id(newCourseId).name("Moorland")
+            .createdAt(Instant.now()).updatedAt(Instant.now()).build();
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(courseRepository.findById(newCourseId)).thenReturn(Optional.of(newCourse));
+        when(roundRepository.save(any(Round.class))).thenReturn(round);
+        UpdateRoundRequest request = new UpdateRoundRequest(newCourseId, LocalDate.of(2026, 7, 1));
+
+        RoundResponse response = roundService.update(competitionId, roundId, request);
+
+        assertNotNull(response);
+        verify(roundRepository).save(round);
+    }
+
+    @Test
+    @DisplayName("update - throws when round not found")
+    void update_throwsWhenNotFound() {
+        when(roundRepository.findById(roundId)).thenReturn(Optional.empty());
+        UpdateRoundRequest request = new UpdateRoundRequest(courseId, LocalDate.of(2026, 7, 1));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.update(competitionId, roundId, request));
+    }
+
+    @Test
+    @DisplayName("update - throws when round belongs to different competition")
+    void update_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+        UpdateRoundRequest request = new UpdateRoundRequest(courseId, LocalDate.of(2026, 7, 1));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.update(otherId, roundId, request));
+    }
+
+    @Test
+    @DisplayName("update - throws when new course not found")
+    void update_throwsWhenCourseNotFound() {
+        UUID badCourseId = UUID.randomUUID();
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(courseRepository.findById(badCourseId)).thenReturn(Optional.empty());
+        UpdateRoundRequest request = new UpdateRoundRequest(badCourseId, LocalDate.of(2026, 7, 1));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> roundService.update(competitionId, roundId, request));
     }
 
     @Test

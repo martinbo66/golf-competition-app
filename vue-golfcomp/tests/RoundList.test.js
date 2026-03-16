@@ -5,6 +5,7 @@ jest.mock('@/services/ApiService', () => ({
   __esModule: true,
   default: {
     post: jest.fn(),
+    put: jest.fn(),
     delete: jest.fn(),
     roundsUrl: jest.fn(id => (id ? `/competitions/comp/rounds/${id}` : '/competitions/comp/rounds'))
   }
@@ -30,6 +31,7 @@ describe('RoundList', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     ApiService.post.mockReset();
+    ApiService.put.mockReset();
     ApiService.delete.mockReset();
     NotificationService.success.mockClear();
     NotificationService.error.mockClear();
@@ -139,9 +141,7 @@ describe('RoundList', () => {
         global: { stubs: { ConfirmationDialog: true } }
       });
 
-      const deleteButtons = wrapper.findAll('button.btn-danger');
-      expect(deleteButtons.length).toBe(1);
-      expect(deleteButtons[0].text()).toContain('Delete');
+      expect(wrapper.find('button[title="Delete round"]').exists()).toBe(true);
     });
 
     test('clicking Delete opens confirmation dialog with round details', async () => {
@@ -155,7 +155,7 @@ describe('RoundList', () => {
         global: { stubs: { ConfirmationDialog: true } }
       });
 
-      await wrapper.find('button.btn-danger').trigger('click');
+      await wrapper.find('button[title="Delete round"]').trigger('click');
 
       const dialog = wrapper.findComponent({ name: 'ConfirmationDialog' });
       expect(dialog.exists()).toBe(true);
@@ -177,14 +177,14 @@ describe('RoundList', () => {
         global: { stubs: { ConfirmationDialog: true } }
       });
 
-      await wrapper.find('button.btn-danger').trigger('click');
+      await wrapper.find('button[title="Delete round"]').trigger('click');
       await wrapper.findComponent({ name: 'ConfirmationDialog' }).vm.$emit('confirm');
 
       expect(compStore.deleteRound).toHaveBeenCalledWith('r1');
       expect(NotificationService.success).toHaveBeenCalledWith('Round deleted');
     });
 
-    test('when delete fails, shows error and keeps dialog state', async () => {
+    test('when delete fails, shows error', async () => {
       const compStore = useCompetitionsStore();
       compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
       useCoursesStore().rounds = [
@@ -196,10 +196,92 @@ describe('RoundList', () => {
         global: { stubs: { ConfirmationDialog: true } }
       });
 
-      await wrapper.find('button.btn-danger').trigger('click');
+      await wrapper.find('button[title="Delete round"]').trigger('click');
       await wrapper.findComponent({ name: 'ConfirmationDialog' }).vm.$emit('confirm');
 
       expect(NotificationService.error).toHaveBeenCalledWith('Network error');
+    });
+  });
+
+  describe('edit round', () => {
+    test('each round row has an Edit button in read mode', () => {
+      const compStore = useCompetitionsStore();
+      compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      useCoursesStore().rounds = [
+        { id: 'r1', course: { id: 'c1', name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+
+      const wrapper = mount(RoundList, { global: { stubs: { ConfirmationDialog: true } } });
+
+      expect(wrapper.find('button[title="Edit round"]').exists()).toBe(true);
+    });
+
+    test('clicking Edit enters edit mode with course select and date input', async () => {
+      const compStore = useCompetitionsStore();
+      compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      useCoursesStore().rounds = [
+        { id: 'r1', course: { id: '071aaf93-773e-49d0-935e-4b825e25670f', name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+
+      const wrapper = mount(RoundList, { global: { stubs: { ConfirmationDialog: true } } });
+      await wrapper.find('button[title="Edit round"]').trigger('click');
+
+      expect(wrapper.find('select[aria-label="Edit course"]').exists()).toBe(true);
+      expect(wrapper.find('input[aria-label="Edit play date"]').exists()).toBe(true);
+      expect(wrapper.find('button[title="Save changes"]').exists()).toBe(true);
+      expect(wrapper.find('button[title="Cancel edit"]').exists()).toBe(true);
+    });
+
+    test('Cancel edit returns to read mode', async () => {
+      const compStore = useCompetitionsStore();
+      compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      useCoursesStore().rounds = [
+        { id: 'r1', course: { id: 'c1', name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+
+      const wrapper = mount(RoundList, { global: { stubs: { ConfirmationDialog: true } } });
+      await wrapper.find('button[title="Edit round"]').trigger('click');
+      await wrapper.find('button[title="Cancel edit"]').trigger('click');
+
+      expect(wrapper.find('select[aria-label="Edit course"]').exists()).toBe(false);
+      expect(wrapper.find('button[title="Edit round"]').exists()).toBe(true);
+    });
+
+    test('Save calls updateRound and shows success notification', async () => {
+      const compStore = useCompetitionsStore();
+      compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      useCoursesStore().rounds = [
+        { id: 'r1', course: { id: '071aaf93-773e-49d0-935e-4b825e25670f', name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+      jest.spyOn(compStore, 'updateRound').mockResolvedValue();
+
+      const wrapper = mount(RoundList, { global: { stubs: { ConfirmationDialog: true } } });
+      await wrapper.find('button[title="Edit round"]').trigger('click');
+      await wrapper.find('select[aria-label="Edit course"]').setValue('2b81e674-816a-42ea-b524-54a96bfb2b14');
+      await wrapper.find('button[title="Save changes"]').trigger('click');
+
+      expect(compStore.updateRound).toHaveBeenCalledWith({
+        roundId: 'r1',
+        courseId: '2b81e674-816a-42ea-b524-54a96bfb2b14',
+        playDate: '2026-06-14'
+      });
+      expect(NotificationService.success).toHaveBeenCalledWith('Round updated');
+    });
+
+    test('Save failure shows error notification', async () => {
+      const compStore = useCompetitionsStore();
+      compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+      useCoursesStore().rounds = [
+        { id: 'r1', course: { id: 'c1', name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+      jest.spyOn(compStore, 'updateRound').mockRejectedValue(new Error('Server error'));
+
+      const wrapper = mount(RoundList, { global: { stubs: { ConfirmationDialog: true } } });
+      await wrapper.find('button[title="Edit round"]').trigger('click');
+      await wrapper.find('select[aria-label="Edit course"]').setValue('2b81e674-816a-42ea-b524-54a96bfb2b14');
+      await wrapper.find('button[title="Save changes"]').trigger('click');
+
+      expect(NotificationService.error).toHaveBeenCalledWith('Server error');
     });
   });
 });

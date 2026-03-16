@@ -17,18 +17,74 @@
           <tbody>
             <tr v-for="round in roundsSorted" :key="round.id">
               <td>{{ round.roundNumber }}</td>
-              <td>{{ round.course?.name ?? '—' }}</td>
-              <td>{{ formatPlayDate(round.playDate) }}</td>
-              <td class="round-list__td-actions">
-                <button
-                  type="button"
-                  class="btn-icon btn-icon--danger"
-                  title="Delete round"
-                  @click="confirmDelete(round)"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
+              <template v-if="editingRoundId === round.id">
+                <td>
+                  <select
+                    v-model="editForm.courseId"
+                    class="form-control"
+                    aria-label="Edit course"
+                  >
+                    <option value="" disabled>Select course</option>
+                    <option
+                      v-for="opt in courseOptions"
+                      :key="opt.id"
+                      :value="opt.id"
+                    >
+                      {{ opt.name }}
+                    </option>
+                  </select>
+                </td>
+                <td>
+                  <input
+                    v-model="editForm.playDate"
+                    type="date"
+                    class="form-control"
+                    aria-label="Edit play date"
+                  />
+                </td>
+                <td class="round-list__td-actions">
+                  <button
+                    type="button"
+                    class="btn-icon btn-icon--primary"
+                    title="Save changes"
+                    :disabled="!canSave(round) || saving"
+                    @click="handleSave(round)"
+                  >
+                    <i class="fas fa-check"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-icon"
+                    title="Cancel edit"
+                    :disabled="saving"
+                    @click="cancelEdit"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </td>
+              </template>
+              <template v-else>
+                <td>{{ round.course?.name ?? '—' }}</td>
+                <td>{{ formatPlayDate(round.playDate) }}</td>
+                <td class="round-list__td-actions">
+                  <button
+                    type="button"
+                    class="btn-icon"
+                    title="Edit round"
+                    @click="startEdit(round)"
+                  >
+                    <i class="fas fa-pencil-alt"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-icon btn-icon--danger"
+                    title="Delete round"
+                    @click="confirmDelete(round)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </template>
             </tr>
             <tr class="round-list__add-row">
               <td>
@@ -128,7 +184,13 @@ export default {
       showDeleteConfirmation: false,
       roundToDelete: null,
       deleting: false,
-      courseOptions: COURSE_OPTIONS
+      courseOptions: COURSE_OPTIONS,
+      editingRoundId: null,
+      editForm: {
+        courseId: '',
+        playDate: ''
+      },
+      saving: false
     };
   },
 
@@ -210,6 +272,47 @@ export default {
         NotificationService.error(err.message || 'Failed to add round');
       } finally {
         this.adding = false;
+      }
+    },
+
+    startEdit(round) {
+      this.editingRoundId = round.id;
+      this.editForm.courseId = round.course?.id ?? '';
+      this.editForm.playDate = round.playDate
+        ? (typeof round.playDate === 'string' ? round.playDate.split('T')[0] : round.playDate)
+        : '';
+    },
+
+    cancelEdit() {
+      this.editingRoundId = null;
+      this.editForm.courseId = '';
+      this.editForm.playDate = '';
+    },
+
+    canSave(round) {
+      return (
+        this.editForm.courseId &&
+        this.editForm.playDate &&
+        (this.editForm.courseId !== (round.course?.id ?? '') ||
+         this.editForm.playDate !== (round.playDate?.split('T')[0] ?? ''))
+      );
+    },
+
+    async handleSave(round) {
+      if (this.saving) return;
+      this.saving = true;
+      try {
+        await useCompetitionsStore().updateRound({
+          roundId: round.id,
+          courseId: this.editForm.courseId,
+          playDate: this.editForm.playDate
+        });
+        NotificationService.success('Round updated');
+        this.cancelEdit();
+      } catch (err) {
+        NotificationService.error(err.message || 'Failed to update round');
+      } finally {
+        this.saving = false;
       }
     },
 
@@ -310,7 +413,26 @@ export default {
   cursor: pointer;
   padding: 5px;
   border-radius: 4px;
+  color: var(--text-muted);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-icon:hover {
+  color: var(--primary-color);
+  background-color: var(--border-color);
+}
+
+.btn-icon--primary {
+  color: var(--primary-color);
+}
+
+.btn-icon--primary:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.btn-icon--primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .btn-icon--danger {
