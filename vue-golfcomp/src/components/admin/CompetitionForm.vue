@@ -47,7 +47,7 @@
         id="comp-location"
         v-model="form.location"
         class="form-control"
-        placeholder="e.g. Moorland Golf Club"
+        placeholder="e.g. Myrtle Beach, NC"
       >
     </div>
 
