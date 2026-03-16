@@ -68,7 +68,7 @@
         <div class="app-info">
           <p class="app-name">Golf Competition App</p>
           <p class="version">Version 1.1.0</p>
-          <p class="updated-date">Updated: June 8, 2025</p>
+          <p class="updated-date">Updated: {{ buildDate }}</p>
         </div>
       </div>
     </nav>
@@ -105,6 +105,9 @@ const currentThumbnailImage = computed(() => {
 const setActiveSidebarItem = (itemId) => {
   uiStore.setActiveSidebarItem(itemId);
 };
+
+/* global __BUILD_DATE__ */
+const buildDate = __BUILD_DATE__;
 </script>
 
 <style scoped>
