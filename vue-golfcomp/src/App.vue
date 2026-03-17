@@ -17,6 +17,7 @@
         <app-sidebar></app-sidebar>
         <main class="main-content">
           <router-view></router-view>
+          <app-footer></app-footer>
         </main>
       </div>
     </template>
@@ -28,6 +29,7 @@
 import { useUiStore } from '@/stores/ui';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import AppSidebar from '@/components/layout/AppSidebar.vue';
+import AppFooter from '@/components/layout/AppFooter.vue';
 import Notifications from '@/components/shared/Notifications.vue';
 import NotificationService from '@/services/NotificationService';
 import '@/assets/styles.css';
@@ -37,6 +39,7 @@ export default {
   components: {
     AppHeader,
     AppSidebar,
+    AppFooter,
     Notifications
   },
   setup() {
