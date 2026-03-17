@@ -1,24 +1,25 @@
 # CLAUDE.md - Golf Competition App
 
-> **Version:** 2.0.0 | **Last Updated:** 2026-01-10
+> **Version:** 3.0.0 | **Last Updated:** 2026-03-17
 > **Purpose:** Essential guide for AI assistants working on this codebase
 
 ---
 
 ## Project Overview
 
-Vue.js 2 client-side SPA for managing golf team competitions with:
-- Player management (with talent ratings A/B/C/D)
+Vue 3 SPA + Spring Boot REST API for managing golf team competitions with:
+- Competition management (create, switch active competition)
+- Player management (with talent ratings A/B/C/D, entry fees, winnings)
 - Automated team generation using snake draft algorithm
-- Score tracking across 4 courses (Parkland, Heathland, Heritage Club, Moorland)
-- Leaderboards (team and individual)
-- localStorage persistence, import/export, light/dark themes
+- Round/score tracking mapped to 4 courses (Parkland, Heathland, Heritage Club, Moorland)
+- Leaderboards: team, individual, money (winnings-based)
+- Light/dark themes
 
 **Key Characteristics:**
-- No backend - 100% client-side with localStorage
-- Hash-based routing for static hosting
-- Offline-capable after initial load
-- Monorepo structure with Vue frontend in `vue-golfcomp/` (Gradle orchestration at root)
+- Full-stack: Vue 3 frontend + Spring Boot REST backend
+- Hash-based routing for static hosting compatibility
+- All state is server-side; frontend fetches via REST API
+- Monorepo: Vue frontend in `vue-golfcomp/`, Spring backend in `spring-golfcomp/`
 
 ---
 
@@ -26,10 +27,10 @@ Vue.js 2 client-side SPA for managing golf team competitions with:
 
 ```json
 {
-  "vue": "2.6.14",          // Options API
-  "vue-router": "3.5.3",    // Hash mode
-  "vuex": "3.6.2",          // Namespaced modules
-  "uuid": "9.0.0",
+  "vue": "3.5.24",
+  "vue-router": "4.6.3",
+  "pinia": "3.0.4",
+  "axios": "1.7.0",
   "jest": "29.7.0",
   "@vue/test-utils": "2.4.6"
 }
@@ -37,7 +38,7 @@ Vue.js 2 client-side SPA for managing golf team competitions with:
 
 **Commands (from repository root):**
 ```bash
-./gradlew build                 # Build frontend
+./gradlew build                 # Build both frontend and backend
 ./gradlew test                  # Run all tests
 ./gradlew lint                  # ESLint check
 ./gradlew frontendDev           # Dev server :8080
@@ -58,24 +59,19 @@ npm test -- --coverage          # Run tests with coverage
 npm test -- --watch             # Watch mode for tests
 ```
 
-**Build Tools:**
-- **Webpack 5** via Vue CLI for bundling
-- **Babel** for ES6+ transpilation
-- **Jest** for testing with custom Vuex mock store
-
 ---
 
 ## Project Structure (Monorepo)
 
 ```
 golf-competition-app/
-├── vue-golfcomp/              # Vue.js frontend
+├── vue-golfcomp/              # Vue 3 frontend
 │   ├── src/
-│   │   ├── main.js            # App entry
+│   │   ├── main.js            # App entry (createApp + createPinia + router)
 │   │   ├── App.vue            # Root component
 │   │   ├── router/index.js    # Hash mode router (vue.config.js: port 8080)
-│   │   ├── stores/            # Pinia stores (players, teams, scores, etc.)
-│   │   ├── services/          # DataService, NotificationService
+│   │   ├── stores/            # Pinia stores (competitions, players, teams, scores, courses, ui)
+│   │   ├── services/          # ApiService, DataService, NotificationService, bootstrap.js
 │   │   ├── utils/             # Validation, formatting helpers
 │   │   ├── assets/            # Images and global styles
 │   │   ├── components/        # layout/, shared/, admin/, scoring/
@@ -86,6 +82,8 @@ golf-competition-app/
 │   ├── vue.config.js          # Vue CLI config (dev server port 8080)
 │   ├── jest.config.js
 │   └── babel.config.js
+├── spring-golfcomp/           # Spring Boot REST API backend
+│   └── src/
 ├── data/                      # Sample data files for import (JSON)
 ├── doc/                       # User guide, test plan, delivery docs
 ├── build.gradle               # Root Gradle orchestration
@@ -98,60 +96,67 @@ golf-competition-app/
 
 ## Critical Architecture Patterns
 
-### 1. Vuex Store (Namespaced Modules)
+### 1. Pinia Stores
 
-All modules use `namespaced: true`. Access pattern:
+All stores use `defineStore` from Pinia. Access pattern in components:
 ```javascript
-// In components
-computed: {
-  players() {
-    return this.$store.getters['players/allPlayers'];
-  }
-},
-methods: {
-  async addPlayer() {
-    await this.$store.dispatch('players/addPlayer', this.formData);
-  }
-}
+import { usePlayersStore } from '@/stores/players';
+
+// In setup() or <script setup>
+const playersStore = usePlayersStore();
+const players = computed(() => playersStore.allPlayers);
+
+// Call actions
+await playersStore.addPlayer(formData);
 ```
 
-### 2. localStorage Persistence Plugin
+**No Vuex. No `this.$store`. No namespaced getters.**
 
-**CRITICAL:** Mutations must start with module name (`players/`, `teams/`, `scores/`, `courses/`) to trigger persistence.
+### 2. Active Competition Context
 
-The plugin provides **automatic cross-tab synchronization** - changes in one tab are reflected in others.
+All player/team/score/round API calls are scoped to the active competition. `ApiService.competitionId` must be set before these calls work.
 
+`useCompetitionsStore().setActiveCompetition(comp)` sets the context and re-fetches all data:
 ```javascript
-// /src/store/index.js
-const persistencePlugin = (store) => {
-  store.subscribe((mutation) => {
-    if (mutation.type.startsWith('players/') ||
-        mutation.type.startsWith('teams/') ||
-        mutation.type.startsWith('scores/') ||
-        mutation.type.startsWith('courses/')) {
-      // Auto-saves to localStorage with cross-tab sync
-      localStorage.setItem('golf-competition-app', JSON.stringify(state));
-    }
-  });
-};
+// ApiService scopes URLs like: /api/v1/competitions/{id}/players
+// This is set automatically when user selects a competition
 ```
 
 ### 3. Data Flow
 
 ```
-User Action → Component → Store Action → Mutation → State Update →
-Persistence Plugin → localStorage → Getter → Component Re-render
+User Action → Component → Pinia Store Action → ApiService (axios) → REST API →
+Store state update → Computed/getter → Component re-render
 ```
 
-### 4. Component Communication Patterns
+No localStorage persistence. All data lives on the server.
+
+### 4. Courses vs Rounds
+
+Courses are backend entities. The `courses` store fetches rounds from the active competition and maps them to course objects. If no rounds exist, fallback courses (hardcoded IDs) are used — scores won't persist to the backend without a `roundId`.
+
+### 5. Component Communication
 
 - **Parent-child:** Props down, events up
-- **Cross-component:** Vuex store for shared state
-- **UI state:** Use `ui` module for global UI state (theme, notifications, loading)
+- **Cross-component:** Pinia stores for shared state
+- **UI state:** `ui` store for global UI state (loading, notifications)
 
 ---
 
 ## Data Structures
+
+### Competition Object
+```javascript
+{
+  id: 'uuid',
+  name: 'Spring Tournament 2026',
+  startDate: 'ISO-8601' | null,
+  endDate: 'ISO-8601' | null,
+  location: 'string' | null,
+  createdAt: 'ISO-8601',
+  updatedAt: 'ISO-8601'
+}
+```
 
 ### Player Object
 ```javascript
@@ -162,6 +167,7 @@ Persistence Plugin → localStorage → Getter → Component Re-render
   entryFee: 100,
   winnings: 0,
   teamId: 'uuid' | null,    // null if unassigned
+  teamName: 'string' | null,
   createdAt: 'ISO-8601',
   updatedAt: 'ISO-8601'
 }
@@ -178,115 +184,130 @@ Persistence Plugin → localStorage → Getter → Component Re-render
 }
 ```
 
-### Score Object
+### Score Object (frontend)
 ```javascript
 {
   id: 'uuid',
   playerId: 'uuid',
   courseId: 'uuid',
-  value: 72,               // Range: 18-150
+  value: 72,
   timestamp: 'ISO-8601'
 }
 ```
 
-### Course Object (Static)
+### Course Object
 ```javascript
 {
-  id: 'parkland-1',        // Format: coursename-order
+  id: 'uuid',                // UUID from backend (or hardcoded fallback)
   name: 'Parkland',
-  order: 1
+  order: 1,
+  roundId: 'uuid' | null    // null = no round scheduled yet
 }
 ```
 
 ---
 
-## Vuex Modules Reference
+## Pinia Stores Reference
 
-### `players` Module
+### `competitions` Store (`useCompetitionsStore`)
 
 **Key Actions:**
-- `addPlayer({ commit }, playerData)` - Creates with UUID
-- `updatePlayer({ commit }, player)` - Updates existing
-- `deletePlayer({ commit }, playerId)` - Removes player
-- `assignPlayerToTeam({ commit }, { playerId, teamId })`
-- `unassignPlayerFromTeam({ commit }, playerId)`
-- `unassignAllPlayers({ commit })`
+- `fetchCompetitions()` - Load all competitions
+- `createCompetition(data)` - Create new
+- `updateCompetition({ id, updates })`
+- `deleteCompetition(id)`
+- `setActiveCompetition(comp)` - **Sets context + re-fetches all related data**
+- `createRound(data)` - Add round to active competition
+- `updateRound({ roundId, courseId, playDate })`
+- `deleteRound(roundId)`
 
 **Key Getters:**
-- `allPlayers(state)` - All players array
-- `playerById: (state) => (id)`
-- `playersByTeam: (state) => (teamId)`
-- `unassignedPlayers(state)` - Players with teamId === null
-- `playersByTalent: (state) => (rating)` - Filter by A/B/C/D
+- `allCompetitions`
+- `activeCompetitionId`
 
-### `teams` Module
+### `players` Store (`usePlayersStore`)
 
 **Key Actions:**
-- `addTeam({ commit }, teamData)`
-- `updateTeam({ commit }, team)`
-- `deleteTeam({ commit, dispatch }, teamId)` - Also unassigns players
-- `deleteAllTeams({ commit, dispatch })`
-- `generateTeams({ commit, dispatch }, numberOfTeams)` - **Snake draft algorithm**
-- `uploadTeamLogo({ commit }, { teamId, logoFile })` - Converts to data URL
+- `fetchPlayers()` - Load players for active competition
+- `addPlayer(player)`
+- `updatePlayer({ id, updates })`
+- `deletePlayer(id)`
+- `assignPlayerToTeam({ playerId, teamId })`
+- `unassignPlayerFromTeam(playerId)`
+- `unassignAllPlayers()`
+
+**Key Getters:**
+- `allPlayers`, `playerById(id)`, `playersByTeam(teamId)`
+- `unassignedPlayers`, `playersByTalentRating(rating)`
+- `totalEntryFees`, `totalWinnings`
+
+### `teams` Store (`useTeamsStore`)
+
+**Key Actions:**
+- `fetchTeams()`, `addTeam(data)`, `updateTeam({ id, updates })`, `deleteTeam(id)`, `deleteAllTeams()`
+- `generateTeams(numberOfTeams)` - **Snake draft algorithm**
+- `uploadTeamLogo({ teamId, logoFile })` - Converts to Base64 data URL
 
 **Snake Draft Algorithm:**
 1. Sort players by talent rating (A → B → C → D)
-2. Distribute round-robin with alternating direction:
-   - Round 1: Team1, Team2, Team3, Team4
-   - Round 2: Team4, Team3, Team2, Team1 (reverse)
-   - Round 3: Team1, Team2, Team3, Team4
-   - etc.
+2. Distribute round-robin with alternating direction per round
 
 **Key Getters:**
-- `allTeams(state)`
-- `teamById: (state) => (id)`
-- `teamWithPlayers: (state, getters, rootState, rootGetters) => (teamId)` - Team + players array
+- `allTeams`, `teamById(id)`, `teamWithPlayers(teamId)`
 
-### `scores` Module
+### `scores` Store (`useScoresStore`)
 
 **Key Actions:**
-- `updateScore({ commit }, { playerId, courseId, value })` - Creates or updates
-- `deleteScore({ commit }, scoreId)`
-- `deleteScoresByPlayer({ commit }, playerId)`
-- `deleteAllScores({ commit })`
+- `fetchScores()` - Fetches scores per round from courses store
+- `updateScore({ playerId, courseId, value })` - Creates or updates via API
+- `deleteScore(id)`, `deletePlayerScores(playerId)`, `deleteCourseScores(courseId)` — **local only** (backend DELETE not yet implemented)
 
 **Key Getters:**
-- `scoreByPlayerAndCourse: (state) => (playerId, courseId)`
-- `playerTotalScore: (state, getters) => (playerId)` - Sum all courses
-- `teamTotalScore: (state, getters, rootState, rootGetters) => (teamId)` - Sum all team members
-- `playerLeaderboard(state, getters, rootState, rootGetters)` - Computed rankings
-- `teamLeaderboard(state, getters, rootState, rootGetters)` - Team rankings
-- `courseScoresByTeam: (state, getters, rootState, rootGetters) => (courseId)` - Scorecard view
+- `scoreByPlayerAndCourse(playerId, courseId)`
+- `playerTotalScore(playerId)`, `teamTotalScore(teamId)`
+- `playerLeaderboard`, `teamLeaderboard`
+- `playerMoneyLeaderboard`, `teamMoneyLeaderboard`
+- `courseScoresByTeam(courseId)`
 
-**Score Validation:** 18-150 range (validated in `vue-golfcomp/src/utils/index.js`)
+### `courses` Store (`useCoursesStore`)
 
-### `courses` Module
+**Actions:** `fetchCourses()` — fetches rounds for active competition, maps to course objects.
 
-**State (Static - Read-only):**
-```javascript
-courses: [
-  { id: 'parkland-1', name: 'Parkland', order: 1 },
-  { id: 'heathland-2', name: 'Heathland', order: 2 },
-  { id: 'heritage-3', name: 'Heritage Club', order: 3 },
-  { id: 'moorland-4', name: 'Moorland', order: 4 }
-]
-```
+**Gotcha:** Scores require `roundId`. If `course.roundId === null`, `updateScore` will throw. A round must be created first via `competitionsStore.createRound(...)`.
 
-**Getters:** `allCourses`, `courseById`, `courseByName`, `courseCount`
+**Key Getters:** `allCourses`, `courseById(id)`, `courseByName(name)`, `roundIdByCourseId(courseId)`
 
-### `ui` Module
+### `ui` Store (`useUiStore`)
 
-**State:**
-```javascript
-{
-  activeSection: 'administration',     // administration | scoring | leaderboards
-  activeSidebarItem: 'players',
-  isLoading: false,
-  notifications: []                    // { id, type, message, timeout }
-}
-```
+**State:** `isLoading`, `notifications[]`
 
 **Notification Types:** `success` (3s), `error` (5s), `warning` (4s), `info` (3s)
+
+---
+
+## ApiService
+
+All REST calls go through `src/services/ApiService.js` (axios-based singleton):
+
+```javascript
+import ApiService from '@/services/ApiService';
+
+// URLs — all scoped to active competition except /competitions
+ApiService.competitionsUrl(id?)       // /competitions or /competitions/{id}
+ApiService.playersUrl(id?)            // /competitions/{cid}/players[/{id}]
+ApiService.teamsUrl(id?)              // /competitions/{cid}/teams[/{id}]
+ApiService.roundsUrl(id?)             // /competitions/{cid}/rounds[/{id}]
+ApiService.scoresUrl(roundId)         // /competitions/{cid}/rounds/{roundId}/scores
+ApiService.leaderboardsUrl(type)      // /competitions/{cid}/leaderboards/{type}
+
+// Methods
+ApiService.get(url)
+ApiService.post(url, data)
+ApiService.put(url, data)
+ApiService.delete(url)
+```
+
+Base URL: `/api/v1` — proxied to Spring Boot in dev.
 
 ---
 
@@ -299,11 +320,10 @@ courses: [
 | Vue Components | PascalCase | `PlayerList.vue` |
 | JS Files | camelCase | `dataService.js` |
 | CSS Classes | kebab-case | `.card-header` |
-| Vuex Actions | camelCase | `addPlayer` |
-| Vuex Mutations | SCREAMING_SNAKE | `ADD_PLAYER` |
+| Pinia Store functions | camelCase | `addPlayer` |
 | Constants | SCREAMING_SNAKE | `MAX_SCORE` |
 
-### Vue Component Order
+### Vue Component Order (Options API)
 
 1. `name`
 2. `components`
@@ -319,6 +339,7 @@ courses: [
 Use `@` alias for `/src`:
 ```javascript
 import PlayerList from '@/components/admin/PlayerList.vue'
+import { usePlayersStore } from '@/stores/players'
 ```
 
 ---
@@ -329,11 +350,6 @@ import PlayerList from '@/components/admin/PlayerList.vue'
 **Dark theme:** `body.dark-mode` variables
 
 Toggle via `AppHeader.vue` which adds/removes `dark-mode` class to `<body>`.
-
-**Design Approach:**
-- **Mobile-first responsive design** with CSS variables for theming
-- Component-scoped styles in `.vue` files
-- Global styles in `vue-golfcomp/src/assets/styles.css`
 
 **Key Variables:**
 ```css
@@ -354,57 +370,33 @@ Toggle via `AppHeader.vue` which adds/removes `dark-mode` class to `<body>`.
 ### Before Making Changes
 
 1. **Read related files first** - Understand current implementation
-2. **Check Vuex module** - Understand state structure
-3. **Look for existing patterns** - Don't duplicate functionality
-4. **Test persistence** - Ensure localStorage still works
+2. **Check the Pinia store** - Understand state and actions
+3. **Check ApiService** - Understand URL patterns
+4. **Look for existing patterns** - Don't duplicate functionality
 
 ### Critical Rules
 
-**Vuex Mutations:**
-- ✅ DO: Direct state mutations only
-- ❌ DON'T: Mutate parameters or call other functions
-- ❌ DON'T: Generate UUIDs in mutations (do it in actions)
+**Pinia Stores:**
+- ✅ DO: Mutate `this.` state directly in actions
+- ✅ DO: Call `ApiService` methods in actions
+- ❌ DON'T: Use Vuex patterns (`this.$store`, namespaced getters, mutations)
 
 ```javascript
-// CORRECT
-mutations: {
-  ADD_PLAYER(state, player) {
-    state.players.push(player);
-  }
-}
-
-// WRONG - uuid() should be in action
-mutations: {
-  ADD_PLAYER(state, playerData) {
-    state.players.push({ ...playerData, id: uuid() });
-  }
+// CORRECT - Pinia action
+async addPlayer(player) {
+  const created = await ApiService.post(ApiService.playersUrl(), player);
+  this.players.push(created);
 }
 ```
 
 **Reactive Data:**
-- ✅ DO: Use `computed` for store data
-- ❌ DON'T: Assign store data in `data()`
+- ✅ DO: Use `computed(() => store.getter)` for store data in setup
+- ✅ DO: Access store properties directly in templates via store ref
 
-```javascript
-// CORRECT
-computed: {
-  players() {
-    return this.$store.getters['players/allPlayers'];
-  }
-}
-
-// WRONG - not reactive
-data() {
-  return {
-    players: this.$store.state.players.players
-  };
-}
-```
-
-**Persistence:**
-- Mutation names MUST start with module prefix: `players/`, `teams/`, `scores/`, `courses/`
-- Test that changes persist after page reload
-- Debug: Check localStorage in browser DevTools
+**Active Competition:**
+- All player/team/round/score operations require `ApiService.competitionId` to be set
+- This is set by `competitionsStore.setActiveCompetition(comp)`
+- If you see 404s on player/team requests, check if a competition is active
 
 ### Testing Checklist
 
@@ -412,27 +404,25 @@ Before finalizing changes:
 - [ ] `npm run lint` passes
 - [ ] `npm test` passes
 - [ ] `npm run build` succeeds
-- [ ] Feature works in browser
-- [ ] Data persists after page reload
+- [ ] Feature works in browser with backend running
 - [ ] Related features still work
 - [ ] Dark mode still works
 
 ### Testing Patterns
 
-When writing tests for this app:
 - Use the **MockStore class pattern** established in `tests/teams.test.js`
-- Focus on testing Vuex modules independently
+- Focus on testing Pinia stores independently
 - Test team generation algorithms thoroughly (core business logic)
-- Mock localStorage operations when needed
 - Run specific tests: `npm test -- tests/teams.test.js`
 - Use watch mode during development: `npm test -- --watch`
 
 ### Common Pitfalls
 
-1. **Component not re-rendering?** → Use `computed` not `data()`
-2. **State not persisting?** → Check mutation name starts with module prefix
-3. **Router not working?** → Use `<router-link>` not `<a>`
-4. **Theme broken?** → Check CSS variables for both `:root` and `.dark-mode`
+1. **Component not re-rendering?** → Wrap store access in `computed()`
+2. **API calls returning 404?** → Check `ApiService.competitionId` is set (active competition selected)
+3. **Scores not saving?** → Course needs a `roundId` — create a round first
+4. **Router not working?** → Use `<router-link>` not `<a>`
+5. **Theme broken?** → Check CSS variables for both `:root` and `.dark-mode`
 
 ---
 
@@ -442,20 +432,29 @@ When writing tests for this app:
 
 | Component | Path |
 |-----------|------|
+| Competitions Store | `vue-golfcomp/src/stores/competitions.js` |
 | Players Store | `vue-golfcomp/src/stores/players.js` |
 | Teams Store | `vue-golfcomp/src/stores/teams.js` |
 | Scores Store | `vue-golfcomp/src/stores/scores.js` |
+| Courses Store | `vue-golfcomp/src/stores/courses.js` |
+| API Service | `vue-golfcomp/src/services/ApiService.js` |
+| Competition CRUD | `vue-golfcomp/src/components/admin/CompetitionList.vue` |
+| Competition Form | `vue-golfcomp/src/components/admin/CompetitionForm.vue` |
+| Round Management | `vue-golfcomp/src/components/admin/RoundList.vue` |
 | Player CRUD | `vue-golfcomp/src/components/admin/PlayerList.vue` |
 | Player Form | `vue-golfcomp/src/components/admin/PlayerForm.vue` |
+| Player Stats | `vue-golfcomp/src/components/admin/PlayerStats.vue` |
 | Team CRUD | `vue-golfcomp/src/components/admin/TeamList.vue` |
 | Player Assignment | `vue-golfcomp/src/components/admin/PlayerAssignment.vue` |
 | Team Balance Analyzer | `vue-golfcomp/src/components/admin/TeamBalanceAnalyzer.vue` |
 | Score Entry | `vue-golfcomp/src/components/scoring/ScoreEntry.vue` |
+| Course Scorecard | `vue-golfcomp/src/components/scoring/CourseScorecard.vue` |
 | Player Leaderboard | `vue-golfcomp/src/components/scoring/PlayerLeaderboard.vue` |
 | Team Leaderboard | `vue-golfcomp/src/components/scoring/TeamLeaderboard.vue` |
+| Player Money LB | `vue-golfcomp/src/components/scoring/PlayerMoneyLeaderboard.vue` |
+| Team Money LB | `vue-golfcomp/src/components/scoring/TeamMoneyLeaderboard.vue` |
 | Utilities | `vue-golfcomp/src/utils/index.js` |
 | Global Styles | `vue-golfcomp/src/assets/styles.css` |
-| Data Service | `vue-golfcomp/src/services/DataService.js` |
 | Sample Data | `data/` directory (JSON files) |
 | Documentation | `doc/` directory (user guide, test plan) |
 
@@ -481,15 +480,6 @@ this.$router.push({ name: 'PlayerManagement' });
 <router-link to="/admin/teams">Teams</router-link>
 ```
 
-### localStorage Debug
-
-```javascript
-// Browser console
-localStorage.removeItem('golf-competition-app');  // Clear
-console.log(JSON.parse(localStorage.getItem('golf-competition-app')));  // Inspect
-localStorage.clear();  // Reset all
-```
-
 ---
 
 ## Git Workflow
@@ -512,19 +502,17 @@ Example: "Add player statistics dashboard"
 
 ## Key Takeaways
 
-1. **Always use namespaced Vuex modules** - `this.$store.getters['module/getter']`
-2. **Mutations must start with module name** - or they won't persist to localStorage
-3. **Use computed for reactive store data** - never assign in `data()`
-4. **Score range is 18-150** - validated in utils
-5. **Courses are static/read-only** - no mutations
-6. **Team generation uses snake draft** - see `teams.js:72-93`
-7. **Test persistence after changes** - reload page and check data
-8. **Mobile-first responsive design** - components adapt to screen size
-9. **Cross-tab synchronization** - localStorage changes sync across open tabs
-10. **Use MockStore pattern for testing** - see `tests/teams.test.js`
+1. **Vue 3 + Pinia** — not Vue 2 + Vuex. No `this.$store`, no namespaced getters.
+2. **All state is server-side** — no localStorage persistence. Pinia holds in-memory cache.
+3. **Active competition context** — `ApiService.competitionId` scopes all API calls. Set via `setActiveCompetition()`.
+4. **Scores need rounds** — `course.roundId` must be non-null to save scores to backend.
+5. **Courses are dynamic** — fetched from backend rounds, with hardcoded fallbacks.
+6. **Team generation uses snake draft** — see `teams.js`
+7. **Mobile-first responsive design** — components adapt to screen size
+8. **Use MockStore pattern for testing** — see `tests/teams.test.js`
 
 **When in doubt:** Look at existing similar code in the codebase.
 
 ---
 
-**Version:** 2.0.0 | **Maintained By:** AI Assistant (Claude)
+**Version:** 3.0.0 | **Maintained By:** AI Assistant (Claude)
