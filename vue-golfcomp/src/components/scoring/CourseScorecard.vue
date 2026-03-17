@@ -4,68 +4,15 @@
       <h3>Course Scorecard: {{ courseData.name }}</h3>
     </div>
     <div class="card-body">
-      <!-- Scorecard Image Section -->
-      <div class="scorecard-image-section">
-        <div class="scorecard-image">
-          <img 
-            :src="scorecardImagePath" 
-            :alt="courseData.name + ' Scorecard'"
-            @error="handleImageError"
-            v-if="scorecardImagePath"
-          />
-          <div v-else class="scorecard-placeholder">
-            <p>Scorecard not available</p>
-          </div>
-        </div>
-      </div>
-      
-      <div v-if="isRefreshing" class="loading-state">
-        <p>Loading scorecard...</p>
-      </div>
-      <div v-else-if="!teams.length" class="empty-state">
-        <p>No teams available. Create teams in the Team Management section first.</p>
-      </div>
-      <div v-else>
-        <div class="scorecard-container">
-          <div v-for="teamScore in courseScoresByTeam" :key="teamScore.teamId" class="team-scorecard">
-            <div class="team-header">
-              <div class="team-info">
-                <div v-if="teamScore.logoUrl" class="team-logo">
-                  <img :src="teamScore.logoUrl" :alt="teamScore.teamName + ' logo'" />
-                </div>
-                <div v-else class="team-logo placeholder">
-                  <span>{{ teamScore.teamName.charAt(0) }}</span>
-                </div>
-                <h4>{{ teamScore.teamName }}</h4>
-              </div>
-              <div class="team-total">
-                Total: <span>{{ teamScore.teamTotal }}</span>
-              </div>
-            </div>
-            
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Player</th>
-                  <th>Talent</th>
-                  <th>Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="playerScore in teamScore.playerScores" :key="playerScore.playerId">
-                  <td>{{ playerScore.playerName }}</td>
-                  <td class="talent-cell">
-                    <span :class="'talent-badge talent-' + playerScore.talentRating.toLowerCase()">
-                      {{ playerScore.talentRating }}
-                    </span>
-                  </td>
-                  <td class="score-cell">
-                    {{ playerScore.score !== null ? playerScore.score : '-' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="scorecard-image">
+        <img
+          :src="scorecardImagePath"
+          :alt="courseData.name + ' Scorecard'"
+          @error="handleImageError"
+          v-if="scorecardImagePath"
+        />
+        <div v-else class="scorecard-placeholder">
+          <p>Scorecard not available</p>
         </div>
       </div>
     </div>
@@ -73,10 +20,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useTeamsStore } from '@/stores/teams';
+import { computed } from 'vue';
 import { useCoursesStore } from '@/stores/courses';
-import { useScoresStore } from '@/stores/scores';
 
 const props = defineProps({
   courseId: {
@@ -85,43 +30,21 @@ const props = defineProps({
   }
 });
 
-const teamsStore = useTeamsStore();
 const coursesStore = useCoursesStore();
-const scoresStore = useScoresStore();
-
-const isRefreshing = ref(false);
-
-onMounted(async () => {
-  isRefreshing.value = true;
-  try {
-    await scoresStore.fetchScores();
-  } finally {
-    isRefreshing.value = false;
-  }
-});
 
 const courseData = computed(() => {
   return coursesStore.courseById(props.courseId) || { name: 'Unknown Course' };
 });
 
-const teams = computed(() => teamsStore.allTeams);
-
 const scorecardImagePath = computed(() => {
   if (!courseData.value.name) return null;
-  
-  // Convert course name to the image filename format
   const imageName = courseData.value.name.toLowerCase().replace(/\s+/g, '-') + '-scorecard.png';
-  
   try {
     return require(`@/assets/${imageName}`);
   } catch (error) {
     console.warn(`Scorecard image not found for course: ${courseData.value.name}`);
     return null;
   }
-});
-
-const courseScoresByTeam = computed(() => {
-  return scoresStore.courseScoresByTeam(props.courseId);
 });
 
 const handleImageError = () => {
@@ -132,12 +55,6 @@ const handleImageError = () => {
 <style scoped>
 .course-scorecard {
   margin-bottom: 20px;
-}
-
-.scorecard-image-section {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e9ecef;
 }
 
 .scorecard-image {
@@ -160,126 +77,9 @@ const handleImageError = () => {
   color: #6c757d;
 }
 
-.loading-state,
-.empty-state {
-  text-align: center;
-  padding: 40px 0;
-  color: #666;
-}
-
-.scorecard-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
-}
-
-.team-scorecard {
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.team-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background-color: #e9ecef;
-}
-
-.team-info {
-  display: flex;
-  align-items: center;
-}
-
-.team-logo {
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 50%;
-  background-color: white;
-}
-
-.team-logo img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.team-logo.placeholder {
-  background-color: #dee2e6;
-}
-
-.team-logo.placeholder span {
-  font-weight: bold;
-  color: #6c757d;
-}
-
-.team-info h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.team-total {
-  font-weight: 500;
-}
-
-.team-total span {
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.table {
-  margin-bottom: 0;
-}
-
-.talent-cell {
-  text-align: center;
-}
-
-.score-cell {
-  text-align: center;
-  font-weight: 500;
-}
-
-.talent-badge {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  text-align: center;
-  border-radius: 50%;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: white;
-}
-
-.talent-a {
-  background-color: #28a745;
-}
-
-.talent-b {
-  background-color: #17a2b8;
-}
-
-.talent-c {
-  background-color: #ffc107;
-  color: #212529;
-}
-
-.talent-d {
-  background-color: #dc3545;
-}
-
-@media (max-width: 768px) {
-  .scorecard-container {
-    grid-template-columns: 1fr;
-  }
+body.dark-mode .scorecard-placeholder {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-color);
 }
 </style>
-
