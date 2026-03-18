@@ -70,7 +70,7 @@ describe('bootstrap', () => {
       createCompetition: jest.fn()
     };
     mockUiStore = { setLoading: jest.fn() };
-    mockCoursesStore = { fetchCourses: jest.fn().mockResolvedValue() };
+    mockCoursesStore = { fetchAllCourses: jest.fn().mockResolvedValue(), fetchCourses: jest.fn().mockResolvedValue() };
     mockPlayersStore = { fetchPlayers: jest.fn().mockResolvedValue() };
     mockTeamsStore = { fetchTeams: jest.fn().mockResolvedValue() };
     mockScoresStore = { fetchScores: jest.fn().mockResolvedValue() };

@@ -2,11 +2,12 @@
   <form @submit.prevent="submitForm" class="player-form">
     <div class="form-group">
       <label for="name">Name</label>
-      <input 
-        type="text" 
-        id="name" 
-        v-model="form.name" 
-        class="form-control" 
+      <input
+        ref="nameInput"
+        type="text"
+        id="name"
+        v-model="form.name"
+        class="form-control"
         :class="{ 'is-invalid': errors.name }"
         required
       >
@@ -94,6 +95,9 @@ export default {
   },
   created() {
     this.initForm();
+  },
+  mounted() {
+    this.$refs.nameInput.focus();
   },
   methods: {
     initForm() {

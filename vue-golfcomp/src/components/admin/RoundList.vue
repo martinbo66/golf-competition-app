@@ -15,8 +15,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="round in roundsSorted" :key="round.id">
-              <td>{{ round.roundNumber }}</td>
+            <tr v-for="(round, index) in roundsSorted" :key="round.id">
+              <td>{{ index + 1 }}</td>
               <template v-if="editingRoundId === round.id">
                 <td>
                   <select
@@ -30,7 +30,7 @@
                       :key="opt.id"
                       :value="opt.id"
                     >
-                      {{ opt.name }}
+                      {{ courseLabel(opt) }}
                     </option>
                   </select>
                 </td>
@@ -91,10 +91,10 @@
                 <input
                   v-model.number="form.roundNumber"
                   type="number"
-                  min="1"
-                  class="form-control form-control--inline"
-                  placeholder="#"
+                  class="form-control"
                   aria-label="Round number"
+                  min="1"
+                  required
                 />
               </td>
               <td>
@@ -110,7 +110,7 @@
                     :key="opt.id"
                     :value="opt.id"
                   >
-                    {{ opt.name }}
+                    {{ courseLabel(opt) }}
                   </option>
                 </select>
               </td>
@@ -160,14 +160,6 @@ import { useCoursesStore } from '@/stores/courses';
 import ConfirmationDialog from '@/components/shared/ConfirmationDialog.vue';
 import NotificationService from '@/services/NotificationService';
 
-// Course options for add-round dropdown (must match backend course IDs)
-const COURSE_OPTIONS = [
-  { id: '071aaf93-773e-49d0-935e-4b825e25670f', name: 'Parkland' },
-  { id: '2b81e674-816a-42ea-b524-54a96bfb2b14', name: 'Heathland' },
-  { id: '38a5c806-7f44-4ebb-9472-6ec79431c5ff', name: 'Heritage Club' },
-  { id: 'd3d8aa11-5320-477b-9602-6501dd63b186', name: 'Moorland' }
-];
-
 export default {
   name: 'RoundList',
 
@@ -184,7 +176,6 @@ export default {
       showDeleteConfirmation: false,
       roundToDelete: null,
       deleting: false,
-      courseOptions: COURSE_OPTIONS,
       editingRoundId: null,
       editForm: {
         courseId: '',
@@ -198,9 +189,16 @@ export default {
     activeCompetition() {
       return useCompetitionsStore().activeCompetition;
     },
+    courseOptions() {
+      return useCoursesStore().availableCourses;
+    },
     roundsSorted() {
       const rounds = useCoursesStore().rounds || [];
-      return [...rounds].sort((a, b) => (a.roundNumber ?? 0) - (b.roundNumber ?? 0));
+      return [...rounds].sort((a, b) => {
+        const da = a.playDate ? new Date(a.playDate) : new Date(0);
+        const db = b.playDate ? new Date(b.playDate) : new Date(0);
+        return da - db;
+      });
     },
     nextRoundNumber() {
       const rounds = useCoursesStore().rounds || [];
@@ -209,7 +207,7 @@ export default {
       return max + 1;
     },
     canAdd() {
-      return this.form.courseId && this.form.playDate && this.form.roundNumber >= 1;
+      return this.form.courseId && this.form.playDate && this.form.roundNumber > 0;
     },
     deleteMessage() {
       if (!this.roundToDelete) return '';
@@ -237,6 +235,13 @@ export default {
   },
 
   methods: {
+    courseLabel(course) {
+      const parts = [];
+      if (course.facility) parts.push(course.facility);
+      if (course.location) parts.push(course.location);
+      return parts.length ? `${course.name} — ${parts.join(', ')}` : course.name;
+    },
+
     formatPlayDate(playDate) {
       if (!playDate) return '—';
       const str = typeof playDate === 'string' ? playDate.split('T')[0] : playDate;
@@ -401,11 +406,6 @@ export default {
 
 .round-list__add-row td {
   background-color: var(--background-color);
-}
-
-.form-control--inline {
-  width: 4em;
-  display: inline-block;
 }
 
 .btn-icon {

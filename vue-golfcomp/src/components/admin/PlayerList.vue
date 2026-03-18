@@ -4,6 +4,7 @@
       <div class="card-header">
         <h2>Players</h2>
         <div class="card-actions">
+          <button class="btn btn-secondary" @click="showCopyModal = true">Copy from Competition</button>
           <button class="btn" @click="showAddPlayerForm = true">Add Player</button>
         </div>
       </div>
@@ -88,6 +89,39 @@
       </div>
     </div>
     
+    <!-- Copy Players Modal -->
+    <div v-if="showCopyModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Copy Players from Competition</h3>
+          <button class="close-btn" @click="closeCopyModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="copy-description">Select a competition to copy players from. Players will be added to the current competition without replacing existing ones.</p>
+          <div class="form-group">
+            <label class="form-label">Source Competition</label>
+            <select v-model="selectedSourceCompetitionId" class="form-control">
+              <option value="">-- Select a competition --</option>
+              <option
+                v-for="comp in otherCompetitions"
+                :key="comp.id"
+                :value="comp.id"
+              >{{ comp.name }}</option>
+            </select>
+            <p v-if="otherCompetitions.length === 0" class="no-competitions">No other competitions available.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="closeCopyModal" :disabled="isCopying">Cancel</button>
+          <button
+            class="btn btn-primary"
+            @click="copyPlayers"
+            :disabled="!selectedSourceCompetitionId || isCopying"
+          >{{ isCopying ? 'Copying...' : 'Copy Players' }}</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Confirmation Dialog -->
     <confirmation-dialog
       :show="showDeleteConfirmation"
@@ -108,6 +142,7 @@
 import { ref, computed } from 'vue';
 import { usePlayersStore } from '@/stores/players';
 import { useTeamsStore } from '@/stores/teams';
+import { useCompetitionsStore } from '@/stores/competitions';
 import { formatCurrency, getUserFriendlyErrorMessage } from '@/utils';
 import NotificationService from '@/services/NotificationService';
 import PlayerForm from './PlayerForm.vue';
@@ -115,6 +150,7 @@ import ConfirmationDialog from '@/components/shared/ConfirmationDialog.vue';
 
 const playersStore = usePlayersStore();
 const teamsStore = useTeamsStore();
+const competitionsStore = useCompetitionsStore();
 
 const showAddPlayerForm = ref(false);
 const editingPlayer = ref(null);
@@ -124,6 +160,9 @@ const sortKey = ref('name');
 const sortDirection = ref('asc');
 const isSubmitting = ref(false);
 const isDeleting = ref(false);
+const showCopyModal = ref(false);
+const selectedSourceCompetitionId = ref('');
+const isCopying = ref(false);
 
 const players = computed(() => {
   return playersStore.allPlayers.map(player => ({
@@ -134,6 +173,9 @@ const players = computed(() => {
 
 const totalEntryFees = computed(() => playersStore.totalEntryFees);
 const totalWinnings = computed(() => playersStore.totalWinnings);
+const otherCompetitions = computed(() =>
+  competitionsStore.allCompetitions.filter(c => c.id !== competitionsStore.activeCompetitionId)
+);
 
 const sortedPlayers = computed(() => {
   const playersList = [...players.value];
@@ -218,6 +260,25 @@ const savePlayer = async (player) => {
 const closePlayerForm = () => {
   showAddPlayerForm.value = false;
   editingPlayer.value = null;
+};
+
+const closeCopyModal = () => {
+  showCopyModal.value = false;
+  selectedSourceCompetitionId.value = '';
+};
+
+const copyPlayers = async () => {
+  if (!selectedSourceCompetitionId.value) return;
+  isCopying.value = true;
+  try {
+    const count = await playersStore.copyPlayersFromCompetition(selectedSourceCompetitionId.value);
+    NotificationService.success(`${count} player${count !== 1 ? 's' : ''} copied successfully.`);
+    closeCopyModal();
+  } catch (error) {
+    NotificationService.error(getUserFriendlyErrorMessage(error));
+  } finally {
+    isCopying.value = false;
+  }
 };
 </script>
 
@@ -336,6 +397,33 @@ th {
 
 th:hover {
   background-color: var(--border-color);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.copy-description {
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.no-competitions {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 </style>
 

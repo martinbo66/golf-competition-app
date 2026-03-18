@@ -97,6 +97,21 @@ export const usePlayersStore = defineStore('players', {
             for (const player of assigned) {
                 await this.unassignPlayerFromTeam(player.id);
             }
+        },
+
+        async copyPlayersFromCompetition(sourceCompetitionId) {
+            const sourcePlayers = await ApiService.get(`/competitions/${sourceCompetitionId}/players`);
+            let copied = 0;
+            for (const player of (sourcePlayers || [])) {
+                await this.addPlayer({
+                    name: player.name,
+                    talentRating: player.talentRating,
+                    entryFee: 0,
+                    winnings: 0
+                });
+                copied++;
+            }
+            return copied;
         }
     }
 });

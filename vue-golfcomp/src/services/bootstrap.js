@@ -65,7 +65,10 @@ export async function initializeApp() {
     const teamsStore = useTeamsStore();
     const scoresStore = useScoresStore();
 
-    // Courses must load first — scores need the roundId mapping
+    // Load global course pool first (used in course management and round selection)
+    await coursesStore.fetchAllCourses();
+
+    // Courses must load next — scores need the roundId mapping
     await coursesStore.fetchCourses();
 
     try {
