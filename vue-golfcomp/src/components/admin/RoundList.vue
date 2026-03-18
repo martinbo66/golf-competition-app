@@ -87,7 +87,16 @@
               </template>
             </tr>
             <tr class="round-list__add-row">
-              <td>{{ nextRoundNumber }}</td>
+              <td>
+                <input
+                  v-model.number="form.roundNumber"
+                  type="number"
+                  class="form-control"
+                  aria-label="Round number"
+                  min="1"
+                  required
+                />
+              </td>
               <td>
                 <select
                   v-model="form.courseId"
@@ -160,7 +169,8 @@ export default {
     return {
       form: {
         courseId: '',
-        playDate: ''
+        playDate: '',
+        roundNumber: 1
       },
       adding: false,
       showDeleteConfirmation: false,
@@ -197,7 +207,7 @@ export default {
       return max + 1;
     },
     canAdd() {
-      return this.form.courseId && this.form.playDate;
+      return this.form.courseId && this.form.playDate && this.form.roundNumber > 0;
     },
     deleteMessage() {
       if (!this.roundToDelete) return '';
@@ -248,6 +258,7 @@ export default {
     resetForm() {
       this.form.courseId = '';
       this.form.playDate = this.activeCompetition?.startDate?.split('T')[0] || '';
+      this.form.roundNumber = this.nextRoundNumber;
     },
 
     async handleAdd() {
@@ -257,7 +268,7 @@ export default {
         await useCompetitionsStore().createRound({
           courseId: this.form.courseId,
           playDate: this.form.playDate,
-          roundNumber: this.nextRoundNumber
+          roundNumber: this.form.roundNumber
         });
         NotificationService.success('Round added');
         this.resetForm();
