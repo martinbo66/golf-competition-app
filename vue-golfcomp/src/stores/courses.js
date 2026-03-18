@@ -51,19 +51,37 @@ export const useCoursesStore = defineStore('courses', {
             return updated;
         },
 
+        async deleteCourse(id) {
+            try {
+                await ApiService.delete(ApiService.coursesUrl(id));
+            } catch (err) {
+                if (err.status === 409 || err.status === 500) {
+                    const e = new Error('This course is used by one or more rounds and cannot be deleted.');
+                    e.status = 409;
+                    throw e;
+                }
+                throw err;
+            }
+            this.allCoursesCache = this.allCoursesCache.filter(c => c.id !== id);
+        },
+
         async fetchCourses() {
             try {
                 const rounds = await ApiService.get(ApiService.roundsUrl());
                 this.rounds = rounds || [];
                 if (this.rounds.length > 0) {
-                    this.courses = this.rounds
-                        .map(round => ({
+                    this.courses = [...this.rounds]
+                        .sort((a, b) => {
+                            const da = a.playDate ? new Date(a.playDate) : new Date(0);
+                            const db = b.playDate ? new Date(b.playDate) : new Date(0);
+                            return da - db;
+                        })
+                        .map((round, index) => ({
                             id: round.course.id,
                             name: round.course.name,
-                            order: round.roundNumber,
+                            order: index + 1,
                             roundId: round.id
-                        }))
-                        .sort((a, b) => a.order - b.order);
+                        }));
                 } else {
                     this.courses = this.allCoursesCache.length > 0
                         ? this.allCoursesCache.map((c, i) => ({ id: c.id, name: c.name, order: i + 1, roundId: null }))

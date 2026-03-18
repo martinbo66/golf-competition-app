@@ -15,8 +15,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="round in roundsSorted" :key="round.id">
-              <td>{{ round.roundNumber }}</td>
+            <tr v-for="(round, index) in roundsSorted" :key="round.id">
+              <td>{{ index + 1 }}</td>
               <template v-if="editingRoundId === round.id">
                 <td>
                   <select
@@ -87,16 +87,7 @@
               </template>
             </tr>
             <tr class="round-list__add-row">
-              <td>
-                <input
-                  v-model.number="form.roundNumber"
-                  type="number"
-                  min="1"
-                  class="form-control form-control--inline"
-                  placeholder="#"
-                  aria-label="Round number"
-                />
-              </td>
+              <td>{{ nextRoundNumber }}</td>
               <td>
                 <select
                   v-model="form.courseId"
@@ -169,8 +160,7 @@ export default {
     return {
       form: {
         courseId: '',
-        playDate: '',
-        roundNumber: 1
+        playDate: ''
       },
       adding: false,
       showDeleteConfirmation: false,
@@ -194,7 +184,11 @@ export default {
     },
     roundsSorted() {
       const rounds = useCoursesStore().rounds || [];
-      return [...rounds].sort((a, b) => (a.roundNumber ?? 0) - (b.roundNumber ?? 0));
+      return [...rounds].sort((a, b) => {
+        const da = a.playDate ? new Date(a.playDate) : new Date(0);
+        const db = b.playDate ? new Date(b.playDate) : new Date(0);
+        return da - db;
+      });
     },
     nextRoundNumber() {
       const rounds = useCoursesStore().rounds || [];
@@ -203,7 +197,7 @@ export default {
       return max + 1;
     },
     canAdd() {
-      return this.form.courseId && this.form.playDate && this.form.roundNumber >= 1;
+      return this.form.courseId && this.form.playDate;
     },
     deleteMessage() {
       if (!this.roundToDelete) return '';
@@ -224,7 +218,6 @@ export default {
   },
 
   created() {
-    this.form.roundNumber = this.nextRoundNumber;
     if (this.activeCompetition?.startDate && !this.form.playDate) {
       this.form.playDate = this.activeCompetition.startDate.split('T')[0];
     }
@@ -248,7 +241,6 @@ export default {
     resetForm() {
       this.form.courseId = '';
       this.form.playDate = this.activeCompetition?.startDate?.split('T')[0] || '';
-      this.form.roundNumber = this.nextRoundNumber;
     },
 
     async handleAdd() {
@@ -258,7 +250,7 @@ export default {
         await useCompetitionsStore().createRound({
           courseId: this.form.courseId,
           playDate: this.form.playDate,
-          roundNumber: this.form.roundNumber
+          roundNumber: this.nextRoundNumber
         });
         NotificationService.success('Round added');
         this.resetForm();
@@ -395,11 +387,6 @@ export default {
 
 .round-list__add-row td {
   background-color: var(--background-color);
-}
-
-.form-control--inline {
-  width: 4em;
-  display: inline-block;
 }
 
 .btn-icon {

@@ -31,12 +31,34 @@
                 <button class="icon-btn" title="Edit course" @click="editCourse(course)">
                   <i class="fas fa-pencil-alt"></i>
                 </button>
+                <button
+                  class="icon-btn icon-btn-danger"
+                  :title="isCourseInUse(course.id) ? 'Course is assigned to a round' : 'Delete course'"
+                  :disabled="isCourseInUse(course.id)"
+                  @click="confirmDelete(course)"
+                >
+                  <i class="fas fa-trash-alt"></i>
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+
+    <!-- Delete Confirmation -->
+    <confirmation-dialog
+      :show="showDeleteConfirmation"
+      title="Delete Course"
+      :message="`Are you sure you want to delete '${courseToDelete ? courseToDelete.name : ''}'? This cannot be undone.`"
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      type="danger"
+      :confirm-loading="isDeleting"
+      loading-text="Deleting..."
+      @confirm="deleteCourse"
+      @cancel="cancelDelete"
+    ></confirmation-dialog>
 
     <!-- Add/Edit Modal -->
     <div v-if="showAddForm || editingCourse" class="modal">
@@ -65,18 +87,51 @@ import { useCoursesStore } from '@/stores/courses';
 import { getUserFriendlyErrorMessage } from '@/utils';
 import NotificationService from '@/services/NotificationService';
 import CourseForm from './CourseForm.vue';
+import ConfirmationDialog from '@/components/shared/ConfirmationDialog.vue';
 
 const coursesStore = useCoursesStore();
 
 const showAddForm = ref(false);
 const editingCourse = ref(null);
 const isSubmitting = ref(false);
+const showDeleteConfirmation = ref(false);
+const courseToDelete = ref(null);
+const isDeleting = ref(false);
 
 const courses = computed(() => coursesStore.availableCourses);
 
 const existingNames = computed(() =>
   coursesStore.allCoursesCache.map(c => c.name)
 );
+
+const isCourseInUse = (courseId) =>
+  coursesStore.rounds.some(r => r.course?.id === courseId);
+
+const confirmDelete = (course) => {
+  courseToDelete.value = course;
+  showDeleteConfirmation.value = true;
+};
+
+const cancelDelete = () => {
+  showDeleteConfirmation.value = false;
+  courseToDelete.value = null;
+};
+
+const deleteCourse = async () => {
+  if (!courseToDelete.value) return;
+  isDeleting.value = true;
+  try {
+    await coursesStore.deleteCourse(courseToDelete.value.id);
+    NotificationService.success(`Course "${courseToDelete.value.name}" deleted.`);
+    cancelDelete();
+  } catch (error) {
+    NotificationService.error(error.status === 409
+      ? error.message
+      : getUserFriendlyErrorMessage(error));
+  } finally {
+    isDeleting.value = false;
+  }
+};
 
 const editCourse = (course) => {
   editingCourse.value = { ...course };
@@ -199,5 +254,15 @@ const saveCourse = async (data) => {
 .icon-btn:hover {
   color: var(--primary-color);
   background-color: var(--border-color);
+}
+
+.icon-btn-danger:hover {
+  color: var(--danger-color, #dc3545);
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 </style>
