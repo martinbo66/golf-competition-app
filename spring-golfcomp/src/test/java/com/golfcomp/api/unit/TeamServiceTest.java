@@ -284,8 +284,9 @@ class TeamServiceTest {
         when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
         when(playerRepository.findByCompetitionIdOrderByTalentRatingAsc(competitionId)).thenReturn(List.of());
 
+        GenerateTeamsRequest request = new GenerateTeamsRequest(4);
         BusinessRuleException ex = assertThrows(BusinessRuleException.class,
-            () -> teamService.generateTeams(competitionId, new GenerateTeamsRequest(4)));
+            () -> teamService.generateTeams(competitionId, request));
         assertEquals("INSUFFICIENT_PLAYERS", ex.getErrorCode());
         verify(teamRepository, never()).deleteByCompetitionId(any());
     }
@@ -295,8 +296,9 @@ class TeamServiceTest {
     void generateTeams_throwsWhenCompetitionNotFound() {
         when(competitionRepository.findById(competitionId)).thenReturn(Optional.empty());
 
+        GenerateTeamsRequest request = new GenerateTeamsRequest(2);
         assertThrows(ResourceNotFoundException.class,
-            () -> teamService.generateTeams(competitionId, new GenerateTeamsRequest(2)));
+            () -> teamService.generateTeams(competitionId, request));
     }
 
     private static Player player(UUID competitionId, String name, TalentRating rating) {

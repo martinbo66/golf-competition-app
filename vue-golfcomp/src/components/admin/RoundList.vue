@@ -278,9 +278,11 @@ export default {
     startEdit(round) {
       this.editingRoundId = round.id;
       this.editForm.courseId = round.course?.id ?? '';
-      this.editForm.playDate = round.playDate
-        ? (typeof round.playDate === 'string' ? round.playDate.split('T')[0] : round.playDate)
-        : '';
+      let playDate = '';
+      if (round.playDate) {
+        playDate = typeof round.playDate === 'string' ? round.playDate.split('T')[0] : round.playDate;
+      }
+      this.editForm.playDate = playDate;
     },
 
     cancelEdit() {
