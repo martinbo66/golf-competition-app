@@ -240,7 +240,7 @@ const closePlayerForm = () => {
 .empty-state {
   text-align: center;
   padding: 40px 0;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .modal {
@@ -257,7 +257,8 @@ const closePlayerForm = () => {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   border-radius: 4px;
   width: 500px;
   max-width: 90%;
@@ -271,7 +272,7 @@ const closePlayerForm = () => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h3 {
@@ -287,11 +288,11 @@ const closePlayerForm = () => {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .close-btn:hover {
-  color: #333;
+  color: var(--text-color);
 }
 
 .action-cell {

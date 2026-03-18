@@ -236,28 +236,23 @@ const cancelSelection = () => {
 
 <style scoped>
 .player-assignment {
-  /* Define CSS variables for proper light/dark mode support */
-  --card-bg: var(--card-bg, #ffffff);
-  --card-text: var(--text-color, #2c3e50);
-  --card-header-bg: var(--background-color, #f8f9fa);
-  --card-border: var(--border-color, #e9ecef);
-  --text-muted: var(--text-muted, #6c757d);
-  --text-primary: var(--text-color, #2c3e50);
-  --hover-bg: var(--sidebar-hover, #e9ecef);
   --selected-bg: rgba(23, 162, 184, 0.1);
-  --accent-color: var(--info-color, #17a2b8);
-  --empty-state-color: var(--text-muted, #6c757d);
-  
+  --accent-color: var(--info-color);
+
   margin-bottom: 20px;
+}
+
+body.dark-mode .player-assignment {
+  --selected-bg: rgba(52, 152, 219, 0.2);
 }
 
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: var(--empty-state-color);
-  background-color: var(--card-header-bg);
+  color: var(--text-muted);
+  background-color: var(--background-color);
   border-radius: 8px;
-  border: 2px dashed var(--card-border);
+  border: 2px dashed var(--border-color);
 }
 
 .empty-state p {
@@ -277,7 +272,7 @@ const cancelSelection = () => {
 }
 
 .assignment-controls .form-group label {
-  color: var(--text-primary);
+  color: var(--text-color);
   font-weight: 500;
 }
 
@@ -297,16 +292,16 @@ const cancelSelection = () => {
   align-items: center;
   padding: 12px 16px;
   background-color: var(--card-bg);
-  color: var(--card-text);
+  color: var(--text-color);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 1px solid var(--card-border);
+  border: 1px solid var(--border-color);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .player-card:hover {
-  background-color: var(--hover-bg);
+  background-color: var(--sidebar-hover);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
 }
@@ -326,7 +321,7 @@ const cancelSelection = () => {
 
 .player-name {
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .player-talent {
@@ -348,7 +343,7 @@ const cancelSelection = () => {
 }
 
 .assignment-actions {
-  background-color: var(--card-header-bg);
+  background-color: var(--background-color);
   border-radius: 8px;
   padding: 20px;
   margin-top: 20px;
@@ -356,17 +351,17 @@ const cancelSelection = () => {
   flex-wrap: wrap;
   gap: 20px;
   align-items: center;
-  border: 1px solid var(--card-border);
+  border: 1px solid var(--border-color);
 }
 
 .current-selection {
   flex: 1;
   min-width: 200px;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .current-selection strong {
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .team-selection {
@@ -380,7 +375,7 @@ const cancelSelection = () => {
 .team-selection label {
   margin-bottom: 0;
   white-space: nowrap;
-  color: var(--text-primary);
+  color: var(--text-color);
   font-weight: 500;
 }
 
@@ -390,20 +385,20 @@ const cancelSelection = () => {
 }
 
 .talent-a {
-  background-color: #28a745;
+  background-color: var(--success-color);
 }
 
 .talent-b {
-  background-color: #17a2b8;
+  background-color: var(--info-color);
 }
 
 .talent-c {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
   color: #212529;
 }
 
 .talent-d {
-  background-color: #dc3545;
+  background-color: var(--danger-color);
 }
 
 .talent-badge {
@@ -419,20 +414,6 @@ const cancelSelection = () => {
   margin-left: 8px;
 }
 
-/* Dark mode overrides */
-body.dark-mode .player-assignment,
-[data-theme="dark"] .player-assignment {
-  --card-bg: #34495e;
-  --card-text: #ecf0f1;
-  --card-header-bg: #2c3e50;
-  --card-border: #4b6584;
-  --text-muted: #b2bec3;
-  --text-primary: #ecf0f1;
-  --hover-bg: #4a5568;
-  --selected-bg: rgba(66, 153, 225, 0.2);
-  --accent-color: #4299e1;
-  --empty-state-color: #b2bec3;
-}
 
 @media (max-width: 768px) {
   .assignment-controls {

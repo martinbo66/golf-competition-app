@@ -69,17 +69,11 @@ const handleImageError = () => {
 }
 
 .scorecard-placeholder {
-  background-color: #f8f9fa;
-  border: 2px dashed #e9ecef;
+  background-color: var(--background-color);
+  border: 2px dashed var(--border-color);
   border-radius: 4px;
   padding: 40px 20px;
   text-align: center;
-  color: #6c757d;
-}
-
-body.dark-mode .scorecard-placeholder {
-  background-color: var(--card-bg);
-  border-color: var(--border-color);
-  color: var(--text-color);
+  color: var(--text-muted);
 }
 </style>

@@ -177,27 +177,19 @@ const getAvgTalentClass = (avgTalent) => {
 
 <style scoped>
 .team-balance-analyzer {
-  /* Define CSS variables for proper light/dark mode support */
-  --card-bg: var(--card-bg, #ffffff);
-  --card-text: var(--text-color, #2c3e50);
   --card-header-bg: rgba(0, 0, 0, 0.03);
-  --card-border: var(--border-color, #e9ecef);
-  --text-muted: var(--text-muted, #6c757d);
-  --text-primary: var(--text-color, #2c3e50);
-  --metric-bg: var(--background-color, #f8f9fa);
-  --empty-state-color: var(--text-muted, #6c757d);
   --table-stripe: rgba(0, 0, 0, 0.05);
-  
+
   margin-bottom: 20px;
 }
 
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: var(--empty-state-color);
-  background-color: var(--metric-bg);
+  color: var(--text-muted);
+  background-color: var(--background-color);
   border-radius: 8px;
-  border: 2px dashed var(--card-border);
+  border: 2px dashed var(--border-color);
 }
 
 .empty-state p {
@@ -217,8 +209,8 @@ const getAvgTalentClass = (avgTalent) => {
   flex: 1;
   text-align: center;
   padding: 15px;
-  background-color: var(--metric-bg);
-  border: 1px solid var(--card-border);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
 }
 
@@ -247,20 +239,20 @@ const getAvgTalentClass = (avgTalent) => {
 }
 
 .balance-indicator.excellent {
-  background-color: #28a745;
+  background-color: var(--success-color);
 }
 
 .balance-indicator.good {
-  background-color: #17a2b8;
+  background-color: var(--info-color);
 }
 
 .balance-indicator.fair {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
   color: #212529;
 }
 
 .balance-indicator.poor {
-  background-color: #dc3545;
+  background-color: var(--danger-color);
 }
 
 .team-comparison {
@@ -271,32 +263,32 @@ const getAvgTalentClass = (avgTalent) => {
   margin-bottom: 15px;
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
   background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .table th {
   background-color: var(--card-header-bg);
-  color: var(--text-primary);
+  color: var(--text-color);
   font-weight: 500;
   text-align: left;
   padding: 12px 15px;
-  border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--border-color);
   font-size: 0.9rem;
 }
 
 .table td {
   padding: 12px 15px;
-  border-bottom: 1px solid var(--card-border);
-  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
   font-size: 0.9rem;
 }
 
@@ -305,13 +297,13 @@ const getAvgTalentClass = (avgTalent) => {
 }
 
 .table tbody tr:hover {
-  background-color: var(--card-border);
+  background-color: var(--border-color);
 }
 
 .avg-talent-bar {
   position: relative;
   height: 20px;
-  background-color: var(--card-border);
+  background-color: var(--border-color);
   border-radius: 4px;
   overflow: hidden;
   width: 100px;
@@ -333,37 +325,27 @@ const getAvgTalentClass = (avgTalent) => {
   justify-content: center;
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-color);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .talent-a {
-  background-color: #28a745;
+  background-color: var(--success-color);
 }
 
 .talent-b {
-  background-color: #17a2b8;
+  background-color: var(--info-color);
 }
 
 .talent-c {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
 }
 
 .talent-d {
-  background-color: #dc3545;
+  background-color: var(--danger-color);
 }
 
-/* Dark mode overrides */
-body.dark-mode .team-balance-analyzer,
-[data-theme="dark"] .team-balance-analyzer {
-  --card-bg: #34495e;
-  --card-text: #ecf0f1;
-  --card-header-bg: rgba(255, 255, 255, 0.05);
-  --card-border: #4b6584;
-  --text-muted: #b2bec3;
-  --text-primary: #ecf0f1;
-  --metric-bg: #2c3e50;
-  --empty-state-color: #b2bec3;
+body.dark-mode .team-balance-analyzer {
   --table-stripe: rgba(255, 255, 255, 0.05);
 }
 

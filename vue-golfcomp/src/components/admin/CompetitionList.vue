@@ -328,17 +328,17 @@ export default {
 }
 
 .badge--upcoming {
-  background-color: #17a2b8;
+  background-color: var(--info-color);
   color: #fff;
 }
 
 .badge--current {
-  background-color: #28a745;
+  background-color: var(--success-color);
   color: #fff;
 }
 
 .badge--past {
-  background-color: #6c757d;
+  background-color: var(--text-muted);
   color: #fff;
 }
 

@@ -105,7 +105,7 @@ h1 {
   margin-bottom: 20px;
   font-size: 1.8rem;
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-color);
 }
 
 .leaderboards-grid {
@@ -128,8 +128,8 @@ h1 {
 }
 
 .stat-item {
-  background-color: #f8f9fa;
-  border: 1px solid transparent;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 15px;
   text-align: center;
@@ -137,19 +137,19 @@ h1 {
 
 .stat-label {
   font-size: 0.9rem;
-  color: #6c757d;
+  color: var(--text-muted);
   margin-bottom: 5px;
 }
 
 .stat-value {
   font-size: 1.2rem;
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-color);
 }
 
 .financial-breakdown {
-  background-color: #f8f9fa;
-  border: 1px solid transparent;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 15px;
   margin-bottom: 20px;
@@ -160,7 +160,7 @@ h1 {
   margin-bottom: 15px;
   font-size: 1.1rem;
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-color);
 }
 
 .top-winners {
@@ -173,7 +173,7 @@ h1 {
   display: flex;
   align-items: center;
   padding: 8px 0;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .winner-item:last-child {
@@ -183,7 +183,7 @@ h1 {
 .winner-rank {
   width: 24px;
   height: 24px;
-  background-color: #007bff;
+  background-color: var(--info-color);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -203,17 +203,17 @@ h1 {
 
 .winner-name {
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-color);
 }
 
 .winner-amount {
   font-weight: 500;
-  color: #28a745;
+  color: var(--success-color);
 }
 
 .balance-summary {
-  background-color: #f8f9fa;
-  border: 1px solid transparent;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 15px;
 }
@@ -227,7 +227,7 @@ h1 {
 
 .balance-label {
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-color);
 }
 
 .balance-value {
@@ -236,60 +236,11 @@ h1 {
 }
 
 .balance-value.positive {
-  color: #28a745;
+  color: var(--success-color);
 }
 
 .balance-value.negative {
-  color: #dc3545;
-}
-
-/* Dark mode styles */
-body.dark-mode .stat-item,
-[data-theme="dark"] .stat-item {
-  background-color: #2d3748;
-  border: 1px solid #4a5568;
-}
-
-body.dark-mode .stat-label,
-[data-theme="dark"] .stat-label {
-  color: #a0aec0;
-}
-
-body.dark-mode .stat-value,
-[data-theme="dark"] .stat-value {
-  color: #f7fafc;
-}
-
-body.dark-mode .financial-breakdown,
-[data-theme="dark"] .financial-breakdown {
-  background-color: #2d3748;
-  border: 1px solid #4a5568;
-}
-
-body.dark-mode .financial-breakdown h4,
-[data-theme="dark"] .financial-breakdown h4 {
-  color: #f7fafc;
-}
-
-body.dark-mode .winner-item,
-[data-theme="dark"] .winner-item {
-  border-bottom: 1px solid #4a5568;
-}
-
-body.dark-mode .winner-name,
-[data-theme="dark"] .winner-name {
-  color: #f7fafc;
-}
-
-body.dark-mode .balance-summary,
-[data-theme="dark"] .balance-summary {
-  background-color: #2d3748;
-  border: 1px solid #4a5568;
-}
-
-body.dark-mode .balance-label,
-[data-theme="dark"] .balance-label {
-  color: #f7fafc;
+  color: var(--danger-color);
 }
 
 @media (max-width: 992px) {

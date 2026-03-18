@@ -99,7 +99,8 @@ export default {
 }
 
 .confirmation-dialog {
-  background-color: white;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   width: 400px;
@@ -109,7 +110,7 @@ export default {
 
 .confirmation-dialog-header {
   padding: 15px 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .confirmation-dialog-header h3 {
@@ -124,7 +125,7 @@ export default {
 
 .confirmation-dialog-footer {
   padding: 15px 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
 }

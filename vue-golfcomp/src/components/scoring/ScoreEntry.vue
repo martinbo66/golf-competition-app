@@ -402,20 +402,20 @@ const clearScore = async (playerId) => {
 }
 
 .talent-a {
-  background-color: #28a745;
+  background-color: var(--success-color);
 }
 
 .talent-b {
-  background-color: #17a2b8;
+  background-color: var(--info-color);
 }
 
 .talent-c {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
   color: #212529;
 }
 
 .talent-d {
-  background-color: #dc3545;
+  background-color: var(--danger-color);
 }
 
 .score-summary {
@@ -448,7 +448,7 @@ const clearScore = async (playerId) => {
 }
 
 .invalid-feedback {
-  color: #dc3545;
+  color: var(--danger-color);
   font-size: 0.875rem;
   margin-top: 0.25rem;
   white-space: nowrap;
@@ -469,23 +469,5 @@ const clearScore = async (playerId) => {
   }
 }
 
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-  .score-entry {
-    --card-text: #e2e8f0;
-    --card-header-bg: #1a202c;
-    --card-border: #4a5568;
-    --text-muted: #a0aec0;
-  }
-}
-
-/* Force dark mode styles for apps that use dark class */
-.dark .score-entry,
-[data-theme="dark"] .score-entry {
-  --card-text: #e2e8f0;
-  --card-header-bg: #1a202c;
-  --card-border: #4a5568;
-  --text-muted: #a0aec0;
-}
 </style>
 

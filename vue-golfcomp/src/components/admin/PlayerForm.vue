@@ -160,13 +160,13 @@ export default {
 }
 
 .invalid-feedback {
-  color: #dc3545;
+  color: var(--danger-color);
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
 
 .is-invalid {
-  border-color: #dc3545;
+  border-color: var(--danger-color);
 }
 </style>
 
