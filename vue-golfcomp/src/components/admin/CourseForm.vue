@@ -3,6 +3,7 @@
     <div class="form-group">
       <label for="name" class="form-label">Name <span class="required">*</span></label>
       <input
+        ref="nameInput"
         type="text"
         id="name"
         v-model="form.name"
@@ -72,6 +73,9 @@ export default {
   },
   created() {
     this.initForm();
+  },
+  mounted() {
+    this.$refs.nameInput.focus();
   },
   watch: {
     course() {

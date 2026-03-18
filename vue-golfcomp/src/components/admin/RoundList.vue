@@ -30,7 +30,7 @@
                       :key="opt.id"
                       :value="opt.id"
                     >
-                      {{ opt.name }}
+                      {{ courseLabel(opt) }}
                     </option>
                   </select>
                 </td>
@@ -101,7 +101,7 @@
                     :key="opt.id"
                     :value="opt.id"
                   >
-                    {{ opt.name }}
+                    {{ courseLabel(opt) }}
                   </option>
                 </select>
               </td>
@@ -224,6 +224,13 @@ export default {
   },
 
   methods: {
+    courseLabel(course) {
+      const parts = [];
+      if (course.facility) parts.push(course.facility);
+      if (course.location) parts.push(course.location);
+      return parts.length ? `${course.name} — ${parts.join(', ')}` : course.name;
+    },
+
     formatPlayDate(playDate) {
       if (!playDate) return '—';
       const str = typeof playDate === 'string' ? playDate.split('T')[0] : playDate;
