@@ -55,7 +55,7 @@ export const useCoursesStore = defineStore('courses', {
             try {
                 await ApiService.delete(ApiService.coursesUrl(id));
             } catch (err) {
-                if (err.status === 409 || err.status === 500) {
+                if (err.status === 409) {
                     const e = new Error('This course is used by one or more rounds and cannot be deleted.');
                     e.status = 409;
                     throw e;

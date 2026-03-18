@@ -228,6 +228,7 @@ export default {
   },
 
   created() {
+    this.form.roundNumber = this.nextRoundNumber;
     if (this.activeCompetition?.startDate && !this.form.playDate) {
       this.form.playDate = this.activeCompetition.startDate.split('T')[0];
     }
