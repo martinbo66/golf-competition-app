@@ -50,11 +50,21 @@ describe('getUserFriendlyErrorMessage', () => {
     const err = new Error('Validation failed');
     expect(getUserFriendlyErrorMessage(err)).toBe('Validation failed');
   });
+
+  test('falls back to String(error) when error has no message property', () => {
+    const err = { toString: () => 'Custom error string' };
+    expect(getUserFriendlyErrorMessage(err)).toBe('Custom error string');
+  });
 });
 
 describe('utils (smoke)', () => {
   test('formatCurrency formats number', () => {
     expect(formatCurrency(60)).toMatch(/\$60\.00/);
+  });
+
+  test('formatCurrency formats 0 for null/undefined', () => {
+    expect(formatCurrency(null)).toMatch(/\$0\.00/);
+    expect(formatCurrency(undefined)).toMatch(/\$0\.00/);
   });
 
   test('validatePlayer returns errors for invalid input', () => {
