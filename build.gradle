@@ -41,9 +41,11 @@ sonar {
 
         // Coverage reports
         property 'sonar.coverage.jacoco.xmlReportPaths', 'spring-golfcomp/build/reports/jacoco/test/jacocoTestReport.xml'
+        property 'sonar.javascript.lcov.reportPaths', 'vue-golfcomp/coverage/lcov.info'
 
         // Exclusions
         property 'sonar.exclusions', '**/node_modules/**,**/dist/**,**/build/**,**/static/**'
+        property 'sonar.coverage.exclusions', '**/*.test.js,**/*.spec.js'
 
         // Include JavaScript analysis
         property 'sonar.sources', 'vue-golfcomp/src'
@@ -51,9 +53,9 @@ sonar {
     }
 }
 
-// Ensure coverage report exists before running sonar
+// Ensure coverage reports exist before running sonar
 tasks.named('sonar').configure {
-    dependsOn ':spring-golfcomp:jacocoTestReport'
+    dependsOn ':spring-golfcomp:jacocoTestReport', 'fixLcovPaths'
 }
 
 // Detect npm or use npx as fallback
@@ -137,6 +139,30 @@ task frontendClean(type: Delete) {
     delete "${frontendDir}/node_modules/.cache"
 }
 
+task frontendCoverage(type: Exec) {
+    description = 'Run frontend tests with coverage (Jest)'
+    group = 'frontend'
+    dependsOn frontendInstall
+    workingDir frontendDir
+    commandLine npmCommand, 'run', 'test:coverage', '--', '--passWithNoTests'
+}
+
+task fixLcovPaths {
+    description = 'Rewrite lcov.info SF: paths to be relative to the project root'
+    group = 'frontend'
+    dependsOn frontendCoverage
+    doLast {
+        def lcovFile = file("vue-golfcomp/coverage/lcov.info")
+        if (lcovFile.exists()) {
+            def fixed = lcovFile.text.replace('SF:src/', 'SF:vue-golfcomp/src/')
+            lcovFile.text = fixed
+            println "Fixed lcov paths in ${lcovFile}"
+        } else {
+            println "Warning: lcov.info not found at ${lcovFile}"
+        }
+    }
+}
+
 // ============================================================================
 // Backend Task Aliases (delegate to subproject)
 // ============================================================================
@@ -184,12 +210,13 @@ task test {
 task coverage {
     description = 'Generate code coverage reports for all projects'
     group = 'verification'
-    dependsOn backendCoverage
+    dependsOn backendCoverage, fixLcovPaths
 
     doLast {
         println "\n" + "=" * 80
         println "Coverage reports generated:"
-        println "  Backend: file://${projectDir}/spring-golfcomp/build/reports/jacoco/test/html/index.html"
+        println "  Backend:  file://${projectDir}/spring-golfcomp/build/reports/jacoco/test/html/index.html"
+        println "  Frontend: file://${projectDir}/vue-golfcomp/coverage/index.html"
         println "=" * 80
     }
 }
