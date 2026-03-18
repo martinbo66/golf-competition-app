@@ -28,6 +28,17 @@
           </div>
         </div>
         
+        <div class="save-all-bar">
+          <button class="btn btn-primary" @click="saveAllScores"
+                  :disabled="isSavingAll || validScoresCount === 0">
+            <span v-if="isSavingAll">Saving...</span>
+            <span v-else>Save All Scores ({{ validScoresCount }})</span>
+          </button>
+          <span v-if="dirtyScores.size > 0" class="unsaved-hint">
+            {{ dirtyScores.size }} unsaved change(s)
+          </span>
+        </div>
+
         <div class="score-table-container">
           <table class="table">
             <thead>
@@ -40,7 +51,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="player in filteredPlayers" :key="player.id">
+              <tr v-for="player in filteredPlayers" :key="player.id"
+                  :class="{ 'row-dirty': dirtyScores.has(player.id) }">
                 <td>{{ player.name }}</td>
                 <td>{{ player.teamName || 'Unassigned' }}</td>
                 <td>
@@ -49,32 +61,25 @@
                   </span>
                 </td>
                 <td>
-                  <input 
-                    type="number" 
-                    v-model="scores[player.id]" 
+                  <input
+                    type="number"
+                    v-model="scores[player.id]"
                     class="form-control score-input"
                     :class="{ 'is-invalid': scoreErrors[player.id] }"
-                    min="18"
-                    max="150"
+                    min="0"
+                    max="72"
                     :data-player-id="player.id"
                     @change="validateScoreInput(player.id)"
+                    @input="markDirty(player.id)"
                   >
                   <div v-if="scoreErrors[player.id]" class="invalid-feedback">
                     {{ scoreErrors[player.id] }}
                   </div>
                 </td>
                 <td>
-                  <button 
-                    class="btn btn-sm" 
-                    @click="saveScore(player.id)"
-                    :disabled="!isScoreValid(player.id) || isSaving[player.id]"
-                  >
-                    <span v-if="isSaving[player.id]">Saving...</span>
-                    <span v-else>Save</span>
-                  </button>
-                  <button 
+                  <button
                     v-if="hasScore(player.id)"
-                    class="btn btn-sm btn-danger" 
+                    class="btn btn-sm btn-danger"
                     @click="clearScore(player.id)"
                   >
                     Clear
@@ -129,7 +134,8 @@ const scoresStore = useScoresStore();
 
 const scores = ref({});
 const scoreErrors = ref({});
-const isSaving = ref({});
+const isSavingAll = ref(false);
+const dirtyScores = ref(new Set());
 const filterTeam = ref('');
 const filterScored = ref('all');
 
@@ -218,7 +224,7 @@ const worstScore = computed(() => {
 const loadScores = () => {
   scores.value = {};
   scoreErrors.value = {};
-  isSaving.value = {};
+  dirtyScores.value = new Set();
 
   if (!props.courseId) return;
 
@@ -227,7 +233,6 @@ const loadScores = () => {
     const score = scoresStore.scoreByPlayerAndCourse(player.id, props.courseId);
     scores.value[player.id] = score ? score.value : '';
     scoreErrors.value[player.id] = null;
-    isSaving.value[player.id] = false;
   });
 };
 
@@ -258,23 +263,53 @@ const validateScoreInput = (playerId) => {
   return true;
 };
 
-const isScoreValid = (playerId) => {
-  return scores.value[playerId] !== '' && scores.value[playerId] !== null && !scoreErrors.value[playerId];
+const markDirty = (playerId) => {
+  dirtyScores.value = new Set([...dirtyScores.value, playerId]);
 };
 
-const saveScore = async (playerId) => {
-  if (!isScoreValid(playerId)) return;
-  
-  isSaving.value[playerId] = true;
-  
-  try {
-    await scoresStore.updateScore({ playerId, courseId: props.courseId, value: scores.value[playerId] });
-    NotificationService.success('Score saved successfully');
-  } catch (error) {
-    NotificationService.error(getUserFriendlyErrorMessage(error));
-  } finally {
-    isSaving.value[playerId] = false;
+const validScoresCount = computed(() =>
+  playersStore.allPlayers.filter(p =>
+    scores.value[p.id] !== '' && scores.value[p.id] !== null &&
+    scores.value[p.id] !== undefined && !scoreErrors.value[p.id]
+  ).length
+);
+
+const saveAllScores = async () => {
+  const playersToSave = playersStore.allPlayers.filter(p =>
+    scores.value[p.id] !== '' && scores.value[p.id] !== null &&
+    scores.value[p.id] !== undefined && !scoreErrors.value[p.id]
+  );
+
+  if (playersToSave.length === 0) return;
+
+  isSavingAll.value = true;
+
+  const results = await Promise.allSettled(
+    playersToSave.map(player =>
+      scoresStore.updateScore({ playerId: player.id, courseId: props.courseId, value: scores.value[player.id] })
+    )
+  );
+
+  const succeeded = [];
+  const failed = [];
+  playersToSave.forEach((player, idx) => {
+    if (results[idx].status === 'fulfilled') {
+      succeeded.push(player);
+      dirtyScores.value.delete(player.id);
+    } else {
+      failed.push(player);
+    }
+  });
+
+  dirtyScores.value = new Set(dirtyScores.value);
+
+  if (failed.length === 0) {
+    NotificationService.success(`${succeeded.length} score(s) saved successfully`);
+  } else {
+    NotificationService.error(`${succeeded.length} saved, ${failed.length} failed`);
   }
+
+  isSavingAll.value = false;
 };
 
 const clearScore = async (playerId) => {
@@ -284,8 +319,6 @@ const clearScore = async (playerId) => {
   if (!confirm(`Are you sure you want to clear the score for ${player.name}?`)) {
     return;
   }
-
-  isSaving.value[playerId] = true;
 
   try {
     // Backend has no single-delete score endpoint; remove from local state only.
@@ -297,12 +330,12 @@ const clearScore = async (playerId) => {
 
     scores.value[playerId] = '';
     scoreErrors.value[playerId] = null;
+    dirtyScores.value.delete(playerId);
+    dirtyScores.value = new Set(dirtyScores.value);
 
     NotificationService.success('Score cleared successfully');
   } catch (error) {
     NotificationService.error(getUserFriendlyErrorMessage(error));
-  } finally {
-    isSaving.value[playerId] = false;
   }
 };
 </script>
@@ -329,6 +362,22 @@ const clearScore = async (playerId) => {
   max-width: 300px;
 }
 
+.save-all-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.unsaved-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted, #6c757d);
+}
+
+.row-dirty td:first-child {
+  border-left: 3px solid var(--primary-color, #3b82f6);
+}
+
 .score-table-container {
   margin-bottom: 20px;
   max-height: 500px;
@@ -353,20 +402,20 @@ const clearScore = async (playerId) => {
 }
 
 .talent-a {
-  background-color: #28a745;
+  background-color: var(--success-color);
 }
 
 .talent-b {
-  background-color: #17a2b8;
+  background-color: var(--info-color);
 }
 
 .talent-c {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
   color: #212529;
 }
 
 .talent-d {
-  background-color: #dc3545;
+  background-color: var(--danger-color);
 }
 
 .score-summary {
@@ -399,7 +448,7 @@ const clearScore = async (playerId) => {
 }
 
 .invalid-feedback {
-  color: #dc3545;
+  color: var(--danger-color);
   font-size: 0.875rem;
   margin-top: 0.25rem;
   white-space: nowrap;
@@ -420,23 +469,5 @@ const clearScore = async (playerId) => {
   }
 }
 
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-  .score-entry {
-    --card-text: #e2e8f0;
-    --card-header-bg: #1a202c;
-    --card-border: #4a5568;
-    --text-muted: #a0aec0;
-  }
-}
-
-/* Force dark mode styles for apps that use dark class */
-.dark .score-entry,
-[data-theme="dark"] .score-entry {
-  --card-text: #e2e8f0;
-  --card-header-bg: #1a202c;
-  --card-border: #4a5568;
-  --text-muted: #a0aec0;
-}
 </style>
 

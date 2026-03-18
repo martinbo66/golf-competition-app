@@ -94,7 +94,7 @@ const hasAnyWinnings = computed(() => {
 .empty-state {
   text-align: center;
   padding: 40px 0;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .table {
@@ -124,7 +124,7 @@ const hasAnyWinnings = computed(() => {
   justify-content: center;
   overflow: hidden;
   border-radius: 50%;
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
 }
 
 .team-logo img {
@@ -134,12 +134,12 @@ const hasAnyWinnings = computed(() => {
 }
 
 .team-logo.placeholder {
-  background-color: #e9ecef;
+  background-color: var(--border-color);
 }
 
 .team-logo.placeholder span {
   font-weight: bold;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .entry-fees,
@@ -150,15 +150,15 @@ const hasAnyWinnings = computed(() => {
 }
 
 .net-winnings.positive {
-  color: #28a745;
+  color: var(--success-color);
 }
 
 .net-winnings.negative {
-  color: #dc3545;
+  color: var(--danger-color);
 }
 
 .highlight {
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
 }
 
 .highlight:nth-child(1) {

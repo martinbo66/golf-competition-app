@@ -1,6 +1,7 @@
 package com.golfcomp.api.controller;
 
 import com.golfcomp.api.dto.request.CreateTeamRequest;
+import com.golfcomp.api.dto.request.GenerateTeamsRequest;
 import com.golfcomp.api.dto.request.UpdateTeamRequest;
 import com.golfcomp.api.dto.response.ApiResponse;
 import com.golfcomp.api.dto.response.TeamResponse;
@@ -38,6 +39,14 @@ public class TeamController {
             @RequestBody @Valid CreateTeamRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponse.success(teamService.create(competitionId, request)));
+    }
+
+    @PostMapping("/generate")
+    public ResponseEntity<ApiResponse<List<TeamResponse>>> generate(
+            @PathVariable UUID competitionId,
+            @RequestBody @Valid GenerateTeamsRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponse.success(teamService.generateTeams(competitionId, request)));
     }
 
     @GetMapping

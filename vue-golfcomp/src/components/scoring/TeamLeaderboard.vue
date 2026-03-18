@@ -95,7 +95,7 @@ const hasAnyScores = computed(() => {
 .empty-state {
   text-align: center;
   padding: 40px 0;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .table {
@@ -125,7 +125,7 @@ const hasAnyScores = computed(() => {
   justify-content: center;
   overflow: hidden;
   border-radius: 50%;
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
 }
 
 .team-logo img {
@@ -135,12 +135,12 @@ const hasAnyScores = computed(() => {
 }
 
 .team-logo.placeholder {
-  background-color: #e9ecef;
+  background-color: var(--border-color);
 }
 
 .team-logo.placeholder span {
   font-weight: bold;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .course-score {
@@ -153,7 +153,7 @@ const hasAnyScores = computed(() => {
 }
 
 .highlight {
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
 }
 
 .highlight:nth-child(1) {

@@ -229,8 +229,8 @@ export const useScoresStore = defineStore('scores', {
             const roundId = coursesStore.roundIdByCourseId(courseId);
             if (!roundId) throw new Error(`No round found for course ${courseId}`);
 
-            const scoreValue = parseInt(value, 10);
-            if (isNaN(scoreValue)) throw new Error('Score must be a valid number');
+            const scoreValue = Number.parseInt(value, 10);
+            if (Number.isNaN(scoreValue)) throw new Error('Score must be a valid number');
 
             const result = await ApiService.put(ApiService.scoresUrl(roundId), {
                 playerId,

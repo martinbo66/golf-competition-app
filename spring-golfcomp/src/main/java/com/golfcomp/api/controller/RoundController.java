@@ -1,6 +1,7 @@
 package com.golfcomp.api.controller;
 
 import com.golfcomp.api.dto.request.CreateRoundRequest;
+import com.golfcomp.api.dto.request.UpdateRoundRequest;
 import com.golfcomp.api.dto.response.ApiResponse;
 import com.golfcomp.api.dto.response.RoundResponse;
 import com.golfcomp.api.service.RoundService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,6 +50,14 @@ public class RoundController {
             @PathVariable UUID competitionId,
             @PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(roundService.findById(competitionId, id)));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<RoundResponse>> update(
+            @PathVariable UUID competitionId,
+            @PathVariable UUID id,
+            @RequestBody @Valid UpdateRoundRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(roundService.update(competitionId, id, request)));
     }
 
     @DeleteMapping("/{id}")

@@ -156,21 +156,21 @@ export default {
 }
 
 .invalid-feedback {
-  color: #dc3545;
+  color: var(--danger-color);
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
 
 .is-invalid {
-  border-color: #dc3545;
+  border-color: var(--danger-color);
 }
 
 .logo-preview {
   margin-top: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 15px;
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
 }
 
 .logo-preview h4 {
@@ -185,8 +185,8 @@ export default {
   justify-content: center;
   align-items: center;
   height: 150px;
-  background-color: white;
-  border: 1px solid #eee;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -201,7 +201,7 @@ export default {
   display: block;
   margin-top: 5px;
   font-size: 0.875rem;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 </style>
 

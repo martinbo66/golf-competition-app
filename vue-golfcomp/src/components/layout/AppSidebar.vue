@@ -64,13 +64,6 @@
         <img :src="currentThumbnailImage" :alt="activeSection" class="thumbnail-image" />
       </div>
       
-      <div class="sidebar-footer">
-        <div class="app-info">
-          <p class="app-name">Golf Competition App</p>
-          <p class="version">Version 1.1.0</p>
-          <p class="updated-date">Updated: June 8, 2025</p>
-        </div>
-      </div>
     </nav>
   </aside>
 </template>
@@ -84,6 +77,7 @@ const uiStore = useUiStore();
 const coursesStore = useCoursesStore();
 
 const adminItems = [
+  { id: 'competitions', label: 'Competitions', route: '/admin/competitions', icon: 'fas fa-trophy' },
   { id: 'players', label: 'Players', route: '/admin/players', icon: 'fas fa-users' },
   { id: 'teams', label: 'Teams', route: '/admin/teams', icon: 'fas fa-user-friends' }
 ];
@@ -104,6 +98,7 @@ const currentThumbnailImage = computed(() => {
 const setActiveSidebarItem = (itemId) => {
   uiStore.setActiveSidebarItem(itemId);
 };
+
 </script>
 
 <style scoped>
@@ -169,38 +164,6 @@ const setActiveSidebarItem = (itemId) => {
   border-left: 3px solid var(--primary-color);
 }
 
-.sidebar-footer {
-  margin-top: auto;
-  padding: 15px 20px;
-  border-top: 1px solid var(--border-color);
-}
-
-.app-info {
-  text-align: center;
-}
-
-.app-info p {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-.app-name {
-  font-weight: 500;
-  color: var(--primary-color);
-  margin-bottom: 4px !important;
-}
-
-.version {
-  font-size: 0.8rem;
-  margin-bottom: 2px !important;
-}
-
-.updated-date {
-  font-size: 0.75rem;
-  font-style: italic;
-  opacity: 0.8;
-}
 
 .sidebar-thumbnail {
   margin: 20px 15px;
@@ -233,9 +196,6 @@ const setActiveSidebarItem = (itemId) => {
     padding: 15px 20px;
   }
   
-  .sidebar-footer {
-    display: none;
-  }
 }
 </style>
 

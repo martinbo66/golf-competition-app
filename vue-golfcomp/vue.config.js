@@ -1,3 +1,5 @@
+const webpack = require('webpack');
+
 module.exports = {
   publicPath: './',
   outputDir: 'dist',
@@ -5,6 +7,13 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV !== 'production',
   productionSourceMap: false,
   configureWebpack: {
+    plugins: [
+      new webpack.DefinePlugin({
+        __BUILD_DATE__: JSON.stringify(
+          new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+        )
+      })
+    ],
     resolve: {
       alias: {
         '@': require('path').resolve(__dirname, 'src')

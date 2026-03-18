@@ -84,6 +84,31 @@ const getIconClass = (type) => {
   border-left: 4px solid #31708f;
 }
 
+/* Dark mode overrides */
+body.dark-mode .notification-success {
+  background-color: rgba(46, 204, 113, 0.15);
+  color: var(--success-color);
+  border-left-color: var(--success-color);
+}
+
+body.dark-mode .notification-error {
+  background-color: rgba(231, 76, 60, 0.15);
+  color: var(--danger-color);
+  border-left-color: var(--danger-color);
+}
+
+body.dark-mode .notification-warning {
+  background-color: rgba(241, 196, 15, 0.15);
+  color: var(--warning-color);
+  border-left-color: var(--warning-color);
+}
+
+body.dark-mode .notification-info {
+  background-color: rgba(52, 152, 219, 0.15);
+  color: var(--info-color);
+  border-left-color: var(--info-color);
+}
+
 .notification-content {
   display: flex;
   align-items: center;

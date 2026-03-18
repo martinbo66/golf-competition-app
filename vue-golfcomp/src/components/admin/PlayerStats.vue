@@ -118,7 +118,7 @@ const talentPercentage = (rating) => {
 .stat-item {
   text-align: center;
   padding: 15px;
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -126,13 +126,13 @@ const talentPercentage = (rating) => {
 .stat-value {
   font-size: 1.8rem;
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-color);
   margin-bottom: 5px;
 }
 
 .stat-label {
   font-size: 0.9rem;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .talent-distribution {
@@ -166,7 +166,7 @@ const talentPercentage = (rating) => {
 .talent-bar-container {
   flex: 1;
   height: 20px;
-  background-color: #e9ecef;
+  background-color: var(--border-color);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -177,19 +177,19 @@ const talentPercentage = (rating) => {
 }
 
 .talent-a {
-  background-color: #28a745;
+  background-color: var(--success-color);
 }
 
 .talent-b {
-  background-color: #17a2b8;
+  background-color: var(--info-color);
 }
 
 .talent-c {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
 }
 
 .talent-d {
-  background-color: #dc3545;
+  background-color: var(--danger-color);
 }
 
 .talent-count {

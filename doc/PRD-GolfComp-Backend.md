@@ -43,17 +43,18 @@ Progress across working sessions. Use this section to pick up where you left off
 | US-026 | Player Controller | Complete |
 | US-027 | Score Controller | Complete |
 | US-028 | Leaderboard Controller | Complete |
-| US-029 | Snake Draft Algorithm | Not Started |
+| US-029 | Snake Draft Algorithm | Complete |
 | US-030 | Global Exception Handler | Complete |
 | US-031 | CORS Configuration | Not Started |
 | US-032 | OpenAPI Documentation | Complete |
 
 ### Next Up
 
-**Recommended next stories:** US-029 (Snake Draft), US-030 (Global Exception Handler), US-031 (CORS Config), US-032 (OpenAPI Docs) — all controller dependencies complete (US-022 through US-028 ✓)
+**Recommended next stories:** US-031 (CORS Config) or US-032 (OpenAPI Docs) — US-029 (Snake Draft) and US-030 (Global Exception Handler) complete.
 
 ### Progress Log
 
+- **2026-03-11:** US-029 complete. Implemented snake draft team generation: GenerateTeamsRequest (numberOfTeams 2–32), TeamService.generateTeams (unassigns players, deletes existing teams, creates N teams with names "Team 1"…"Team N", distributes players by talent order with alternating round direction), PlayerRepository.unassignAllByCompetitionId, POST /api/v1/competitions/{id}/teams/generate (201). Unit tests for TeamService and TeamController; INSUFFICIENT_PLAYERS returns 409.
 - **2026-02-15:** US-022 through US-028 complete. Created ApiResponse<T> wrapper (success/error factory methods, @JsonInclude(NON_NULL)), GlobalExceptionHandler (@RestControllerAdvice mapping ResourceNotFoundException→404, BusinessRuleException→409, MethodArgumentNotValidException→400), and 7 REST controllers: CompetitionController, CourseController, RoundController, TeamController (including bulk deleteAll), PlayerController (assign/unassign endpoints), ScoreController (upsert pattern), LeaderboardController. All follow /api/v1/... URL convention with correct HTTP status codes (201/200/204). Created 7 @WebMvcTest controller test classes (34 new tests). All 130 backend tests passing.
 - **2026-02-15:** US-015 through US-021 complete. Created exception classes (ResourceNotFoundException, BusinessRuleException), 11 request DTOs, 8 response DTOs (including PlayerLeaderboardEntry, TeamLeaderboardEntry), and 7 service classes (CompetitionService, CourseService, RoundService, TeamService, PlayerService, ScoreService, LeaderboardService). All services use constructor injection, @Transactional(readOnly=true) class-level with @Transactional overrides for writes, and throw typed exceptions on not-found/business-rule violations. LeaderboardService ranks players by (roundsPlayed DESC, totalScore ASC) and aggregates team totals. Created 7 Mockito unit test classes (54 new tests). All 96 backend tests passing.
 - **2026-02-15:** US-009 through US-014 complete. Created 6 Spring Data JPA repositories: CompetitionRepository, CourseRepository, RoundRepository (with ordered query, find by competition+round number, bulk delete), TeamRepository (with competition list, name uniqueness check, bulk delete), PlayerRepository (with unassigned filter, team filter, talent-rating-ordered query for snake draft, bulk delete), ScoreRepository (with round/competition/player filters, round+player lookup for upsert, bulk delete). Created @DataJpaTest integration tests for all 6 repositories (42 new tests). Fixed H2 reserved-keyword conflict on scores.value column by renaming to score_value in entity and migration.
@@ -108,6 +109,12 @@ Progress across working sessions. Use this section to pick up where you left off
 - `spring-golfcomp/src/main/java/com/golfcomp/api/model/Score.java` — Fixed: column renamed to score_value (was reserved word in H2)
 - `spring-golfcomp/src/main/resources/db/changelog/changes/006-create-scores-table.xml` — Fixed: column renamed to score_value
 - `spring-golfcomp/src/main/resources/application-test.yml` — Added NON_KEYWORDS=VALUE to H2 URL (belt-and-suspenders)
+- `spring-golfcomp/src/main/java/com/golfcomp/api/dto/request/GenerateTeamsRequest.java` — Request DTO for team generation (numberOfTeams 2–32)
+- `spring-golfcomp/src/main/java/com/golfcomp/api/service/TeamService.java` — Added generateTeams (snake draft), PlayerRepository dependency
+- `spring-golfcomp/src/main/java/com/golfcomp/api/controller/TeamController.java` — POST /generate endpoint (201)
+- `spring-golfcomp/src/main/java/com/golfcomp/api/repository/PlayerRepository.java` — unassignAllByCompetitionId for clear-before-generate
+- `spring-golfcomp/src/test/java/com/golfcomp/api/unit/TeamServiceTest.java` — generateTeams unit tests (success, INSUFFICIENT_PLAYERS, competition not found)
+- `spring-golfcomp/src/test/java/com/golfcomp/api/unit/TeamControllerTest.java` — POST /teams/generate 201 and 409 tests
 
 ---
 
@@ -1155,7 +1162,7 @@ Create REST controllers following the API contracts in Section 7.
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | `Not Started` |
+| **Status** | `Complete` |
 | **Type** | `Backend` |
 | **Estimated Effort** | ~3 hours |
 | **Epic** | Advanced Features |
@@ -1174,11 +1181,11 @@ As a developer, I want the snake draft team generation algorithm implemented so 
 
 #### Acceptance Criteria
 
-- [ ] AC1: Creates N teams with auto-generated names
-- [ ] AC2: Sorts players by talent rating (A → B → C → D)
-- [ ] AC3: Distributes using snake draft pattern
-- [ ] AC4: Handles uneven player counts
-- [ ] AC5: Clears existing teams before generating
+- [x] AC1: Creates N teams with auto-generated names
+- [x] AC2: Sorts players by talent rating (A → B → C → D)
+- [x] AC3: Distributes using snake draft pattern
+- [x] AC4: Handles uneven player counts
+- [x] AC5: Clears existing teams before generating
 
 #### Technical Specifications
 

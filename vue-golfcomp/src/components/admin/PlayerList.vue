@@ -46,9 +46,13 @@
               <td>{{ formatCurrency(player.entryFee) }}</td>
               <td>{{ formatCurrency(player.winnings) }}</td>
               <td>{{ player.teamName || 'Unassigned' }}</td>
-              <td>
-                <button class="btn btn-sm" @click="editPlayer(player)">Edit</button>
-                <button class="btn btn-sm btn-danger" @click="confirmDeletePlayer(player)">Delete</button>
+              <td class="action-cell">
+                <button class="icon-btn" title="Edit player" @click="editPlayer(player)">
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button class="icon-btn icon-btn-danger" title="Delete player" @click="confirmDeletePlayer(player)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -236,7 +240,7 @@ const closePlayerForm = () => {
 .empty-state {
   text-align: center;
   padding: 40px 0;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .modal {
@@ -253,7 +257,8 @@ const closePlayerForm = () => {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   border-radius: 4px;
   width: 500px;
   max-width: 90%;
@@ -267,7 +272,7 @@ const closePlayerForm = () => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h3 {
@@ -283,17 +288,36 @@ const closePlayerForm = () => {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .close-btn:hover {
-  color: #333;
+  color: var(--text-color);
 }
 
-.btn-sm {
-  padding: 4px 8px;
-  font-size: 12px;
-  margin-right: 5px;
+.action-cell {
+  white-space: nowrap;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.icon-btn:hover {
+  color: var(--primary-color);
+  background-color: var(--border-color);
+}
+
+.icon-btn-danger:hover {
+  color: var(--danger-color, #dc3545);
+  background-color: rgba(220, 53, 69, 0.1);
 }
 
 .sort-asc::after {

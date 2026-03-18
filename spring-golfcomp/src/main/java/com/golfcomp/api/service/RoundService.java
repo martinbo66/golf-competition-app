@@ -1,6 +1,7 @@
 package com.golfcomp.api.service;
 
 import com.golfcomp.api.dto.request.CreateRoundRequest;
+import com.golfcomp.api.dto.request.UpdateRoundRequest;
 import com.golfcomp.api.dto.response.RoundResponse;
 import com.golfcomp.api.exception.ResourceNotFoundException;
 import com.golfcomp.api.model.Competition;
@@ -62,6 +63,20 @@ public class RoundService {
             throw ResourceNotFoundException.round(roundId);
         }
         return RoundResponse.from(round);
+    }
+
+    @Transactional
+    public RoundResponse update(UUID competitionId, UUID roundId, UpdateRoundRequest request) {
+        Round round = roundRepository.findById(roundId)
+            .orElseThrow(() -> ResourceNotFoundException.round(roundId));
+        if (!round.getCompetition().getId().equals(competitionId)) {
+            throw ResourceNotFoundException.round(roundId);
+        }
+        Course course = courseRepository.findById(request.courseId())
+            .orElseThrow(() -> ResourceNotFoundException.course(request.courseId()));
+        round.setCourse(course);
+        round.setPlayDate(request.playDate());
+        return RoundResponse.from(roundRepository.save(round));
     }
 
     @Transactional

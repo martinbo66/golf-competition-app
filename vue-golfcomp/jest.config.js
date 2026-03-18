@@ -17,6 +17,8 @@ module.exports = {
     '!src/main.js',
     '!**/node_modules/**'
   ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'json', 'html', 'lcov'],
   testMatch: [
     '**/tests/**/*.test.js'
   ],

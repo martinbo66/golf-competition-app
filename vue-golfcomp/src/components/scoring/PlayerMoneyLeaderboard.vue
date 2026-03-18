@@ -139,7 +139,7 @@ const filteredLeaderboard = computed(() => {
 .empty-state {
   text-align: center;
   padding: 40px 0;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .leaderboard-filters {
@@ -187,20 +187,20 @@ const filteredLeaderboard = computed(() => {
 }
 
 .talent-a {
-  background-color: #28a745;
+  background-color: var(--success-color);
 }
 
 .talent-b {
-  background-color: #17a2b8;
+  background-color: var(--info-color);
 }
 
 .talent-c {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
   color: #212529;
 }
 
 .talent-d {
-  background-color: #dc3545;
+  background-color: var(--danger-color);
 }
 
 .entry-fee,
@@ -211,15 +211,15 @@ const filteredLeaderboard = computed(() => {
 }
 
 .net-winnings.positive {
-  color: #28a745;
+  color: var(--success-color);
 }
 
 .net-winnings.negative {
-  color: #dc3545;
+  color: var(--danger-color);
 }
 
 .highlight {
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
 }
 
 .highlight:nth-child(1) {

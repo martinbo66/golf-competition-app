@@ -44,6 +44,8 @@ export const useCoursesStore = defineStore('courses', {
                             roundId: round.id
                         }))
                         .sort((a, b) => a.order - b.order);
+                } else {
+                    this.courses = [...FALLBACK_COURSES];
                 }
                 this.loaded = true;
             } catch (_err) {

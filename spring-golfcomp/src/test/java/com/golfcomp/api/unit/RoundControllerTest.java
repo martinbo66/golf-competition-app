@@ -3,6 +3,7 @@ package com.golfcomp.api.unit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golfcomp.api.controller.RoundController;
 import com.golfcomp.api.dto.request.CreateRoundRequest;
+import com.golfcomp.api.dto.request.UpdateRoundRequest;
 import com.golfcomp.api.dto.response.CourseResponse;
 import com.golfcomp.api.dto.response.RoundResponse;
 import com.golfcomp.api.exception.GlobalExceptionHandler;
@@ -76,6 +77,34 @@ class RoundControllerTest {
             .thenThrow(ResourceNotFoundException.round(roundId));
 
         mockMvc.perform(get("/api/v1/competitions/{cId}/rounds/{rId}", competitionId, roundId))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("PUT /rounds/{id} - returns 200 with updated round")
+    void update_returns200() throws Exception {
+        UUID roundId = UUID.randomUUID();
+        when(roundService.update(eq(competitionId), eq(roundId), any())).thenReturn(sampleRound());
+        UpdateRoundRequest req = new UpdateRoundRequest(UUID.randomUUID(), LocalDate.of(2026, 7, 1));
+
+        mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}", competitionId, roundId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.roundNumber").value(1));
+    }
+
+    @Test
+    @DisplayName("PUT /rounds/{id} - returns 404 when round not found")
+    void update_returns404() throws Exception {
+        UUID roundId = UUID.randomUUID();
+        when(roundService.update(eq(competitionId), eq(roundId), any()))
+            .thenThrow(ResourceNotFoundException.round(roundId));
+        UpdateRoundRequest req = new UpdateRoundRequest(UUID.randomUUID(), LocalDate.of(2026, 7, 1));
+
+        mockMvc.perform(put("/api/v1/competitions/{cId}/rounds/{rId}", competitionId, roundId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
             .andExpect(status().isNotFound());
     }
 

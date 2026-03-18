@@ -272,27 +272,19 @@ const generateTeams = async () => {
 
 <style scoped>
 .team-list {
-  /* Define CSS variables for proper light/dark mode support */
-  --card-bg: var(--card-bg, #ffffff);
-  --card-text: var(--text-color, #2c3e50);
   --card-header-bg: rgba(0, 0, 0, 0.03);
-  --card-border: var(--border-color, #e9ecef);
-  --text-muted: var(--text-muted, #6c757d);
-  --text-primary: var(--text-color, #2c3e50);
-  --hover-bg: var(--sidebar-hover, #e9ecef);
-  --empty-state-bg: var(--background-color, #f8f9fa);
-  --empty-state-color: var(--text-muted, #6c757d);
+  --hover-bg: var(--sidebar-hover);
 }
 
 .card {
   background-color: var(--card-bg);
-  color: var(--card-text);
-  border: 1px solid var(--card-border);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 
 .card-header {
   background-color: var(--card-header-bg);
-  border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -303,7 +295,7 @@ const generateTeams = async () => {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .card-actions {
@@ -318,10 +310,10 @@ const generateTeams = async () => {
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  background-color: var(--empty-state-bg);
+  background-color: var(--background-color);
   border-radius: 8px;
-  border: 2px dashed var(--card-border);
-  color: var(--empty-state-color);
+  border: 2px dashed var(--border-color);
+  color: var(--text-muted);
 }
 
 .empty-state p {
@@ -338,7 +330,7 @@ const generateTeams = async () => {
 
 .team-card {
   background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
   display: flex;
@@ -356,14 +348,14 @@ const generateTeams = async () => {
   align-items: center;
   padding: 15px 20px;
   background-color: var(--card-header-bg);
-  border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .team-header h3 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .team-actions {
@@ -399,14 +391,14 @@ const generateTeams = async () => {
 
 .btn-icon:hover {
   background-color: var(--hover-bg);
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .team-stats {
   display: flex;
   align-items: center;
   padding: 15px;
-  border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--border-color);
   gap: 15px;
 }
 
@@ -460,7 +452,7 @@ const generateTeams = async () => {
 .stat-value {
   font-size: 1.2rem;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .talent-distribution {
@@ -482,20 +474,20 @@ const generateTeams = async () => {
 }
 
 .talent-a {
-  background-color: #28a745;
+  background-color: var(--success-color);
 }
 
 .talent-b {
-  background-color: #17a2b8;
+  background-color: var(--info-color);
 }
 
 .talent-c {
-  background-color: #ffc107;
+  background-color: var(--warning-color);
   color: #212529;
 }
 
 .talent-d {
-  background-color: #dc3545;
+  background-color: var(--danger-color);
 }
 
 .team-players {
@@ -507,7 +499,7 @@ const generateTeams = async () => {
   margin: 0 0 10px 0;
   font-size: 1rem;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .team-players ul {
@@ -518,11 +510,11 @@ const generateTeams = async () => {
 
 .team-players li {
   padding: 8px 0;
-  border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .team-players li:last-child {
@@ -549,8 +541,8 @@ const generateTeams = async () => {
 }
 
 .modal-content {
-  background-color: #ffffff;
-  color: #2c3e50;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   border-radius: 8px;
   width: 500px;
   max-width: 90%;
@@ -564,24 +556,24 @@ const generateTeams = async () => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #e9ecef;
-  background-color: #f8f9fa;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--background-color);
 }
 
 .modal-header h3 {
   margin: 0;
-  color: #2c3e50;
+  color: var(--text-color);
   font-weight: 600;
 }
 
 .modal-body {
   padding: 20px;
-  color: #2c3e50;
-  background-color: #ffffff;
+  color: var(--text-color);
+  background-color: var(--card-bg);
 }
 
 .modal-body p {
-  color: #2c3e50;
+  color: var(--text-color);
   margin-bottom: 15px;
   line-height: 1.5;
 }
@@ -591,20 +583,20 @@ const generateTeams = async () => {
 }
 
 .modal-body .form-group label {
-  color: #2c3e50;
+  color: var(--text-color);
   font-weight: 600;
   margin-bottom: 8px;
   display: block;
 }
 
 .modal-body .form-control {
-  background-color: #ffffff;
-  color: #2c3e50;
-  border: 1px solid #ced4da;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 
 .modal-body .form-text {
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .close-btn {
@@ -612,12 +604,12 @@ const generateTeams = async () => {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #6c757d;
+  color: var(--text-muted);
   transition: color 0.3s ease;
 }
 
 .close-btn:hover {
-  color: #2c3e50;
+  color: var(--text-color);
 }
 
 .form-actions {
@@ -639,8 +631,8 @@ const generateTeams = async () => {
 }
 
 .form-actions .btn-secondary:hover {
-  background-color: var(--text-primary);
-  border-color: var(--text-primary);
+  background-color: var(--text-color);
+  border-color: var(--text-color);
 }
 
 .form-text {
@@ -667,95 +659,10 @@ const generateTeams = async () => {
   color: #856404;
 }
 
-/* Dark mode overrides */
-body.dark-mode .team-list,
-[data-theme="dark"] .team-list {
-  --card-bg: #34495e;
-  --card-text: #ecf0f1;
-  --card-header-bg: rgba(255, 255, 255, 0.05);
-  --card-border: #4b6584;
-  --text-muted: #b2bec3;
-  --text-primary: #ecf0f1;
-  --hover-bg: #4a5568;
-  --empty-state-bg: #2c3e50;
-  --empty-state-color: #b2bec3;
-}
-
 body.dark-mode .alert-warning,
-[data-theme="dark"] .alert-warning {
-  background-color: rgba(241, 196, 15, 0.15);
-  border-color: rgba(241, 196, 15, 0.3);
-  color: #f4d03f;
+body.dark-mode .alert-warning strong {
+  color: var(--warning-color);
 }
 
-body.dark-mode .alert-warning strong,
-[data-theme="dark"] .alert-warning strong {
-  color: #f4d03f;
-}
-
-body.dark-mode .form-actions .btn-secondary,
-[data-theme="dark"] .form-actions .btn-secondary {
-  background-color: #4a5568;
-  border-color: #4a5568;
-}
-
-body.dark-mode .form-actions .btn-secondary:hover,
-[data-theme="dark"] .form-actions .btn-secondary:hover {
-  background-color: #6b7280;
-  border-color: #6b7280;
-}
-
-/* Dark mode modal overrides */
-body.dark-mode .modal-content,
-[data-theme="dark"] .modal-content {
-  background-color: #34495e !important;
-  color: #ecf0f1 !important;
-}
-
-body.dark-mode .modal-header,
-[data-theme="dark"] .modal-header {
-  background-color: #2c3e50 !important;
-  border-bottom-color: #4b6584 !important;
-}
-
-body.dark-mode .modal-header h3,
-[data-theme="dark"] .modal-header h3 {
-  color: #ecf0f1 !important;
-}
-
-body.dark-mode .modal-body,
-[data-theme="dark"] .modal-body {
-  background-color: #34495e !important;
-  color: #ecf0f1 !important;
-}
-
-body.dark-mode .modal-body p,
-[data-theme="dark"] .modal-body p,
-body.dark-mode .modal-body .form-group label,
-[data-theme="dark"] .modal-body .form-group label {
-  color: #ecf0f1 !important;
-}
-
-body.dark-mode .modal-body .form-control,
-[data-theme="dark"] .modal-body .form-control {
-  background-color: #2c3e50 !important;
-  color: #ecf0f1 !important;
-  border-color: #4b6584 !important;
-}
-
-body.dark-mode .modal-body .form-text,
-[data-theme="dark"] .modal-body .form-text {
-  color: #b2bec3 !important;
-}
-
-body.dark-mode .close-btn,
-[data-theme="dark"] .close-btn {
-  color: #b2bec3 !important;
-}
-
-body.dark-mode .close-btn:hover,
-[data-theme="dark"] .close-btn:hover {
-  color: #ecf0f1 !important;
-}
 </style>
 
