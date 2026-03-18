@@ -38,7 +38,7 @@ const courseData = computed(() => {
 
 const scorecardImagePath = computed(() => {
   if (!courseData.value.name) return null;
-  const imageName = courseData.value.name.toLowerCase().replace(/\s+/g, '-') + '-scorecard.png';
+  const imageName = courseData.value.name.toLowerCase().replaceAll(/\s+/g, '-') + '-scorecard.png';
   try {
     return require(`@/assets/${imageName}`);
   } catch (error) {

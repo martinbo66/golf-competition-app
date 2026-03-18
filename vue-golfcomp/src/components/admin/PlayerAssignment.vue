@@ -74,8 +74,8 @@
           </div>
           
           <div class="team-selection">
-            <label>Assign to Team:</label>
-            <select v-model="selectedTeam" class="form-control">
+            <label for="assignToTeam">Assign to Team:</label>
+            <select id="assignToTeam" v-model="selectedTeam" class="form-control">
               <option value="">Unassigned</option>
               <option v-for="team in teams" :key="team.id" :value="team.id">
                 {{ team.name }}

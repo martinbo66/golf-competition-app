@@ -6,8 +6,8 @@ function mapPlayerResponse(response) {
         id: response.id,
         name: response.name,
         talentRating: response.talentRating,
-        entryFee: parseFloat(response.entryFee) || 0,
-        winnings: parseFloat(response.winnings) || 0,
+        entryFee: Number.parseFloat(response.entryFee) || 0,
+        winnings: Number.parseFloat(response.winnings) || 0,
         teamId: response.teamId || null,
         teamName: response.teamName || null,
         createdAt: response.createdAt,
@@ -27,8 +27,8 @@ export const usePlayersStore = defineStore('players', {
         unassignedPlayers: (state) => state.players.filter(player => !player.teamId),
         playerCount: (state) => state.players.length,
         playersByTalentRating: (state) => (rating) => state.players.filter(player => player.talentRating === rating),
-        totalEntryFees: (state) => state.players.reduce((total, player) => total + (parseFloat(player.entryFee) || 0), 0),
-        totalWinnings: (state) => state.players.reduce((total, player) => total + (parseFloat(player.winnings) || 0), 0)
+        totalEntryFees: (state) => state.players.reduce((total, player) => total + (Number.parseFloat(player.entryFee) || 0), 0),
+        totalWinnings: (state) => state.players.reduce((total, player) => total + (Number.parseFloat(player.winnings) || 0), 0)
     },
 
     actions: {
@@ -41,8 +41,8 @@ export const usePlayersStore = defineStore('players', {
             const created = await ApiService.post(ApiService.playersUrl(), {
                 name: player.name,
                 talentRating: player.talentRating,
-                entryFee: parseFloat(player.entryFee) || 0,
-                winnings: parseFloat(player.winnings) || 0
+                entryFee: Number.parseFloat(player.entryFee) || 0,
+                winnings: Number.parseFloat(player.winnings) || 0
             });
             const mapped = mapPlayerResponse(created);
             this.players.push(mapped);
@@ -53,8 +53,8 @@ export const usePlayersStore = defineStore('players', {
             const updated = await ApiService.put(ApiService.playersUrl(id), {
                 name: updates.name !== undefined ? updates.name : this.playerById(id)?.name,
                 talentRating: updates.talentRating !== undefined ? updates.talentRating : this.playerById(id)?.talentRating,
-                entryFee: updates.entryFee !== undefined ? parseFloat(updates.entryFee) || 0 : (this.playerById(id)?.entryFee ?? 0),
-                winnings: updates.winnings !== undefined ? parseFloat(updates.winnings) || 0 : (this.playerById(id)?.winnings ?? 0)
+                entryFee: updates.entryFee !== undefined ? Number.parseFloat(updates.entryFee) || 0 : (this.playerById(id)?.entryFee ?? 0),
+                winnings: updates.winnings !== undefined ? Number.parseFloat(updates.winnings) || 0 : (this.playerById(id)?.winnings ?? 0)
             });
             const mapped = mapPlayerResponse(updated);
             const index = this.players.findIndex(p => p.id === id);

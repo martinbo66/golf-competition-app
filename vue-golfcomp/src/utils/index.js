@@ -81,11 +81,11 @@ export const validatePlayer = (player) => {
     errors.talentRating = 'Valid talent rating (A, B, C, or D) is required';
   }
   
-  if (player.entryFee !== undefined && isNaN(parseFloat(player.entryFee))) {
+  if (player.entryFee !== undefined && Number.isNaN(Number.parseFloat(player.entryFee))) {
     errors.entryFee = 'Entry fee must be a valid number';
   }
-  
-  if (player.winnings !== undefined && isNaN(parseFloat(player.winnings))) {
+
+  if (player.winnings !== undefined && Number.isNaN(Number.parseFloat(player.winnings))) {
     errors.winnings = 'Winnings must be a valid number';
   }
   
@@ -101,9 +101,9 @@ export const validatePlayer = (player) => {
  * @returns {Object} An object with isValid and error properties
  */
 export const validateScore = (score) => {
-  const scoreValue = parseInt(score);
-  
-  if (isNaN(scoreValue)) {
+  const scoreValue = Number.parseInt(score);
+
+  if (Number.isNaN(scoreValue)) {
     return {
       isValid: false,
       error: 'Score must be a valid number'
