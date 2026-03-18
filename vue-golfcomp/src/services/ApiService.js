@@ -39,6 +39,7 @@ class ApiService {
   get compUrl() { return `/competitions/${this._competitionId}`; }
 
   competitionsUrl(id) { return id ? `/competitions/${id}` : '/competitions'; }
+  coursesUrl(id) { return id ? `/courses/${id}` : '/courses'; }
   playersUrl(id) { return `${this.compUrl}/players${id ? '/' + id : ''}`; }
   teamsUrl(id) { return `${this.compUrl}/teams${id ? '/' + id : ''}`; }
   roundsUrl(id) { return `${this.compUrl}/rounds${id ? '/' + id : ''}`; }

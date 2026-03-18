@@ -78,6 +78,7 @@ const coursesStore = useCoursesStore();
 
 const adminItems = [
   { id: 'competitions', label: 'Competitions', route: '/admin/competitions', icon: 'fas fa-trophy' },
+  { id: 'courses', label: 'Courses', route: '/admin/courses', icon: 'fas fa-map-marker-alt' },
   { id: 'players', label: 'Players', route: '/admin/players', icon: 'fas fa-users' },
   { id: 'teams', label: 'Teams', route: '/admin/teams', icon: 'fas fa-user-friends' }
 ];

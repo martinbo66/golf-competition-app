@@ -69,12 +69,12 @@ Backend constraint: `DELETE /api/v1/courses/{id}` will return `409 Conflict` (FK
 
 | ID | Story | Status |
 |----|-------|--------|
-| CRM-001 | As an admin, I can view a list of all available courses | 🔲 To Do |
-| CRM-002 | As an admin, I can add a new course by name (facility and location optional) | 🔲 To Do |
-| CRM-003 | As an admin, I can edit a course's name, facility, and location | 🔲 To Do |
+| CRM-001 | As an admin, I can view a list of all available courses | ✅ Done |
+| CRM-002 | As an admin, I can add a new course by name (facility and location optional) | ✅ Done |
+| CRM-003 | As an admin, I can edit a course's name, facility, and location | ✅ Done |
 | CRM-004 | As an admin, I can delete a course that is not assigned to any round | 🔲 To Do |
-| CRM-005 | Course options in Round management load dynamically from the courses store | 🔲 To Do |
-| CRM-006 | The app fetches courses from the backend API on init instead of using hardcoded fallbacks | 🔲 To Do |
+| CRM-005 | Course options in Round management load dynamically from the courses store | ✅ Done |
+| CRM-006 | The app fetches courses from the backend API on init instead of using hardcoded fallbacks | ✅ Done |
 
 ---
 

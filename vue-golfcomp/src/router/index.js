@@ -27,6 +27,11 @@ const routes = [
     component: TeamManagement
   },
   {
+    path: '/admin/courses',
+    name: 'CourseManagement',
+    component: () => import('@/views/CourseManagement.vue')
+  },
+  {
     path: '/scoring/:courseId',
     name: 'CourseScoring',
     component: CourseScoring,
@@ -90,6 +95,8 @@ router.beforeEach((to, from, next) => {
     uiStore.setActiveSidebarItem('players');
   } else if (to.path === '/admin/teams') {
     uiStore.setActiveSidebarItem('teams');
+  } else if (to.path === '/admin/courses') {
+    uiStore.setActiveSidebarItem('courses');
   } else if (to.path.startsWith('/scoring/')) {
     // In Vue Router 4, params are available in to.params
     // But we need to check if courseName is available or if we need to derive it

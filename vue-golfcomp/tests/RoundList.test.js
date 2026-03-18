@@ -74,6 +74,12 @@ describe('RoundList', () => {
   test('course dropdown has four course options', () => {
     const compStore = useCompetitionsStore();
     compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
+    useCoursesStore().allCoursesCache = [
+      { id: '071aaf93-773e-49d0-935e-4b825e25670f', name: 'Parkland' },
+      { id: '2b81e674-816a-42ea-b524-54a96bfb2b14', name: 'Heathland' },
+      { id: '38a5c806-7f44-4ebb-9472-6ec79431c5ff', name: 'Heritage Club' },
+      { id: 'd3d8aa11-5320-477b-9602-6501dd63b186', name: 'Moorland' }
+    ];
 
     const wrapper = mount(RoundList, {
       global: { stubs: { ConfirmationDialog: true } }
@@ -110,6 +116,9 @@ describe('RoundList', () => {
     const compStore = useCompetitionsStore();
     compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
     jest.spyOn(compStore, 'createRound').mockResolvedValue();
+    useCoursesStore().allCoursesCache = [
+      { id: '071aaf93-773e-49d0-935e-4b825e25670f', name: 'Parkland' }
+    ];
 
     const wrapper = mount(RoundList, {
       global: { stubs: { ConfirmationDialog: true } }
@@ -253,6 +262,10 @@ describe('RoundList', () => {
       useCoursesStore().rounds = [
         { id: 'r1', course: { id: '071aaf93-773e-49d0-935e-4b825e25670f', name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
       ];
+      useCoursesStore().allCoursesCache = [
+        { id: '071aaf93-773e-49d0-935e-4b825e25670f', name: 'Parkland' },
+        { id: '2b81e674-816a-42ea-b524-54a96bfb2b14', name: 'Heathland' }
+      ];
       jest.spyOn(compStore, 'updateRound').mockResolvedValue();
 
       const wrapper = mount(RoundList, { global: { stubs: { ConfirmationDialog: true } } });
@@ -273,6 +286,10 @@ describe('RoundList', () => {
       compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
       useCoursesStore().rounds = [
         { id: 'r1', course: { id: 'c1', name: 'Parkland' }, roundNumber: 1, playDate: '2026-06-14' }
+      ];
+      useCoursesStore().allCoursesCache = [
+        { id: 'c1', name: 'Parkland' },
+        { id: '2b81e674-816a-42ea-b524-54a96bfb2b14', name: 'Heathland' }
       ];
       jest.spyOn(compStore, 'updateRound').mockRejectedValue(new Error('Server error'));
 

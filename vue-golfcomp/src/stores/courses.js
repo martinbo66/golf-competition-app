@@ -12,11 +12,13 @@ export const useCoursesStore = defineStore('courses', {
     state: () => ({
         courses: [...FALLBACK_COURSES],
         rounds: [],
-        loaded: false
+        loaded: false,
+        allCoursesCache: []
     }),
 
     getters: {
         allCourses: (state) => state.courses,
+        availableCourses: (state) => [...state.allCoursesCache].sort((a, b) => a.name.localeCompare(b.name)),
         courseById: (state) => (id) => state.courses.find(course => course.id === id),
         courseByName: (state) => (name) => state.courses.find(course => course.name.toLowerCase() === name.toLowerCase()),
         coursesSorted: (state) => [...state.courses].sort((a, b) => a.order - b.order),
@@ -31,6 +33,24 @@ export const useCoursesStore = defineStore('courses', {
     },
 
     actions: {
+        async fetchAllCourses() {
+            const data = await ApiService.get(ApiService.coursesUrl());
+            this.allCoursesCache = data || [];
+        },
+
+        async createCourse(courseData) {
+            const created = await ApiService.post(ApiService.coursesUrl(), courseData);
+            this.allCoursesCache.push(created);
+            return created;
+        },
+
+        async updateCourse({ id, updates }) {
+            const updated = await ApiService.put(ApiService.coursesUrl(id), updates);
+            const idx = this.allCoursesCache.findIndex(c => c.id === id);
+            if (idx !== -1) this.allCoursesCache[idx] = updated;
+            return updated;
+        },
+
         async fetchCourses() {
             try {
                 const rounds = await ApiService.get(ApiService.roundsUrl());
@@ -45,7 +65,9 @@ export const useCoursesStore = defineStore('courses', {
                         }))
                         .sort((a, b) => a.order - b.order);
                 } else {
-                    this.courses = [...FALLBACK_COURSES];
+                    this.courses = this.allCoursesCache.length > 0
+                        ? this.allCoursesCache.map((c, i) => ({ id: c.id, name: c.name, order: i + 1, roundId: null }))
+                        : [...FALLBACK_COURSES];
                 }
                 this.loaded = true;
             } catch (_err) {
