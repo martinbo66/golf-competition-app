@@ -234,8 +234,10 @@ export default {
     }
   },
   watch: {
-    team() {
-      this.initForm();
+    team(newVal) {
+      if (newVal?.id !== this.form.id) {
+        this.initForm();
+      }
     }
   }
 };
