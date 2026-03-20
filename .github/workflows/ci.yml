@@ -45,6 +45,7 @@ jobs:
         with:
           languages: java-kotlin,javascript-typescript
           queries: +security-and-quality
+          config-file: .github/codeql/codeql-config.yml
 
       - name: Run CI pipeline
         env:
