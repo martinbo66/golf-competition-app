@@ -45,9 +45,9 @@
               <th>Player</th>
               <th>Team</th>
               <th>Talent</th>
-              <th>Entry Fee</th>
-              <th>Winnings</th>
-              <th>Net Winnings</th>
+              <th class="entry-fee">Entry Fee</th>
+              <th class="winnings">Winnings</th>
+              <th class="net-winnings">Net Winnings</th>
             </tr>
           </thead>
           <tbody>
