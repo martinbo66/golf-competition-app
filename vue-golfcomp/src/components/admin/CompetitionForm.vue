@@ -3,6 +3,7 @@
     <div class="form-group">
       <label for="comp-name">Competition Name <span class="required">*</span></label>
       <input
+        ref="nameInput"
         type="text"
         id="comp-name"
         v-model="form.name"
@@ -91,6 +92,10 @@ export default {
 
   created() {
     this.initForm();
+  },
+
+  mounted() {
+    this.$refs.nameInput.focus();
   },
 
   watch: {

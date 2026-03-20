@@ -44,6 +44,7 @@ export const useCompetitionsStore = defineStore('competitions', {
             });
             const mapped = mapCompetitionResponse(created);
             this.competitions.push(mapped);
+            await this.setActiveCompetition(mapped);
             return mapped;
         },
 
