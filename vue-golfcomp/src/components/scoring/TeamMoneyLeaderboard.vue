@@ -17,11 +17,11 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Rank</th>
+              <th class="rank">Rank</th>
               <th>Team</th>
-              <th>Entry Fees</th>
-              <th>Winnings</th>
-              <th>Net Winnings</th>
+              <th class="entry-fees">Entry Fees</th>
+              <th class="winnings">Winnings</th>
+              <th class="net-winnings">Net Winnings</th>
             </tr>
           </thead>
           <tbody>

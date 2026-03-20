@@ -41,12 +41,12 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Rank</th>
+              <th class="rank">Rank</th>
               <th>Player</th>
               <th>Team</th>
               <th>Talent</th>
-              <th v-for="course in courses" :key="course.id">{{ course.name }}</th>
-              <th>Total</th>
+              <th v-for="course in courses" :key="course.id" class="course-score">{{ course.name }}</th>
+              <th class="total-score">Total</th>
             </tr>
           </thead>
           <tbody>

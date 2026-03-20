@@ -41,7 +41,7 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Rank</th>
+              <th class="rank">Rank</th>
               <th>Player</th>
               <th>Team</th>
               <th>Talent</th>
