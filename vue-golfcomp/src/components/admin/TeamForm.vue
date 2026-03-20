@@ -3,6 +3,7 @@
     <div class="form-group">
       <label for="name">Team Name</label>
       <input
+        ref="nameInput"
         type="text"
         id="name"
         v-model="form.name"
@@ -108,6 +109,9 @@ export default {
   },
   created() {
     this.initForm();
+  },
+  mounted() {
+    this.$refs.nameInput.focus();
   },
   methods: {
     initForm() {

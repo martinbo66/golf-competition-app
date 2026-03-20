@@ -42,14 +42,29 @@ export const useTeamsStore = defineStore('teams', {
 
         async updateTeam({ id, updates }) {
             const existing = this.teamById(id);
+            const index = this.teams.findIndex(t => t.id === id);
+
+            // Optimistically apply the update so the UI reflects it immediately
+            if (index !== -1) {
+                this.teams.splice(index, 1, {
+                    ...existing,
+                    name: updates.name !== undefined ? updates.name : existing.name,
+                    logoUrl: updates.logoUrl !== undefined ? updates.logoUrl : existing.logoUrl
+                });
+            }
+
             const updated = await ApiService.put(ApiService.teamsUrl(id), {
                 name: updates.name !== undefined ? updates.name : (existing?.name ?? ''),
                 logoUrl: updates.logoUrl !== undefined ? updates.logoUrl : (existing?.logoUrl ?? null)
             });
             const mapped = mapTeamResponse(updated);
-            const index = this.teams.findIndex(t => t.id === id);
-            if (index !== -1) {
-                this.teams[index] = mapped;
+            // Preserve logoUrl from updates if the server response didn't return it
+            if (!mapped.logoUrl && updates.logoUrl) {
+                mapped.logoUrl = updates.logoUrl;
+            }
+            const finalIndex = this.teams.findIndex(t => t.id === id);
+            if (finalIndex !== -1) {
+                this.teams.splice(finalIndex, 1, mapped);
             } else {
                 this.teams.push(mapped);
             }
