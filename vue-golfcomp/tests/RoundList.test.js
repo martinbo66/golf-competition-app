@@ -56,7 +56,7 @@ describe('RoundList', () => {
     expect(wrapper.text()).toContain('Rounds — Summer Cup');
   });
 
-  test('shows add-round row with course select, date input, round number, Add button', () => {
+  test('shows add-round row with course select, date input, next round #, Add button', () => {
     const compStore = useCompetitionsStore();
     compStore.activeCompetition = { id: 'comp', name: 'Summer Cup' };
 
@@ -66,7 +66,9 @@ describe('RoundList', () => {
 
     expect(wrapper.find('select[aria-label="Course"]').exists()).toBe(true);
     expect(wrapper.find('input[type="date"]').exists()).toBe(true);
-    expect(wrapper.find('input[type="number"][aria-label="Round number"]').exists()).toBe(true);
+    const addRowFirstCell = wrapper.find('tr.round-list__add-row td');
+    expect(addRowFirstCell.exists()).toBe(true);
+    expect(addRowFirstCell.text()).toBe('1');
     expect(wrapper.find('button').exists()).toBe(true);
     expect(wrapper.text()).toContain('Add');
   });
@@ -126,7 +128,6 @@ describe('RoundList', () => {
 
     await wrapper.find('select[aria-label="Course"]').setValue('071aaf93-773e-49d0-935e-4b825e25670f');
     await wrapper.find('input[type="date"]').setValue('2026-06-14');
-    await wrapper.find('input[type="number"]').setValue(1);
 
     await wrapper.find('button.btn-primary').trigger('click');
 
