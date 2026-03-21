@@ -40,6 +40,16 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// Embed Vue frontend into the JAR as static assets.
+// vue-golfcomp/dist/ is copied to BOOT-INF/classes/static/ so Spring Boot
+// serves the SPA at / alongside the API at /api/v1/**.
+tasks.named('processResources') {
+	from("${rootProject.projectDir}/vue-golfcomp/dist") {
+		into('static')
+	}
+	dependsOn(rootProject.tasks.named('frontendBuild'))
+}
+
 test {
 	useJUnitPlatform()
 	testLogging {
