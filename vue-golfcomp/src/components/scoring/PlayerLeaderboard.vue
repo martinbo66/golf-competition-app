@@ -41,19 +41,29 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Rank</th>
+              <th class="rank">Rank</th>
               <th>Player</th>
               <th>Team</th>
               <th>Talent</th>
-              <th v-for="course in courses" :key="course.id">{{ course.name }}</th>
-              <th>Total</th>
+              <th v-for="course in courses" :key="course.id" class="course-score">{{ course.name }}</th>
+              <th class="total-score">Total</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(player, index) in filteredLeaderboard" :key="player.id" :class="{ 'highlight': index < 3 }">
               <td class="rank">{{ index + 1 }}</td>
               <td class="player-name">{{ player.name }}</td>
-              <td class="team-name">{{ player.teamName || 'Unassigned' }}</td>
+              <td class="team-name">
+                <div class="team-cell">
+                  <img
+                    v-if="getTeamLogo(player.teamId)"
+                    :src="getTeamLogo(player.teamId)"
+                    :alt="player.teamName + ' logo'"
+                    class="team-logo-icon"
+                  >
+                  <span>{{ player.teamName || 'Unassigned' }}</span>
+                </div>
+              </td>
               <td class="talent-rating">
                 <span :class="'talent-badge talent-' + player.talentRating.toLowerCase()">
                   {{ player.talentRating }}
@@ -109,6 +119,11 @@ const playerLeaderboard = computed(() => scoresStore.playerLeaderboard);
 const hasAnyScores = computed(() => {
   return allScores.value.length > 0;
 });
+
+const getTeamLogo = (teamId) => {
+  if (!teamId) return null;
+  return teamsStore.teamById(teamId)?.logoUrl || null;
+};
 
 const filteredLeaderboard = computed(() => {
   let result = [...playerLeaderboard.value];
@@ -169,6 +184,20 @@ const filteredLeaderboard = computed(() => {
 
 .team-name {
   min-width: 150px;
+}
+
+.team-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-logo-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .talent-rating {

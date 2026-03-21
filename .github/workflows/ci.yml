@@ -2,9 +2,11 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
+    tags: [ '[0-9]+.[0-9]+.[0-9]+' ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   test-and-build:
@@ -43,6 +45,7 @@ jobs:
         with:
           languages: java-kotlin,javascript-typescript
           queries: +security-and-quality
+          config-file: .github/codeql/codeql-config.yml
 
       - name: Run CI pipeline
         env:

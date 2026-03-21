@@ -15,7 +15,23 @@ jest.mock('@/services/ApiService', () => ({
         post: jest.fn(),
         put: jest.fn(),
         delete: jest.fn(),
-        competitionsUrl: jest.fn(id => (id ? `/competitions/${id}` : '/competitions'))
+        competitionsUrl: jest.fn(id => (id ? `/competitions/${id}` : '/competitions')),
+        roundsUrl(id) {
+            const cid = this._competitionId || 'unknown';
+            return id ? `/competitions/${cid}/rounds/${id}` : `/competitions/${cid}/rounds`;
+        },
+        playersUrl(id) {
+            const cid = this._competitionId || 'unknown';
+            return id ? `/competitions/${cid}/players/${id}` : `/competitions/${cid}/players`;
+        },
+        teamsUrl(id) {
+            const cid = this._competitionId || 'unknown';
+            return id ? `/competitions/${cid}/teams/${id}` : `/competitions/${cid}/teams`;
+        },
+        scoresUrl(roundId) {
+            const cid = this._competitionId || 'unknown';
+            return `/competitions/${cid}/rounds/${roundId}/scores`;
+        }
     }
 }));
 
@@ -42,6 +58,7 @@ describe('competitions store - CRUD', () => {
         ApiService.post.mockReset();
         ApiService.put.mockReset();
         ApiService.delete.mockReset();
+        ApiService.get.mockResolvedValue([]);
     });
 
     describe('fetchCompetitions', () => {
