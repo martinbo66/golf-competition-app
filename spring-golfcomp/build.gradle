@@ -46,7 +46,7 @@ test {
 		events "passed", "skipped", "failed"
 		showExceptions true
 		showCauses true
-		showStackTraces true
+		showStackTraces = true
 	}
 	finalizedBy jacocoTestReport
 }
