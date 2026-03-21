@@ -308,4 +308,19 @@ task showTasks {
     }
 }
 
+// ============================================================================
+// Frontend → Backend Integration
+// Copies Vue dist into the Spring Boot JAR as static assets so the app
+// serves both the API (/api/v1/**) and the SPA (/) from a single JAR.
+// ============================================================================
+
+project(':spring-golfcomp') {
+    tasks.named('processResources') {
+        from("${rootProject.projectDir}/vue-golfcomp/dist") {
+            into('static')
+        }
+        dependsOn(rootProject.tasks.named('frontendBuild'))
+    }
+}
+
 defaultTasks 'showTasks'
