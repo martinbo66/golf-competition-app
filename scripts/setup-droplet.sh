@@ -11,6 +11,11 @@
 
 set -e
 
+if [ -z "$DOMAIN" ]; then
+    echo "Usage: DOMAIN=yourdomain.com bash setup-droplet.sh"
+    exit 1
+fi
+
 echo "=== Golf Competition App - Droplet Setup ==="
 
 # ── Install Java 21 ──────────────────────────────────────────────────────────
@@ -79,6 +84,33 @@ EOF
 systemctl daemon-reload
 systemctl enable golfcomp
 
+# ── Install and configure nginx ───────────────────────────────────────────────
+echo "Installing nginx..."
+apt-get install -y nginx
+
+cat > /etc/nginx/sites-available/golfcomp << NGINXEOF
+server {
+    listen 80;
+    server_name ${DOMAIN};
+
+    # Proxy all traffic to the Spring Boot app
+    location / {
+        proxy_pass         http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              \$host;
+        proxy_set_header   X-Real-IP         \$remote_addr;
+        proxy_set_header   X-Forwarded-For   \$proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto \$scheme;
+    }
+}
+NGINXEOF
+
+ln -sf /etc/nginx/sites-available/golfcomp /etc/nginx/sites-enabled/golfcomp
+rm -f /etc/nginx/sites-enabled/default
+nginx -t
+systemctl enable nginx
+systemctl restart nginx
+
 echo ""
 echo "=== Setup complete ==="
 echo ""
@@ -89,7 +121,9 @@ echo "       External DB:     edit /opt/golfcomp/.env"
 echo "  2. Ensure your deploy SSH public key is in ~/.ssh/authorized_keys"
 echo "  3. Add GitHub Secrets: DO_HOST, DO_USER, DO_SSH_KEY"
 echo "  4. Trigger the 'Deploy to Digital Ocean' workflow in GitHub Actions"
+echo "  5. Once DNS for ${DOMAIN} points here, run: bash scripts/setup-certificate.sh"
 echo ""
 echo "After first deploy, verify with:"
 echo "  sudo systemctl status golfcomp"
 echo "  tail -f /opt/golfcomp/logs/app.log"
+echo "  curl http://${DOMAIN}/actuator/health"
