@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const { version } = require('./package.json');
 
 module.exports = {
   publicPath: './',
@@ -11,7 +12,8 @@ module.exports = {
       new webpack.DefinePlugin({
         __BUILD_DATE__: JSON.stringify(
           new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-        )
+        ),
+        __APP_VERSION__: JSON.stringify(version)
       })
     ],
     resolve: {

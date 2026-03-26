@@ -3,7 +3,7 @@
     <div class="app-info">
       <span class="app-name">Golf Competition App</span>
       <span class="separator">·</span>
-      <span class="version">Version 1.1.0</span>
+      <span class="version">Version {{ appVersion }}</span>
       <span class="separator">·</span>
       <span class="updated-date">Updated: {{ buildDate }}</span>
     </div>
@@ -11,8 +11,9 @@
 </template>
 
 <script setup>
-/* global __BUILD_DATE__ */
+/* global __BUILD_DATE__ __APP_VERSION__ */
 const buildDate = __BUILD_DATE__;
+const appVersion = __APP_VERSION__;
 </script>
 
 <style scoped>
