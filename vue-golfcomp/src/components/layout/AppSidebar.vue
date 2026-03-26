@@ -72,6 +72,7 @@
 import { computed } from 'vue';
 import { useUiStore } from '@/stores/ui';
 import { useCoursesStore } from '@/stores/courses';
+import { useOrganizationsStore } from '@/stores/organizations';
 
 const uiStore = useUiStore();
 const coursesStore = useCoursesStore();
@@ -87,8 +88,11 @@ const adminItems = [
 const activeSection = computed(() => uiStore.activeSection);
 const activeSidebarItem = computed(() => uiStore.activeSidebarItem);
 const courses = computed(() => coursesStore.allCourses);
+const organizationsStore = useOrganizationsStore();
 
 const currentThumbnailImage = computed(() => {
+  const orgName = organizationsStore.activeOrganization?.name ?? '';
+  if (!orgName.toLowerCase().includes('bathe')) return null;
   const imageMap = {
     'administration': require('@/assets/bathe-head-1.png'),
     'scoring': require('@/assets/bathe-head-2.png'),

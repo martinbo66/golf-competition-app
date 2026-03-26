@@ -13,16 +13,20 @@
     </div>
     
     <div class="header-content">
-      <div class="site-title">
-        <router-link to="/">
-          <h1>{{ appTitle }}</h1>
-        </router-link>
+      <div class="header-left">
+        <div class="site-title">
+          <router-link to="/">
+            <h1>{{ appTitle }}</h1>
+          </router-link>
+        </div>
+        <OrganizationSelector />
+        <CompetitionBadge />
       </div>
       <nav class="top-nav">
         <ul>
           <li v-for="item in navItems" :key="item.id">
-            <router-link 
-              :to="item.route" 
+            <router-link
+              :to="item.route"
               :class="{ active: activeSection === item.id }"
               @click.native="setActiveSection(item.id)"
             >
@@ -32,8 +36,6 @@
           </li>
         </ul>
       </nav>
-      <CompetitionBadge />
-      <OrganizationSelector />
       <div class="user-menu">
         <button class="btn-icon" @click="toggleTheme">
           <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
@@ -288,12 +290,20 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   padding: 0 20px;
-  height: 60px;
+  min-height: 60px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
 }
 
 .site-title {
-  flex: 1;
+  flex-shrink: 0;
 }
 
 .site-title a {

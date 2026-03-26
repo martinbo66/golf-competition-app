@@ -6,11 +6,17 @@
 
       <div class="round-list__table-wrap">
         <table class="round-list__table">
+          <colgroup>
+            <col class="round-list__col-num" />
+            <col class="round-list__col-date" />
+            <col />
+            <col class="round-list__col-actions" />
+          </colgroup>
           <thead>
             <tr>
-              <th>#</th>
+              <th class="round-list__th-num">#</th>
+              <th class="round-list__th-date">Date</th>
               <th>Course</th>
-              <th>Date</th>
               <th class="round-list__th-actions">Actions</th>
             </tr>
           </thead>
@@ -18,6 +24,14 @@
             <tr v-for="(round, index) in roundsSorted" :key="round.id">
               <td>{{ index + 1 }}</td>
               <template v-if="editingRoundId === round.id">
+                <td>
+                  <input
+                    v-model="editForm.playDate"
+                    type="date"
+                    class="form-control"
+                    aria-label="Edit play date"
+                  />
+                </td>
                 <td>
                   <select
                     v-model="editForm.courseId"
@@ -33,14 +47,6 @@
                       {{ courseLabel(opt) }}
                     </option>
                   </select>
-                </td>
-                <td>
-                  <input
-                    v-model="editForm.playDate"
-                    type="date"
-                    class="form-control"
-                    aria-label="Edit play date"
-                  />
                 </td>
                 <td class="round-list__td-actions">
                   <button
@@ -64,8 +70,8 @@
                 </td>
               </template>
               <template v-else>
+                <td class="round-list__td-date">{{ formatPlayDate(round.playDate) }}</td>
                 <td>{{ round.course?.name ?? '—' }}</td>
-                <td>{{ formatPlayDate(round.playDate) }}</td>
                 <td class="round-list__td-actions">
                   <button
                     type="button"
@@ -236,6 +242,7 @@ export default {
       const str = typeof playDate === 'string' ? playDate.split('T')[0] : playDate;
       try {
         return new Date(str + 'T00:00:00').toLocaleDateString(undefined, {
+          weekday: 'short',
           month: 'short',
           day: 'numeric',
           year: 'numeric'
@@ -384,6 +391,13 @@ export default {
 
 .round-list__table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.round-list__th-num,
+.round-list__th-date,
+.round-list__td-date {
+  white-space: nowrap;
+  width: 1%;
 }
 
 .round-list__th-actions,

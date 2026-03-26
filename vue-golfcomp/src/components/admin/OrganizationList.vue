@@ -37,7 +37,7 @@
             <div class="org-card__actions">
               <button
                 v-if="!isActive(org)"
-                class="btn btn-primary"
+                class="btn btn-secondary"
                 @click="handleSetActive(org)"
                 title="Set as active organization"
               >
