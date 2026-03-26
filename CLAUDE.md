@@ -1,6 +1,6 @@
 # CLAUDE.md - Golf Competition App
 
-> **Version:** 3.3.0 | **Last Updated:** 2026-03-26
+> **Version:** 3.4.0 | **Last Updated:** 2026-03-26
 > **Purpose:** Essential guide for AI assistants working on this codebase
 
 ---
@@ -118,6 +118,8 @@ await playersStore.addPlayer(formData);
 
 Competitions are now scoped to an Organization. `ApiService.organizationId` must be set (defaults to the Default organization). `ApiService.competitionId` must also be set for player/team/score/round calls.
 
+On app startup, `bootstrap.js` automatically fetches organizations and sets `ApiService.organizationId` to the default org. Manual setting is only needed when switching organizations.
+
 `useCompetitionsStore().setActiveCompetition(comp)` sets the context and re-fetches all data:
 ```javascript
 // ApiService scopes URLs like: /api/v1/competitions/{id}/players
@@ -125,6 +127,8 @@ Competitions are now scoped to an Organization. `ApiService.organizationId` must
 ```
 
 ### 3. Data Flow
+
+On startup, `bootstrap.js` fetches organizations and sets the default org as active (`ApiService.organizationId`) before loading competitions.
 
 ```
 User Action → Component → Pinia Store Action → ApiService (axios) → REST API →
@@ -299,14 +303,23 @@ Courses are backend entities. The `courses` store fetches rounds from the active
 
 ### `organizations` Store (`useOrganizationsStore`)
 
-**(Planned — Phase 4 of multi-tenant implementation)**
+Manages the tenant context. The default organization is auto-selected during app bootstrap.
 
-Will manage the active organization context. For now, the default organization is used automatically.
+**Key Actions:**
+- `fetchOrganizations()` — Load all organizations
+- `setActiveOrganization(org)` — Sets `ApiService.organizationId`; call before competition operations
+- `createOrganization(data)` — Create new org (name, slug)
+- `updateOrganization({ id, updates })` — Update org name/slug
+- `deleteOrganization(id)` — Delete org (cannot delete active default org)
+
+**Key Getters:**
+- `allOrganizations`, `activeOrganizationId`
+- `hasMultipleOrganizations` — true when >1 org exists (used to show/hide the org selector)
 
 **Default Organization:**
 - ID: `a0000000-0000-0000-0000-000000000001`
-- Name: `Default`
-- Slug: `default`
+- Name: `Default` | Slug: `default`
+- Auto-selected on bootstrap; always present (seeded by migration 010)
 
 ---
 
@@ -460,7 +473,8 @@ Before finalizing changes:
 
 | Component | Path |
 |-----------|------|
-| Organizations Store | `vue-golfcomp/src/stores/organizations.js` *(planned Phase 4)* |
+| Organizations Store | `vue-golfcomp/src/stores/organizations.js` |
+| Organization Selector | `vue-golfcomp/src/components/layout/OrganizationSelector.vue` |
 | Organization Entity | `spring-golfcomp/src/main/java/com/golfcomp/api/model/Organization.java` |
 | Organization Service | `spring-golfcomp/src/main/java/com/golfcomp/api/service/OrganizationService.java` |
 | Organization Controller | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationController.java` |
@@ -554,4 +568,4 @@ Example: "Add player statistics dashboard"
 
 ---
 
-**Version:** 3.3.0 | **Maintained By:** AI Assistant (Claude)
+**Version:** 3.4.0 | **Maintained By:** AI Assistant (Claude)

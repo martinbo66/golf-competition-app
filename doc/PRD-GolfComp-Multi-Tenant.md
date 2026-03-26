@@ -107,14 +107,14 @@ Update the Vue frontend to work with organization-scoped APIs.
 
 | Story | Status | Description |
 |-------|--------|-------------|
-| MT-023 | 🔲 To Do | **Create organizations Pinia store** — `useOrganizationsStore()` with state: `organizations[]`, `activeOrganization`. Actions: `fetchOrganizations()`, `setActiveOrganization(org)`. On app bootstrap, fetch organizations and auto-select the default org. |
-| MT-024 | 🔲 To Do | **Update ApiService with organization context** — Add `organizationId` property (like the existing `competitionId`). Update all URL builder methods to include `/organizations/{orgId}` prefix when set. Maintain backward compatibility if `organizationId` is not set (falls back to legacy paths). |
-| MT-025 | 🔲 To Do | **Update bootstrap.js** — On app startup, fetch organizations, set the default org as active, then proceed with existing competition loading. |
-| MT-026 | 🔲 To Do | **Update competition store** — `fetchCompetitions()` should use the organization-scoped URL. `setActiveCompetition()` continues to work as before. |
-| MT-027 | 🔲 To Do | **Organization selector component** — Add a simple org selector to `AppHeader.vue` (or sidebar). Initially shows only "Default" org. Changing org re-fetches competitions and clears active competition context. Hidden or disabled when only one org exists. |
-| MT-028 | 🔲 To Do | **Frontend tests** — Update existing tests to work with organization context. Add tests for organization store. |
+| MT-023 | ✅ Done | **Create organizations Pinia store** — `useOrganizationsStore()` with state: `organizations[]`, `activeOrganization`. Actions: `fetchOrganizations()`, `setActiveOrganization(org)`. On app bootstrap, fetch organizations and auto-select the default org. |
+| MT-024 | ✅ Done | **Update ApiService with organization context** — Add `organizationId` property (like the existing `competitionId`). Update all URL builder methods to include `/organizations/{orgId}` prefix when set. Maintain backward compatibility if `organizationId` is not set (falls back to legacy paths). |
+| MT-025 | ✅ Done | **Update bootstrap.js** — On app startup, fetch organizations, set the default org as active, then proceed with existing competition loading. |
+| MT-026 | ✅ Done | **Update competition store** — `fetchCompetitions()` should use the organization-scoped URL. `setActiveCompetition()` continues to work as before. |
+| MT-027 | ✅ Done | **Organization selector component** — Add a simple org selector to `AppHeader.vue` (or sidebar). Initially shows only "Default" org. Changing org re-fetches competitions and clears active competition context. Hidden or disabled when only one org exists. |
+| MT-028 | ✅ Done | **Frontend tests** — Update existing tests to work with organization context. Add tests for organization store. |
 
-| MT-028a | 🔲 To Do | **Update CLAUDE.md — Phase 4** — Add `organizations` store to the Pinia Stores Reference section with key actions and getters. Update the "Data Flow" and "Active Competition Context" patterns to describe the Organization → Competition selection flow. Update bootstrap description. Add Organization selector component to File Shortcuts table. |
+| MT-028a | ✅ Done | **Update CLAUDE.md — Phase 4** — Add `organizations` store to the Pinia Stores Reference section with key actions and getters. Update the "Data Flow" and "Active Competition Context" patterns to describe the Organization → Competition selection flow. Update bootstrap description. Add Organization selector component to File Shortcuts table. |
 
 **Acceptance criteria:** `npm run lint`, `npm test`, and `npm run build` pass in `vue-golfcomp/`. App loads with default organization auto-selected. All existing functionality works. CLAUDE.md reflects Phase 4 frontend changes.
 
@@ -316,8 +316,8 @@ These items are **not** part of this PRD but the design accommodates them:
 | 5 | MT-029 – MT-037 | Full management UI, cleanup, all documentation updates |
 
 **Total stories:** 38
-**Completed:** 25
-**Remaining:** 13
+**Completed:** 32
+**Remaining:** 6
 
 ### Documentation Stories Quick Reference
 

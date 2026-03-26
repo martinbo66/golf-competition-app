@@ -37,6 +37,10 @@ jest.mock('@/stores/scores', () => ({
   useScoresStore: jest.fn()
 }));
 
+jest.mock('@/stores/organizations', () => ({
+  useOrganizationsStore: jest.fn()
+}));
+
 jest.mock('@/services/NotificationService', () => ({
   __esModule: true,
   default: { error: jest.fn() }
@@ -49,11 +53,12 @@ import { useCoursesStore } from '@/stores/courses';
 import { usePlayersStore } from '@/stores/players';
 import { useTeamsStore } from '@/stores/teams';
 import { useScoresStore } from '@/stores/scores';
+import { useOrganizationsStore } from '@/stores/organizations';
 import NotificationService from '@/services/NotificationService';
 import { initializeApp } from '@/services/bootstrap';
 
 describe('bootstrap', () => {
-  let mockCompetitionsStore, mockUiStore, mockCoursesStore, mockPlayersStore, mockTeamsStore, mockScoresStore;
+  let mockCompetitionsStore, mockUiStore, mockCoursesStore, mockPlayersStore, mockTeamsStore, mockScoresStore, mockOrgsStore;
 
   beforeEach(() => {
     ApiService._competitionId = null;
@@ -63,6 +68,11 @@ describe('bootstrap', () => {
     ApiService.roundsUrl.mockReturnValue('/competitions/comp/rounds');
     NotificationService.error.mockClear();
 
+    mockOrgsStore = {
+      organizations: [{ id: 'a0000000-0000-0000-0000-000000000001', name: 'Default', slug: 'default' }],
+      fetchOrganizations: jest.fn().mockResolvedValue(),
+      setActiveOrganization: jest.fn().mockResolvedValue()
+    };
     mockCompetitionsStore = {
       competitions: [],
       activeCompetition: null,
@@ -75,6 +85,7 @@ describe('bootstrap', () => {
     mockTeamsStore = { fetchTeams: jest.fn().mockResolvedValue() };
     mockScoresStore = { fetchScores: jest.fn().mockResolvedValue() };
 
+    useOrganizationsStore.mockReturnValue(mockOrgsStore);
     useCompetitionsStore.mockReturnValue(mockCompetitionsStore);
     useUiStore.mockReturnValue(mockUiStore);
     useCoursesStore.mockReturnValue(mockCoursesStore);

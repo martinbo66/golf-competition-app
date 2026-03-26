@@ -33,6 +33,7 @@
         </ul>
       </nav>
       <CompetitionBadge />
+      <OrganizationSelector />
       <div class="user-menu">
         <button class="btn-icon" @click="toggleTheme">
           <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
@@ -107,6 +108,7 @@ import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
 import { getUserFriendlyErrorMessage } from '@/utils';
 import CompetitionBadge from '@/components/layout/CompetitionBadge.vue';
+import OrganizationSelector from '@/components/layout/OrganizationSelector.vue';
 
 const uiStore = useUiStore();
 const coursesStore = useCoursesStore();
