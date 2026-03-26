@@ -1,6 +1,6 @@
 # CLAUDE.md - Golf Competition App
 
-> **Version:** 3.0.0 | **Last Updated:** 2026-03-17
+> **Version:** 3.1.0 | **Last Updated:** 2026-03-26
 > **Purpose:** Essential guide for AI assistants working on this codebase
 
 ---
@@ -8,6 +8,7 @@
 ## Project Overview
 
 Vue 3 SPA + Spring Boot REST API for managing golf team competitions with:
+- Organization management (multi-tenant container for competitions)
 - Competition management (create, switch active competition)
 - Player management (with talent ratings A/B/C/D, entry fees, winnings)
 - Automated team generation using snake draft algorithm
@@ -20,6 +21,7 @@ Vue 3 SPA + Spring Boot REST API for managing golf team competitions with:
 - Hash-based routing for static hosting compatibility
 - All state is server-side; frontend fetches via REST API
 - Monorepo: Vue frontend in `vue-golfcomp/`, Spring backend in `spring-golfcomp/`
+- **Domain model:** Organization is the top-level tenant container. Competitions belong to an Organization. Players, teams, rounds, and scores are all scoped under a Competition.
 
 ---
 
@@ -205,6 +207,17 @@ Courses are backend entities. The `courses` store fetches rounds from the active
 }
 ```
 
+### Organization Object
+```javascript
+{
+  id: 'uuid',
+  name: 'My Golf Club',
+  slug: 'my-golf-club',
+  createdAt: 'ISO-8601',
+  updatedAt: 'ISO-8601'
+}
+```
+
 ---
 
 ## Pinia Stores Reference
@@ -283,6 +296,17 @@ Courses are backend entities. The `courses` store fetches rounds from the active
 
 **Notification Types:** `success` (3s), `error` (5s), `warning` (4s), `info` (3s)
 
+### `organizations` Store (`useOrganizationsStore`)
+
+**(Planned — Phase 4 of multi-tenant implementation)**
+
+Will manage the active organization context. For now, the default organization is used automatically.
+
+**Default Organization:**
+- ID: `a0000000-0000-0000-0000-000000000001`
+- Name: `Default`
+- Slug: `default`
+
 ---
 
 ## ApiService
@@ -292,7 +316,8 @@ All REST calls go through `src/services/ApiService.js` (axios-based singleton):
 ```javascript
 import ApiService from '@/services/ApiService';
 
-// URLs — all scoped to active competition except /competitions
+// URLs — all scoped to active competition except /competitions and /organizations
+ApiService.organizationsUrl(id?)      // /organizations or /organizations/{id}
 ApiService.competitionsUrl(id?)       // /competitions or /competitions/{id}
 ApiService.playersUrl(id?)            // /competitions/{cid}/players[/{id}]
 ApiService.teamsUrl(id?)              // /competitions/{cid}/teams[/{id}]
@@ -432,6 +457,10 @@ Before finalizing changes:
 
 | Component | Path |
 |-----------|------|
+| Organizations Store | `vue-golfcomp/src/stores/organizations.js` *(planned Phase 4)* |
+| Organization Entity | `spring-golfcomp/src/main/java/com/golfcomp/api/model/Organization.java` |
+| Organization Service | `spring-golfcomp/src/main/java/com/golfcomp/api/service/OrganizationService.java` |
+| Organization Controller | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationController.java` |
 | Competitions Store | `vue-golfcomp/src/stores/competitions.js` |
 | Players Store | `vue-golfcomp/src/stores/players.js` |
 | Teams Store | `vue-golfcomp/src/stores/teams.js` |
@@ -510,9 +539,10 @@ Example: "Add player statistics dashboard"
 6. **Team generation uses snake draft** — see `teams.js`
 7. **Mobile-first responsive design** — components adapt to screen size
 8. **Use MockStore pattern for testing** — see `tests/teams.test.js`
+9. **Organization is the tenant boundary** — Competitions belong to an Organization. The default Organization (slug: `default`) is seeded automatically. Multi-tenant isolation is being introduced incrementally.
 
 **When in doubt:** Look at existing similar code in the codebase.
 
 ---
 
-**Version:** 3.0.0 | **Maintained By:** AI Assistant (Claude)
+**Version:** 3.1.0 | **Maintained By:** AI Assistant (Claude)

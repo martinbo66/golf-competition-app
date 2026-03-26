@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="009-create-organizations-table" author="golfcomp">
+        <comment>Create the organizations table for multi-tenant support</comment>
+
+        <createTable tableName="organizations">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="slug" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint
+            tableName="organizations"
+            columnNames="name"
+            constraintName="uq_organizations_name"/>
+
+        <addUniqueConstraint
+            tableName="organizations"
+            columnNames="slug"
+            constraintName="uq_organizations_slug"/>
+
+        <rollback>
+            <dropTable tableName="organizations"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

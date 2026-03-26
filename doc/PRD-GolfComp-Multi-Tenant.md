@@ -42,16 +42,16 @@ Establish the Organization entity, migration, seed data, and CRUD API.
 
 | Story | Status | Description |
 |-------|--------|-------------|
-| MT-001 | 🔲 To Do | **Create Organization entity** — `Organization.java` with fields: `id` (UUID), `name` (varchar 100, NOT NULL, UNIQUE), `slug` (varchar 100, NOT NULL, UNIQUE), `createdAt`, `updatedAt`. JPA entity with `@PrePersist`/`@PreUpdate` lifecycle hooks. |
-| MT-002 | 🔲 To Do | **Liquibase migration: organizations table** — `009-create-organizations-table.xml`. Columns: `id` (UUID PK), `name` (varchar 100, NOT NULL, UNIQUE), `slug` (varchar 100, NOT NULL, UNIQUE), `created_at` (TIMESTAMP NOT NULL), `updated_at` (TIMESTAMP NOT NULL). |
-| MT-003 | 🔲 To Do | **Seed default organization** — `010-seed-default-organization.xml`. Insert a single row: name=`"Default"`, slug=`"default"`, with a fixed UUID. Use idempotent precondition guard (same pattern as `007-seed-courses.xml`). |
-| MT-004 | 🔲 To Do | **OrganizationRepository** — `JpaRepository<Organization, UUID>` with `findBySlug(String slug)` derived query method. |
-| MT-005 | 🔲 To Do | **OrganizationService** — CRUD operations: `findAll()`, `findById(UUID)`, `findBySlug(String)`, `create(Organization)`, `update(UUID, Organization)`, `delete(UUID)`. Validate uniqueness of name and slug on create/update. Prevent deletion of the default organization. |
-| MT-006 | 🔲 To Do | **OrganizationController** — REST endpoints at `/api/v1/organizations`. `GET /` (list all), `GET /{id}` (by ID), `POST /` (create), `PUT /{id}` (update), `DELETE /{id}` (delete). Standard DTO mapping pattern. |
-| MT-007 | 🔲 To Do | **Unit tests for OrganizationService** — Test CRUD operations, uniqueness validation, and default org deletion guard. Follow existing test patterns in `src/test/java/com/golfcomp/api/`. |
-| MT-008 | 🔲 To Do | **Integration tests for Organization API** — Test all REST endpoints including error cases (duplicate name, delete default org). Follow existing integration test patterns. |
+| MT-001 | ✅ Done | **Create Organization entity** — `Organization.java` with fields: `id` (UUID), `name` (varchar 100, NOT NULL, UNIQUE), `slug` (varchar 100, NOT NULL, UNIQUE), `createdAt`, `updatedAt`. JPA entity with `@PrePersist`/`@PreUpdate` lifecycle hooks. |
+| MT-002 | ✅ Done | **Liquibase migration: organizations table** — `009-create-organizations-table.xml`. Columns: `id` (UUID PK), `name` (varchar 100, NOT NULL, UNIQUE), `slug` (varchar 100, NOT NULL, UNIQUE), `created_at` (TIMESTAMP NOT NULL), `updated_at` (TIMESTAMP NOT NULL). |
+| MT-003 | ✅ Done | **Seed default organization** — `010-seed-default-organization.xml`. Insert a single row: name=`"Default"`, slug=`"default"`, with a fixed UUID. Use idempotent precondition guard (same pattern as `007-seed-courses.xml`). |
+| MT-004 | ✅ Done | **OrganizationRepository** — `JpaRepository<Organization, UUID>` with `findBySlug(String slug)` derived query method. |
+| MT-005 | ✅ Done | **OrganizationService** — CRUD operations: `findAll()`, `findById(UUID)`, `findBySlug(String)`, `create(Organization)`, `update(UUID, Organization)`, `delete(UUID)`. Validate uniqueness of name and slug on create/update. Prevent deletion of the default organization. |
+| MT-006 | ✅ Done | **OrganizationController** — REST endpoints at `/api/v1/organizations`. `GET /` (list all), `GET /{id}` (by ID), `POST /` (create), `PUT /{id}` (update), `DELETE /{id}` (delete). Standard DTO mapping pattern. |
+| MT-007 | ✅ Done | **Unit tests for OrganizationService** — Test CRUD operations, uniqueness validation, and default org deletion guard. Follow existing test patterns in `src/test/java/com/golfcomp/api/`. |
+| MT-008 | ✅ Done | **Integration tests for Organization API** — Test all REST endpoints including error cases (duplicate name, delete default org). Follow existing integration test patterns. |
 
-| MT-008a | 🔲 To Do | **Update CLAUDE.md — Phase 1** — Add Organization entity to the Project Structure section, Data Structures section (Organization Object), Pinia Stores Reference (placeholder for future `organizations` store), ApiService section (new `/organizations` URL), and File Shortcuts table. Update the domain model description in the Overview to mention the Organization layer. |
+| MT-008a | ✅ Done | **Update CLAUDE.md — Phase 1** — Add Organization entity to the Project Structure section, Data Structures section (Organization Object), Pinia Stores Reference (placeholder for future `organizations` store), ApiService section (new `/organizations` URL), and File Shortcuts table. Update the domain model description in the Overview to mention the Organization layer. |
 
 **Acceptance criteria:** `./gradlew backendBuild` and `./gradlew backendTest` pass. Organization CRUD is functional via API. CLAUDE.md reflects Phase 1 changes.
 
@@ -316,8 +316,8 @@ These items are **not** part of this PRD but the design accommodates them:
 | 5 | MT-029 – MT-037 | Full management UI, cleanup, all documentation updates |
 
 **Total stories:** 38
-**Completed:** 0
-**Remaining:** 38
+**Completed:** 9
+**Remaining:** 29
 
 ### Documentation Stories Quick Reference
 
