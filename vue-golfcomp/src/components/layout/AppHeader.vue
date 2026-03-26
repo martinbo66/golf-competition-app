@@ -4,7 +4,7 @@
     <div class="header-main-section" v-if="currentHeaderImage">
       <div class="logo-section">
         <router-link to="/" class="logo-link">
-          <img src="@/assets/logo.png" alt="Bathe Golf Competition" class="logo-img" />
+          <img src="@/assets/logo.png" :alt="appTitle" class="logo-img" />
         </router-link>
       </div>
       <div class="header-image-section">
@@ -15,7 +15,7 @@
     <div class="header-content">
       <div class="site-title">
         <router-link to="/">
-          <h1>Bathe Golf Competition</h1>
+          <h1>{{ appTitle }}</h1>
         </router-link>
       </div>
       <nav class="top-nav">
@@ -104,6 +104,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useUiStore } from '@/stores/ui';
 import { useCoursesStore } from '@/stores/courses';
+import { useOrganizationsStore } from '@/stores/organizations';
 import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
 import { getUserFriendlyErrorMessage } from '@/utils';
@@ -112,6 +113,12 @@ import OrganizationSelector from '@/components/layout/OrganizationSelector.vue';
 
 const uiStore = useUiStore();
 const coursesStore = useCoursesStore();
+const organizationsStore = useOrganizationsStore();
+
+const appTitle = computed(() => {
+  const orgName = organizationsStore.activeOrganization?.name;
+  return orgName ? `${orgName} Golf Competition` : 'Golf Competition';
+});
 
 const scoringRoute = computed(() => {
   const firstCourse = coursesStore.allCourses[0];
