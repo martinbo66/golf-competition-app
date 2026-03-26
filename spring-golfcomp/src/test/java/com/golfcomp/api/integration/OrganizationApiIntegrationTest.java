@@ -93,7 +93,7 @@ class OrganizationApiIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data").isArray())
-            .andExpect(jsonPath("$.data[?(@.name == 'Default' && @.slug == 'default')]").exists());
+            .andExpect(jsonPath("$.data[?(@.name == 'Bathe' && @.slug == 'ejb')]").exists());
     }
 
     @Test
