@@ -57,9 +57,16 @@ class CompetitionTest {
         LocalDate startDate = LocalDate.of(2026, 6, 15);
         LocalDate endDate = LocalDate.of(2026, 6, 20);
         LocalDateTime now = LocalDateTime.now();
-        
+
+        Organization organization = Organization.builder()
+                .id(UUID.randomUUID())
+                .name("Test Org")
+                .slug("test-org")
+                .build();
+
         Competition competition = new Competition(
                 id,
+                organization,
                 "Test Competition",
                 startDate,
                 endDate,
@@ -67,8 +74,9 @@ class CompetitionTest {
                 now,
                 now
         );
-        
+
         assertEquals(id, competition.getId());
+        assertEquals(organization, competition.getOrganization());
         assertEquals("Test Competition", competition.getName());
         assertEquals(startDate, competition.getStartDate());
         assertEquals(endDate, competition.getEndDate());
@@ -171,8 +179,14 @@ class CompetitionTest {
         LocalDate endDate = LocalDate.of(2026, 6, 20);
         LocalDateTime now = LocalDateTime.now();
         
-        Competition competition1 = new Competition(id, "Test", startDate, endDate, "Location", now, now);
-        Competition competition2 = new Competition(id, "Test", startDate, endDate, "Location", now, now);
+        Organization organization = Organization.builder()
+                .id(UUID.randomUUID())
+                .name("Test Org")
+                .slug("test-org")
+                .build();
+
+        Competition competition1 = new Competition(id, organization, "Test", startDate, endDate, "Location", now, now);
+        Competition competition2 = new Competition(id, organization, "Test", startDate, endDate, "Location", now, now);
         
         assertEquals(competition1, competition2);
         assertEquals(competition1.hashCode(), competition2.hashCode());

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public record CompetitionResponse(
     UUID id,
+    UUID organizationId,
     String name,
     LocalDate startDate,
     LocalDate endDate,
@@ -18,6 +19,7 @@ public record CompetitionResponse(
     public static CompetitionResponse from(Competition competition) {
         return new CompetitionResponse(
             competition.getId(),
+            competition.getOrganization().getId(),
             competition.getName(),
             competition.getStartDate(),
             competition.getEndDate(),

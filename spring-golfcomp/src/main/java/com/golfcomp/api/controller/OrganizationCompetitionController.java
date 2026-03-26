@@ -21,44 +21,50 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Competitions", description = "Manage golf competitions")
+@Tag(name = "Organization Competitions", description = "Manage competitions within an organization")
 @RestController
-@RequestMapping("/api/v1/competitions")
-public class CompetitionController {
+@RequestMapping("/api/v1/organizations/{orgId}/competitions")
+public class OrganizationCompetitionController {
 
     private final CompetitionService competitionService;
 
-    public CompetitionController(CompetitionService competitionService) {
+    public OrganizationCompetitionController(CompetitionService competitionService) {
         this.competitionService = competitionService;
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<CompetitionResponse>> create(
+            @PathVariable UUID orgId,
             @RequestBody @Valid CreateCompetitionRequest request) {
-        CompetitionResponse response = competitionService.create(CompetitionService.DEFAULT_ORGANIZATION_ID, request);
+        CompetitionResponse response = competitionService.create(orgId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CompetitionResponse>>> findAll() {
-        return ResponseEntity.ok(ApiResponse.success(competitionService.findAll(CompetitionService.DEFAULT_ORGANIZATION_ID)));
+    public ResponseEntity<ApiResponse<List<CompetitionResponse>>> findAll(@PathVariable UUID orgId) {
+        return ResponseEntity.ok(ApiResponse.success(competitionService.findAll(orgId)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CompetitionResponse>> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.success(competitionService.findById(CompetitionService.DEFAULT_ORGANIZATION_ID, id)));
+    public ResponseEntity<ApiResponse<CompetitionResponse>> findById(
+            @PathVariable UUID orgId,
+            @PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(competitionService.findById(orgId, id)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CompetitionResponse>> update(
+            @PathVariable UUID orgId,
             @PathVariable UUID id,
             @RequestBody @Valid UpdateCompetitionRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(competitionService.update(CompetitionService.DEFAULT_ORGANIZATION_ID, id, request)));
+        return ResponseEntity.ok(ApiResponse.success(competitionService.update(orgId, id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        competitionService.delete(CompetitionService.DEFAULT_ORGANIZATION_ID, id);
+    public ResponseEntity<Void> delete(
+            @PathVariable UUID orgId,
+            @PathVariable UUID id) {
+        competitionService.delete(orgId, id);
         return ResponseEntity.noContent().build();
     }
 }

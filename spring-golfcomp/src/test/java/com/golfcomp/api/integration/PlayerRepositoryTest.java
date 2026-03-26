@@ -1,12 +1,15 @@
 package com.golfcomp.api.integration;
 
 import com.golfcomp.api.model.Competition;
+import com.golfcomp.api.model.Organization;
 import com.golfcomp.api.model.Player;
 import com.golfcomp.api.model.Team;
 import com.golfcomp.api.model.TalentRating;
 import com.golfcomp.api.repository.CompetitionRepository;
+import com.golfcomp.api.repository.OrganizationRepository;
 import com.golfcomp.api.repository.PlayerRepository;
 import com.golfcomp.api.repository.TeamRepository;
+import com.golfcomp.api.service.CompetitionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,14 +35,23 @@ class PlayerRepositoryTest {
     private CompetitionRepository competitionRepository;
 
     @Autowired
+    private OrganizationRepository organizationRepository;
+
+    @Autowired
     private TeamRepository teamRepository;
 
     private Competition competition;
     private Team team;
 
+    private Organization defaultOrg() {
+        return organizationRepository.findById(CompetitionService.DEFAULT_ORGANIZATION_ID)
+                .orElseThrow(() -> new IllegalStateException("Default organization not seeded"));
+    }
+
     @BeforeEach
     void setUp() {
         competition = competitionRepository.save(Competition.builder()
+                .organization(defaultOrg())
                 .name("Test Competition")
                 .startDate(LocalDate.of(2026, 6, 15))
                 .endDate(LocalDate.of(2026, 6, 20))

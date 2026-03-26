@@ -1,6 +1,6 @@
 # CLAUDE.md - Golf Competition App
 
-> **Version:** 3.1.0 | **Last Updated:** 2026-03-26
+> **Version:** 3.2.0 | **Last Updated:** 2026-03-26
 > **Purpose:** Essential guide for AI assistants working on this codebase
 
 ---
@@ -21,7 +21,7 @@ Vue 3 SPA + Spring Boot REST API for managing golf team competitions with:
 - Hash-based routing for static hosting compatibility
 - All state is server-side; frontend fetches via REST API
 - Monorepo: Vue frontend in `vue-golfcomp/`, Spring backend in `spring-golfcomp/`
-- **Domain model:** Organization is the top-level tenant container. Competitions belong to an Organization. Players, teams, rounds, and scores are all scoped under a Competition.
+- **Domain model:** Organization is the top-level tenant container. Competitions belong to an Organization. Players, teams, rounds, and scores are all scoped under a Competition. The API nests competitions under organizations: `/api/v1/organizations/{orgId}/competitions`.
 
 ---
 
@@ -116,7 +116,7 @@ await playersStore.addPlayer(formData);
 
 ### 2. Active Competition Context
 
-All player/team/score/round API calls are scoped to the active competition. `ApiService.competitionId` must be set before these calls work.
+Competitions are now scoped to an Organization. `ApiService.organizationId` must be set (defaults to the Default organization). `ApiService.competitionId` must also be set for player/team/score/round calls.
 
 `useCompetitionsStore().setActiveCompetition(comp)` sets the context and re-fetches all data:
 ```javascript
@@ -151,6 +151,7 @@ Courses are backend entities. The `courses` store fetches rounds from the active
 ```javascript
 {
   id: 'uuid',
+  organizationId: 'uuid',
   name: 'Spring Tournament 2026',
   startDate: 'ISO-8601' | null,
   endDate: 'ISO-8601' | null,
@@ -316,9 +317,9 @@ All REST calls go through `src/services/ApiService.js` (axios-based singleton):
 ```javascript
 import ApiService from '@/services/ApiService';
 
-// URLs — all scoped to active competition except /competitions and /organizations
+// URLs — competitions are scoped to organization; sub-resources scoped to competition
 ApiService.organizationsUrl(id?)      // /organizations or /organizations/{id}
-ApiService.competitionsUrl(id?)       // /competitions or /competitions/{id}
+ApiService.competitionsUrl(id?)       // /organizations/{oid}/competitions[/{id}]  (legacy /competitions also works — backward compat until Phase 5)
 ApiService.playersUrl(id?)            // /competitions/{cid}/players[/{id}]
 ApiService.teamsUrl(id?)              // /competitions/{cid}/teams[/{id}]
 ApiService.roundsUrl(id?)             // /competitions/{cid}/rounds[/{id}]
@@ -444,7 +445,7 @@ Before finalizing changes:
 ### Common Pitfalls
 
 1. **Component not re-rendering?** → Wrap store access in `computed()`
-2. **API calls returning 404?** → Check `ApiService.competitionId` is set (active competition selected)
+2. **API calls returning 404?** → Check `ApiService.organizationId` is set AND `ApiService.competitionId` is set (active organization and competition selected)
 3. **Scores not saving?** → Course needs a `roundId` — create a round first
 4. **Router not working?** → Use `<router-link>` not `<a>`
 5. **Theme broken?** → Check CSS variables for both `:root` and `.dark-mode`
@@ -461,6 +462,7 @@ Before finalizing changes:
 | Organization Entity | `spring-golfcomp/src/main/java/com/golfcomp/api/model/Organization.java` |
 | Organization Service | `spring-golfcomp/src/main/java/com/golfcomp/api/service/OrganizationService.java` |
 | Organization Controller | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationController.java` |
+| Org-Scoped Competition API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationCompetitionController.java` |
 | Competitions Store | `vue-golfcomp/src/stores/competitions.js` |
 | Players Store | `vue-golfcomp/src/stores/players.js` |
 | Teams Store | `vue-golfcomp/src/stores/teams.js` |
@@ -545,4 +547,4 @@ Example: "Add player statistics dashboard"
 
 ---
 
-**Version:** 3.1.0 | **Maintained By:** AI Assistant (Claude)
+**Version:** 3.2.0 | **Maintained By:** AI Assistant (Claude)

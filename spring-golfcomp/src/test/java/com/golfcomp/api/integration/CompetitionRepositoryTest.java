@@ -1,7 +1,10 @@
 package com.golfcomp.api.integration;
 
 import com.golfcomp.api.model.Competition;
+import com.golfcomp.api.model.Organization;
 import com.golfcomp.api.repository.CompetitionRepository;
+import com.golfcomp.api.repository.OrganizationRepository;
+import com.golfcomp.api.service.CompetitionService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +26,17 @@ class CompetitionRepositoryTest {
     @Autowired
     private CompetitionRepository competitionRepository;
 
+    @Autowired
+    private OrganizationRepository organizationRepository;
+
+    private Organization defaultOrg() {
+        return organizationRepository.findById(CompetitionService.DEFAULT_ORGANIZATION_ID)
+                .orElseThrow(() -> new IllegalStateException("Default organization not seeded"));
+    }
+
     private Competition buildCompetition(String name) {
         return Competition.builder()
+                .organization(defaultOrg())
                 .name(name)
                 .startDate(LocalDate.of(2026, 6, 15))
                 .endDate(LocalDate.of(2026, 6, 20))

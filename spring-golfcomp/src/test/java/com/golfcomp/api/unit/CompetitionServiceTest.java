@@ -5,7 +5,9 @@ import com.golfcomp.api.dto.request.UpdateCompetitionRequest;
 import com.golfcomp.api.dto.response.CompetitionResponse;
 import com.golfcomp.api.exception.ResourceNotFoundException;
 import com.golfcomp.api.model.Competition;
+import com.golfcomp.api.model.Organization;
 import com.golfcomp.api.repository.CompetitionRepository;
+import com.golfcomp.api.repository.OrganizationRepository;
 import com.golfcomp.api.service.CompetitionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,17 +33,29 @@ class CompetitionServiceTest {
     @Mock
     private CompetitionRepository competitionRepository;
 
+    @Mock
+    private OrganizationRepository organizationRepository;
+
     @InjectMocks
     private CompetitionService competitionService;
 
     private Competition competition;
+    private Organization organization;
     private UUID competitionId;
+    private UUID organizationId;
 
     @BeforeEach
     void setUp() {
         competitionId = UUID.randomUUID();
+        organizationId = CompetitionService.DEFAULT_ORGANIZATION_ID;
+        organization = Organization.builder()
+            .id(organizationId)
+            .name("Default Org")
+            .slug("default-org")
+            .build();
         competition = Competition.builder()
             .id(competitionId)
+            .organization(organization)
             .name("2026 Bathe Golf")
             .startDate(LocalDate.of(2026, 6, 1))
             .endDate(LocalDate.of(2026, 6, 5))
@@ -54,12 +68,13 @@ class CompetitionServiceTest {
     @Test
     @DisplayName("create - saves competition and returns response")
     void create_savesAndReturnsResponse() {
+        when(organizationRepository.findById(organizationId)).thenReturn(Optional.of(organization));
         when(competitionRepository.save(any(Competition.class))).thenReturn(competition);
         CreateCompetitionRequest request = new CreateCompetitionRequest(
             "2026 Bathe Golf", LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 5), "Myrtle Beach"
         );
 
-        CompetitionResponse response = competitionService.create(request);
+        CompetitionResponse response = competitionService.create(organizationId, request);
 
         assertNotNull(response);
         assertEquals("2026 Bathe Golf", response.name());
@@ -69,9 +84,10 @@ class CompetitionServiceTest {
     @Test
     @DisplayName("findAll - returns all competitions as responses")
     void findAll_returnsAllCompetitions() {
-        when(competitionRepository.findAll()).thenReturn(List.of(competition));
+        when(organizationRepository.existsById(organizationId)).thenReturn(true);
+        when(competitionRepository.findByOrganizationIdOrderByStartDateDesc(organizationId)).thenReturn(List.of(competition));
 
-        List<CompetitionResponse> result = competitionService.findAll();
+        List<CompetitionResponse> result = competitionService.findAll(organizationId);
 
         assertEquals(1, result.size());
         assertEquals(competitionId, result.get(0).id());
@@ -82,7 +98,7 @@ class CompetitionServiceTest {
     void findById_returnsCompetitionWhenFound() {
         when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
 
-        CompetitionResponse response = competitionService.findById(competitionId);
+        CompetitionResponse response = competitionService.findById(organizationId, competitionId);
 
         assertEquals(competitionId, response.id());
     }
@@ -92,7 +108,7 @@ class CompetitionServiceTest {
     void findById_throwsWhenNotFound() {
         when(competitionRepository.findById(competitionId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> competitionService.findById(competitionId));
+        assertThrows(ResourceNotFoundException.class, () -> competitionService.findById(organizationId, competitionId));
     }
 
     @Test
@@ -104,7 +120,7 @@ class CompetitionServiceTest {
             "Updated Name", LocalDate.of(2026, 6, 2), LocalDate.of(2026, 6, 6), "New Location"
         );
 
-        CompetitionResponse response = competitionService.update(competitionId, request);
+        CompetitionResponse response = competitionService.update(organizationId, competitionId, request);
 
         assertNotNull(response);
         verify(competitionRepository).save(competition);
@@ -119,15 +135,15 @@ class CompetitionServiceTest {
         );
 
         assertThrows(ResourceNotFoundException.class,
-            () -> competitionService.update(competitionId, request));
+            () -> competitionService.update(organizationId, competitionId, request));
     }
 
     @Test
     @DisplayName("delete - deletes competition when found")
     void delete_deletesWhenFound() {
-        when(competitionRepository.existsById(competitionId)).thenReturn(true);
+        when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
 
-        competitionService.delete(competitionId);
+        competitionService.delete(organizationId, competitionId);
 
         verify(competitionRepository).deleteById(competitionId);
     }
@@ -135,8 +151,8 @@ class CompetitionServiceTest {
     @Test
     @DisplayName("delete - throws ResourceNotFoundException when not found")
     void delete_throwsWhenNotFound() {
-        when(competitionRepository.existsById(competitionId)).thenReturn(false);
+        when(competitionRepository.findById(competitionId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> competitionService.delete(competitionId));
+        assertThrows(ResourceNotFoundException.class, () -> competitionService.delete(organizationId, competitionId));
     }
 }

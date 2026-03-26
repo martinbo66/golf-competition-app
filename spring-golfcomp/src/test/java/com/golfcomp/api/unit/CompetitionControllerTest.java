@@ -38,7 +38,7 @@ class CompetitionControllerTest {
 
     private CompetitionResponse sampleResponse() {
         UUID id = UUID.randomUUID();
-        return new CompetitionResponse(id, "2026 Bathe Golf",
+        return new CompetitionResponse(id, CompetitionService.DEFAULT_ORGANIZATION_ID, "2026 Bathe Golf",
             LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 5),
             "Myrtle Beach", LocalDateTime.now(), LocalDateTime.now());
     }
@@ -46,7 +46,7 @@ class CompetitionControllerTest {
     @Test
     @DisplayName("POST /api/v1/competitions - returns 201 with competition")
     void create_returns201() throws Exception {
-        when(competitionService.create(any())).thenReturn(sampleResponse());
+        when(competitionService.create(any(), any())).thenReturn(sampleResponse());
         CreateCompetitionRequest req = new CreateCompetitionRequest(
             "2026 Bathe Golf", LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 5), null);
 
@@ -75,7 +75,7 @@ class CompetitionControllerTest {
     @Test
     @DisplayName("GET /api/v1/competitions - returns 200 with list")
     void findAll_returns200() throws Exception {
-        when(competitionService.findAll()).thenReturn(List.of(sampleResponse()));
+        when(competitionService.findAll(any())).thenReturn(List.of(sampleResponse()));
 
         mockMvc.perform(get("/api/v1/competitions"))
             .andExpect(status().isOk())
@@ -87,7 +87,7 @@ class CompetitionControllerTest {
     @DisplayName("GET /api/v1/competitions/{id} - returns 404 when not found")
     void findById_returns404() throws Exception {
         UUID id = UUID.randomUUID();
-        when(competitionService.findById(id)).thenThrow(ResourceNotFoundException.competition(id));
+        when(competitionService.findById(any(), eq(id))).thenThrow(ResourceNotFoundException.competition(id));
 
         mockMvc.perform(get("/api/v1/competitions/{id}", id))
             .andExpect(status().isNotFound())
@@ -107,7 +107,7 @@ class CompetitionControllerTest {
     @DisplayName("DELETE /api/v1/competitions/{id} - returns 404 when not found")
     void delete_returns404WhenNotFound() throws Exception {
         UUID id = UUID.randomUUID();
-        doThrow(ResourceNotFoundException.competition(id)).when(competitionService).delete(eq(id));
+        doThrow(ResourceNotFoundException.competition(id)).when(competitionService).delete(any(), eq(id));
 
         mockMvc.perform(delete("/api/v1/competitions/{id}", id))
             .andExpect(status().isNotFound());

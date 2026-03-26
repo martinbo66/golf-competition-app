@@ -63,15 +63,15 @@ Add the foreign key from Competition to Organization and migrate existing data.
 
 | Story | Status | Description |
 |-------|--------|-------------|
-| MT-009 | 🔲 To Do | **Add `organization` field to Competition entity** — `@ManyToOne(LAZY)` relationship to Organization, `organization_id` column, NOT NULL. Follow the same FK pattern used by Player→Competition. |
-| MT-010 | 🔲 To Do | **Liquibase migration: add organization_id to competitions** — `011-add-organization-to-competitions.xml`. Add `organization_id` column (UUID, nullable initially), populate existing rows with the default organization UUID, then add NOT NULL constraint. Add FK constraint with CASCADE delete. Add index on `organization_id`. |
-| MT-011 | 🔲 To Do | **Update CompetitionRepository** — Add `findByOrganizationId(UUID)` and `findByOrganizationIdOrderByStartDateDesc(UUID)` query methods. |
-| MT-012 | 🔲 To Do | **Update CompetitionService** — All list/create operations accept `organizationId`. `findAll()` → `findByOrganization(orgId)`. `create()` sets the organization reference. `findById()` verifies organization ownership (same 404 pattern as competition→player scoping). |
-| MT-013 | 🔲 To Do | **Update CompetitionController** — Nest competition endpoints under organization: `/api/v1/organizations/{orgId}/competitions`. Maintain backward compatibility with a temporary redirect or dual-mount (see Migration Notes below). |
-| MT-014 | 🔲 To Do | **Update downstream services** — `PlayerService`, `TeamService`, `RoundService`, `ScoreService`, `LeaderboardService` do not need changes — they already scope by `competitionId`, and the competition's `organization_id` provides the tenant boundary. Verify with tests. |
-| MT-015 | 🔲 To Do | **Update unit and integration tests** — All Competition-related tests must pass with organization context. Add tests for cross-organization isolation (competition in org A is not visible from org B). |
+| MT-009 | ✅ Done | **Add `organization` field to Competition entity** — `@ManyToOne(LAZY)` relationship to Organization, `organization_id` column, NOT NULL. Follow the same FK pattern used by Player→Competition. |
+| MT-010 | ✅ Done | **Liquibase migration: add organization_id to competitions** — `011-add-organization-to-competitions.xml`. Add `organization_id` column (UUID, nullable initially), populate existing rows with the default organization UUID, then add NOT NULL constraint. Add FK constraint with CASCADE delete. Add index on `organization_id`. |
+| MT-011 | ✅ Done | **Update CompetitionRepository** — Add `findByOrganizationId(UUID)` and `findByOrganizationIdOrderByStartDateDesc(UUID)` query methods. |
+| MT-012 | ✅ Done | **Update CompetitionService** — All list/create operations accept `organizationId`. `findAll()` → `findByOrganization(orgId)`. `create()` sets the organization reference. `findById()` verifies organization ownership (same 404 pattern as competition→player scoping). |
+| MT-013 | ✅ Done | **Update CompetitionController** — Nest competition endpoints under organization: `/api/v1/organizations/{orgId}/competitions`. Maintain backward compatibility with a temporary redirect or dual-mount (see Migration Notes below). |
+| MT-014 | ✅ Done | **Update downstream services** — `PlayerService`, `TeamService`, `RoundService`, `ScoreService`, `LeaderboardService` do not need changes — they already scope by `competitionId`, and the competition's `organization_id` provides the tenant boundary. Verify with tests. |
+| MT-015 | ✅ Done | **Update unit and integration tests** — All Competition-related tests must pass with organization context. Add tests for cross-organization isolation (competition in org A is not visible from org B). |
 
-| MT-015a | 🔲 To Do | **Update CLAUDE.md — Phase 2** — Update Competition Object data structure to include `organizationId` field. Update ApiService section with organization-scoped competition URLs. Update the "Active Competition Context" section to mention organization context. Update the "Critical Architecture Patterns" section to describe the Organization → Competition → sub-resources scoping chain. |
+| MT-015a | ✅ Done | **Update CLAUDE.md — Phase 2** — Update Competition Object data structure to include `organizationId` field. Update ApiService section with organization-scoped competition URLs. Update the "Active Competition Context" section to mention organization context. Update the "Critical Architecture Patterns" section to describe the Organization → Competition → sub-resources scoping chain. |
 
 **Migration notes:**
 - Existing competitions are assigned to the default organization during migration
@@ -316,8 +316,8 @@ These items are **not** part of this PRD but the design accommodates them:
 | 5 | MT-029 – MT-037 | Full management UI, cleanup, all documentation updates |
 
 **Total stories:** 38
-**Completed:** 9
-**Remaining:** 29
+**Completed:** 17
+**Remaining:** 21
 
 ### Documentation Stories Quick Reference
 
