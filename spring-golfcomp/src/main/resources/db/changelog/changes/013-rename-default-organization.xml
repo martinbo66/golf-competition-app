@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="013-rename-default-organization" author="golfcomp">
+        <comment>Rename the default organization from Default/default to Bathe/ejb</comment>
+        <update tableName="organizations">
+            <column name="name" value="Bathe"/>
+            <column name="slug" value="ejb"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <where>id = 'a0000000-0000-0000-0000-000000000001'</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>
