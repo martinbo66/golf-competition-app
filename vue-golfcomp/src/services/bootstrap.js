@@ -1,4 +1,5 @@
 import ApiService from './ApiService';
+import { useOrganizationsStore } from '@/stores/organizations';
 import { useCompetitionsStore } from '@/stores/competitions';
 import { useCoursesStore } from '@/stores/courses';
 import { usePlayersStore } from '@/stores/players';
@@ -25,6 +26,17 @@ export async function initializeApp() {
   uiStore.setLoading(true);
 
   try {
+    // 0. Initialize organization context
+    const orgsStore = useOrganizationsStore();
+    await orgsStore.fetchOrganizations();
+
+    // Auto-select the default org (by slug 'default', or first available)
+    const defaultOrg = orgsStore.organizations.find(o => o.slug === 'default')
+      || orgsStore.organizations[0];
+    if (defaultOrg) {
+      await orgsStore.setActiveOrganization(defaultOrg);
+    }
+
     // 1. Find or create competition
     const competitionsStore = useCompetitionsStore();
     await competitionsStore.fetchCompetitions();

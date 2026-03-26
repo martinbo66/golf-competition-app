@@ -18,10 +18,23 @@
 
 const ApiService = {
   competitionId: 'test-competition-id',
+  _organizationId: null,
+
+  get organizationId() { return this._organizationId; },
+  set organizationId(id) { this._organizationId = id; },
 
   get compUrl() {
     return `/competitions/${this.competitionId}`;
   },
+
+  get orgCompUrl() {
+    if (this._organizationId) {
+      return `/organizations/${this._organizationId}/competitions/${this.competitionId}`;
+    }
+    return `/competitions/${this.competitionId}`;
+  },
+
+  organizationsUrl: jest.fn(id => (id ? `/organizations/${id}` : '/organizations')),
 
   playersUrl: jest.fn((id) =>
     id

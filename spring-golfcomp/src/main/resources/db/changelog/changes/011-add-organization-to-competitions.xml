@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="011-1" author="dev">
+        <comment>Add organization_id column to competitions (nullable first for backfill)</comment>
+        <addColumn tableName="competitions">
+            <column name="organization_id" type="VARCHAR(36)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="competitions" columnName="organization_id"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="011-2" author="dev">
+        <comment>Backfill all existing competitions with the default organization UUID</comment>
+        <update tableName="competitions">
+            <column name="organization_id" value="a0000000-0000-0000-0000-000000000001"/>
+            <where>organization_id IS NULL</where>
+        </update>
+        <rollback>
+            <update tableName="competitions">
+                <column name="organization_id" value="NULL"/>
+                <where>organization_id = 'a0000000-0000-0000-0000-000000000001'</where>
+            </update>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="011-3" author="dev">
+        <comment>Add NOT NULL constraint to organization_id after backfill</comment>
+        <addNotNullConstraint tableName="competitions" columnName="organization_id" columnDataType="VARCHAR(36)"/>
+        <rollback>
+            <dropNotNullConstraint tableName="competitions" columnName="organization_id" columnDataType="VARCHAR(36)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="011-4" author="dev">
+        <comment>Add foreign key constraint from competitions to organizations</comment>
+        <addForeignKeyConstraint
+            baseTableName="competitions"
+            baseColumnNames="organization_id"
+            constraintName="fk_competitions_organization"
+            referencedTableName="organizations"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="competitions" constraintName="fk_competitions_organization"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="011-5" author="dev">
+        <comment>Add index on competitions.organization_id for query performance</comment>
+        <createIndex tableName="competitions" indexName="idx_competitions_organization_id">
+            <column name="organization_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="competitions" indexName="idx_competitions_organization_id"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

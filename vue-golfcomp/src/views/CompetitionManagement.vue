@@ -1,6 +1,9 @@
 <template>
   <div class="competition-management">
     <h1>Competition Management</h1>
+    <p v-if="orgsStore.activeOrganization" class="org-context">
+      <i class="fas fa-building"></i> {{ orgsStore.activeOrganization.name }}
+    </p>
     <CompetitionList />
     <RoundList />
   </div>
@@ -9,6 +12,9 @@
 <script setup>
 import CompetitionList from '@/components/admin/CompetitionList.vue';
 import RoundList from '@/components/admin/RoundList.vue';
+import { useOrganizationsStore } from '@/stores/organizations';
+
+const orgsStore = useOrganizationsStore();
 </script>
 
 <style scoped>
@@ -19,10 +25,20 @@ import RoundList from '@/components/admin/RoundList.vue';
 }
 
 h1 {
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   font-size: 1.8rem;
   font-weight: 500;
   color: var(--text-color, #2c3e50);
+}
+
+.org-context {
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.org-context i {
+  margin-right: 6px;
 }
 
 body.dark-mode .competition-management {

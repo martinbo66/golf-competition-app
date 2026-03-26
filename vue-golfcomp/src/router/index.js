@@ -12,6 +12,11 @@ const routes = [
     redirect: '/admin/competitions'
   },
   {
+    path: '/admin/organizations',
+    name: 'OrganizationManagement',
+    component: () => import('@/views/OrganizationManagement.vue')
+  },
+  {
     path: '/admin/competitions',
     name: 'CompetitionManagement',
     component: () => import('@/views/CompetitionManagement.vue')
@@ -89,7 +94,9 @@ router.beforeEach((to, from, next) => {
   }
 
   // Set active sidebar item based on route
-  if (to.path === '/admin/competitions') {
+  if (to.path === '/admin/organizations') {
+    uiStore.setActiveSidebarItem('organizations');
+  } else if (to.path === '/admin/competitions') {
     uiStore.setActiveSidebarItem('competitions');
   } else if (to.path === '/admin/players') {
     uiStore.setActiveSidebarItem('players');

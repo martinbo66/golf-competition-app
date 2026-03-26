@@ -4,16 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golfcomp.api.dto.request.UpsertScoreRequest;
 import com.golfcomp.api.model.Competition;
 import com.golfcomp.api.model.Course;
+import com.golfcomp.api.model.Organization;
 import com.golfcomp.api.model.Player;
 import com.golfcomp.api.model.Round;
 import com.golfcomp.api.model.TalentRating;
 import com.golfcomp.api.model.Team;
 import com.golfcomp.api.repository.CompetitionRepository;
 import com.golfcomp.api.repository.CourseRepository;
+import com.golfcomp.api.repository.OrganizationRepository;
 import com.golfcomp.api.repository.PlayerRepository;
 import com.golfcomp.api.repository.RoundRepository;
 import com.golfcomp.api.repository.ScoreRepository;
 import com.golfcomp.api.repository.TeamRepository;
+import com.golfcomp.api.service.CompetitionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +43,7 @@ class ScoreLeaderboardApiIntegrationTest {
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @Autowired CompetitionRepository competitionRepository;
+    @Autowired OrganizationRepository organizationRepository;
     @Autowired CourseRepository courseRepository;
     @Autowired RoundRepository roundRepository;
     @Autowired TeamRepository teamRepository;
@@ -63,7 +67,10 @@ class ScoreLeaderboardApiIntegrationTest {
         courseRepository.deleteAll();
 
         // Build a full scenario: competition → course → round, team, two players
+        Organization defaultOrg = organizationRepository.findById(CompetitionService.DEFAULT_ORGANIZATION_ID)
+            .orElseThrow(() -> new IllegalStateException("Default organization not seeded"));
         Competition competition = competitionRepository.save(Competition.builder()
+            .organization(defaultOrg)
             .name("Test Competition")
             .startDate(LocalDate.of(2026, 6, 1))
             .endDate(LocalDate.of(2026, 6, 5))

@@ -3,14 +3,15 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Getting Started](#getting-started)
-3. [Player Management](#player-management)
-4. [Team Management](#team-management)
-5. [Scoring System](#scoring-system)
-6. [Leaderboards](#leaderboards)
-7. [Settings and Preferences](#settings-and-preferences)
-8. [Data Management](#data-management)
-9. [Troubleshooting](#troubleshooting)
-10. [FAQ](#faq)
+3. [Organization Management](#organization-management)
+4. [Player Management](#player-management)
+5. [Team Management](#team-management)
+6. [Scoring System](#scoring-system)
+7. [Leaderboards](#leaderboards)
+8. [Settings and Preferences](#settings-and-preferences)
+9. [Data Management](#data-management)
+10. [Troubleshooting](#troubleshooting)
+11. [FAQ](#faq)
 
 ## Introduction
 
@@ -40,6 +41,45 @@ The application has a top navigation bar with three main sections:
 3. **Leaderboards**: View team and individual rankings
 
 The sidebar on the left provides access to specific pages within each section.
+
+## Organization Management
+
+The app supports multiple organizations (tenants), each with their own private competitions, players, teams, and scores. On first use, a **Default** organization is created automatically.
+
+### What is an Organization?
+
+An organization is the top-level container for all your competition data. Think of it as your "golf club" or "group". Each organization has:
+- Its own competitions, players, teams, and scores
+- A unique name and URL slug
+- Complete data isolation from other organizations
+
+### Selecting an Active Organization
+
+The active organization is shown in the header. When only one organization exists, it appears as a badge. When multiple organizations exist, a dropdown selector appears — use it to switch between organizations.
+
+Switching organizations reloads the competition list for the selected organization.
+
+### Managing Organizations
+
+1. Navigate to **Administration > Organizations**
+2. From here you can:
+   - **Create** a new organization (click "+ New Organization")
+   - **Set Active** to switch to a different organization
+   - **Edit** an organization's name or slug
+   - **Delete** an organization (this permanently deletes ALL its competitions, players, teams, and scores)
+
+> **Note:** The Default organization cannot be deleted.
+
+### Creating an Organization
+
+1. Click "+ New Organization"
+2. Enter a name (e.g. "Bathe Golf Club")
+3. The URL slug is auto-generated from the name (e.g. `bathe-golf-club`) — you can customize it
+4. Click "Save"
+
+### Switching Between Organizations
+
+When you have multiple organizations, use the dropdown in the header to switch. All competition data shown (players, teams, scores, leaderboards) is scoped to the currently active organization.
 
 ## Player Management
 

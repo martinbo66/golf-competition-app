@@ -8,6 +8,7 @@ class ApiService {
       timeout: 10000
     });
     this._competitionId = null;
+    this._organizationId = null;
 
     this.client.interceptors.response.use(
       (response) => {
@@ -36,15 +37,34 @@ class ApiService {
   get competitionId() { return this._competitionId; }
   set competitionId(id) { this._competitionId = id; }
 
-  get compUrl() { return `/competitions/${this._competitionId}`; }
+  get organizationId() { return this._organizationId; }
+  set organizationId(id) { this._organizationId = id; }
 
-  competitionsUrl(id) { return id ? `/competitions/${id}` : '/competitions'; }
+  get orgCompUrl() {
+    if (this._organizationId) {
+      return `/organizations/${this._organizationId}/competitions/${this._competitionId}`;
+    }
+    return `/competitions/${this._competitionId}`;
+  }
+
+  get compUrl() { return this.orgCompUrl; }
+
+  competitionsUrl(id) {
+    if (this._organizationId) {
+      return id
+        ? `/organizations/${this._organizationId}/competitions/${id}`
+        : `/organizations/${this._organizationId}/competitions`;
+    }
+    return id ? `/competitions/${id}` : '/competitions';
+  }
+
+  organizationsUrl(id) { return id ? `/organizations/${id}` : '/organizations'; }
   coursesUrl(id) { return id ? `/courses/${id}` : '/courses'; }
-  playersUrl(id) { return `${this.compUrl}/players${id ? '/' + id : ''}`; }
-  teamsUrl(id) { return `${this.compUrl}/teams${id ? '/' + id : ''}`; }
-  roundsUrl(id) { return `${this.compUrl}/rounds${id ? '/' + id : ''}`; }
-  scoresUrl(roundId) { return `${this.compUrl}/rounds/${roundId}/scores`; }
-  leaderboardsUrl(type) { return `${this.compUrl}/leaderboards/${type}`; }
+  playersUrl(id) { return `${this.orgCompUrl}/players${id ? '/' + id : ''}`; }
+  teamsUrl(id) { return `${this.orgCompUrl}/teams${id ? '/' + id : ''}`; }
+  roundsUrl(id) { return `${this.orgCompUrl}/rounds${id ? '/' + id : ''}`; }
+  scoresUrl(roundId) { return `${this.orgCompUrl}/rounds/${roundId}/scores`; }
+  leaderboardsUrl(type) { return `${this.orgCompUrl}/leaderboards/${type}`; }
 
   async get(url) { return this.client.get(url); }
   async post(url, data) { return this.client.post(url, data); }

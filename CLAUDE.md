@@ -1,6 +1,6 @@
 # CLAUDE.md - Golf Competition App
 
-> **Version:** 3.0.0 | **Last Updated:** 2026-03-17
+> **Version:** 3.5.0 | **Last Updated:** 2026-03-26
 > **Purpose:** Essential guide for AI assistants working on this codebase
 
 ---
@@ -8,6 +8,7 @@
 ## Project Overview
 
 Vue 3 SPA + Spring Boot REST API for managing golf team competitions with:
+- Organization management (multi-tenant container for competitions)
 - Competition management (create, switch active competition)
 - Player management (with talent ratings A/B/C/D, entry fees, winnings)
 - Automated team generation using snake draft algorithm
@@ -20,6 +21,7 @@ Vue 3 SPA + Spring Boot REST API for managing golf team competitions with:
 - Hash-based routing for static hosting compatibility
 - All state is server-side; frontend fetches via REST API
 - Monorepo: Vue frontend in `vue-golfcomp/`, Spring backend in `spring-golfcomp/`
+- **Domain model:** Organization is the top-level tenant container. Competitions belong to an Organization. Players, teams, rounds, and scores are all scoped under a Competition. The API nests competitions under organizations: `/api/v1/organizations/{orgId}/competitions`.
 
 ---
 
@@ -70,7 +72,7 @@ golf-competition-app/
 │   │   ├── main.js            # App entry (createApp + createPinia + router)
 │   │   ├── App.vue            # Root component
 │   │   ├── router/index.js    # Hash mode router (vue.config.js: port 8080)
-│   │   ├── stores/            # Pinia stores (competitions, players, teams, scores, courses, ui)
+│   │   ├── stores/            # Pinia stores (organizations, competitions, players, teams, scores, courses, ui)
 │   │   ├── services/          # ApiService, DataService, NotificationService, bootstrap.js
 │   │   ├── utils/             # Validation, formatting helpers
 │   │   ├── assets/            # Images and global styles
@@ -114,7 +116,9 @@ await playersStore.addPlayer(formData);
 
 ### 2. Active Competition Context
 
-All player/team/score/round API calls are scoped to the active competition. `ApiService.competitionId` must be set before these calls work.
+Competitions are now scoped to an Organization. `ApiService.organizationId` must be set (defaults to the Default organization). `ApiService.competitionId` must also be set for player/team/score/round calls.
+
+On app startup, `bootstrap.js` automatically fetches organizations and sets `ApiService.organizationId` to the default org. Manual setting is only needed when switching organizations.
 
 `useCompetitionsStore().setActiveCompetition(comp)` sets the context and re-fetches all data:
 ```javascript
@@ -123,6 +127,8 @@ All player/team/score/round API calls are scoped to the active competition. `Api
 ```
 
 ### 3. Data Flow
+
+On startup, `bootstrap.js` fetches organizations and sets the default org as active (`ApiService.organizationId`) before loading competitions.
 
 ```
 User Action → Component → Pinia Store Action → ApiService (axios) → REST API →
@@ -149,9 +155,10 @@ Courses are backend entities. The `courses` store fetches rounds from the active
 ```javascript
 {
   id: 'uuid',
+  organizationId: 'uuid',
   name: 'Spring Tournament 2026',
-  startDate: 'ISO-8601' | null,
-  endDate: 'ISO-8601' | null,
+  startDate: 'ISO-8601',
+  endDate: 'ISO-8601',
   location: 'string' | null,
   createdAt: 'ISO-8601',
   updatedAt: 'ISO-8601'
@@ -202,6 +209,17 @@ Courses are backend entities. The `courses` store fetches rounds from the active
   name: 'Parkland',
   order: 1,
   roundId: 'uuid' | null    // null = no round scheduled yet
+}
+```
+
+### Organization Object
+```javascript
+{
+  id: 'uuid',
+  name: 'My Golf Club',
+  slug: 'my-golf-club',
+  createdAt: 'ISO-8601',
+  updatedAt: 'ISO-8601'
 }
 ```
 
@@ -283,6 +301,26 @@ Courses are backend entities. The `courses` store fetches rounds from the active
 
 **Notification Types:** `success` (3s), `error` (5s), `warning` (4s), `info` (3s)
 
+### `organizations` Store (`useOrganizationsStore`)
+
+Manages the tenant context. The default organization is auto-selected during app bootstrap.
+
+**Key Actions:**
+- `fetchOrganizations()` — Load all organizations
+- `setActiveOrganization(org)` — Sets `ApiService.organizationId`; call before competition operations
+- `createOrganization(data)` — Create new org (name, slug)
+- `updateOrganization({ id, updates })` — Update org name/slug
+- `deleteOrganization(id)` — Delete org (cannot delete active default org)
+
+**Key Getters:**
+- `allOrganizations`, `activeOrganizationId`
+- `hasMultipleOrganizations` — true when >1 org exists (used to show/hide the org selector)
+
+**Default Organization:**
+- ID: `a0000000-0000-0000-0000-000000000001`
+- Name: `Default` | Slug: `default`
+- Auto-selected on bootstrap; always present (seeded by migration 010)
+
 ---
 
 ## ApiService
@@ -292,8 +330,10 @@ All REST calls go through `src/services/ApiService.js` (axios-based singleton):
 ```javascript
 import ApiService from '@/services/ApiService';
 
-// URLs — all scoped to active competition except /competitions
-ApiService.competitionsUrl(id?)       // /competitions or /competitions/{id}
+// URLs — competitions are scoped to organization; sub-resources scoped to competition
+ApiService.organizationsUrl(id?)      // /organizations or /organizations/{id}
+ApiService.competitionsUrl(id?)       // /organizations/{oid}/competitions[/{id}]
+// Sub-resources scoped to organization and competition:
 ApiService.playersUrl(id?)            // /competitions/{cid}/players[/{id}]
 ApiService.teamsUrl(id?)              // /competitions/{cid}/teams[/{id}]
 ApiService.roundsUrl(id?)             // /competitions/{cid}/rounds[/{id}]
@@ -419,7 +459,7 @@ Before finalizing changes:
 ### Common Pitfalls
 
 1. **Component not re-rendering?** → Wrap store access in `computed()`
-2. **API calls returning 404?** → Check `ApiService.competitionId` is set (active competition selected)
+2. **API calls returning 404?** → Check `ApiService.organizationId` is set AND `ApiService.competitionId` is set. The `/organizations/{orgId}/competitions/...` URL structure enforces tenant isolation automatically.
 3. **Scores not saving?** → Course needs a `roundId` — create a round first
 4. **Router not working?** → Use `<router-link>` not `<a>`
 5. **Theme broken?** → Check CSS variables for both `:root` and `.dark-mode`
@@ -432,6 +472,20 @@ Before finalizing changes:
 
 | Component | Path |
 |-----------|------|
+| Organizations Store | `vue-golfcomp/src/stores/organizations.js` |
+| Organization Selector | `vue-golfcomp/src/components/layout/OrganizationSelector.vue` |
+| Organization Management View | `vue-golfcomp/src/views/OrganizationManagement.vue` |
+| Organization List Component | `vue-golfcomp/src/components/admin/OrganizationList.vue` |
+| Organization Form Component | `vue-golfcomp/src/components/admin/OrganizationForm.vue` |
+| Organization Entity | `spring-golfcomp/src/main/java/com/golfcomp/api/model/Organization.java` |
+| Organization Service | `spring-golfcomp/src/main/java/com/golfcomp/api/service/OrganizationService.java` |
+| Organization Controller | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationController.java` |
+| Org-Scoped Competition API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationCompetitionController.java` |
+| Org-Scoped Player API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationPlayerController.java` |
+| Org-Scoped Team API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationTeamController.java` |
+| Org-Scoped Round API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationRoundController.java` |
+| Org-Scoped Score API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationScoreController.java` |
+| Org-Scoped Leaderboard API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationLeaderboardController.java` |
 | Competitions Store | `vue-golfcomp/src/stores/competitions.js` |
 | Players Store | `vue-golfcomp/src/stores/players.js` |
 | Teams Store | `vue-golfcomp/src/stores/teams.js` |
@@ -510,9 +564,10 @@ Example: "Add player statistics dashboard"
 6. **Team generation uses snake draft** — see `teams.js`
 7. **Mobile-first responsive design** — components adapt to screen size
 8. **Use MockStore pattern for testing** — see `tests/teams.test.js`
+9. **Organization is the tenant boundary** — All data flows through Organization → Competition. The default Organization (slug: `default`) is seeded automatically. All API calls use `/api/v1/organizations/{orgId}/...` paths — legacy `/api/v1/competitions` endpoints have been removed.
 
 **When in doubt:** Look at existing similar code in the codebase.
 
 ---
 
-**Version:** 3.0.0 | **Maintained By:** AI Assistant (Claude)
+**Version:** 3.5.0 | **Maintained By:** AI Assistant (Claude)
