@@ -89,7 +89,9 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             set -e
-            cp /opt/golfcomp/deploy/*.jar /opt/golfcomp/golf-competition-app.jar
+            JAR=$(ls -t /opt/golfcomp/deploy/*.jar | head -1)
+            cp "$JAR" /opt/golfcomp/golf-competition-app.jar
+            rm -f /opt/golfcomp/deploy/*.jar
             sudo systemctl restart golfcomp
             sleep 8
             sudo systemctl is-active golfcomp
