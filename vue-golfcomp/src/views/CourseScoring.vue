@@ -5,8 +5,7 @@
         </div>
 
         <div v-if="courseId" class="scoring-content">
-            <div class="scoring-grid">
-                <div class="main-column">
+            <div class="main-column">
                     <ScoreEntry :courseId="courseId" />
 
                     <!-- Team Score Cards -->
@@ -48,11 +47,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="side-column">
-                    <CourseScorecard :courseId="courseId" />
-                </div>
             </div>
         </div>
         <div v-else class="loading-state">
@@ -67,7 +61,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { useCoursesStore } from '@/stores/courses';
 import { useScoresStore } from '@/stores/scores';
 import ScoreEntry from '@/components/scoring/ScoreEntry.vue';
-import CourseScorecard from '@/components/scoring/CourseScorecard.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -114,13 +107,7 @@ body.dark-mode h1 {
   color: #e2e8f0;
 }
 
-.scoring-grid {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 20px;
-}
-
-.main-column, .side-column {
+.main-column {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -255,10 +242,6 @@ body.dark-mode h1 {
 .talent-d { background-color: #dc3545; }
 
 @media (max-width: 992px) {
-  .scoring-grid {
-    grid-template-columns: 1fr;
-  }
-
   .team-score-cards {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
