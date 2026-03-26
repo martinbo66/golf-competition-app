@@ -20,14 +20,19 @@
       <div v-if="activeSection === 'scoring'">
         <h3>Scoring</h3>
         <ul>
-          <li v-for="course in courses" :key="course.id">
-            <router-link 
-              :to="`/scoring/${course.id}`" 
-              :class="{ active: activeSidebarItem === course.id }"
-              @click.native="setActiveSidebarItem(course.id)"
+          <li v-for="course in courses" :key="course.roundId || course.id">
+            <router-link
+              :to="`/scoring/${course.roundId || course.id}`"
+              :class="{ active: activeSidebarItem === (course.roundId || course.id) }"
+              @click.native="setActiveSidebarItem(course.roundId || course.id)"
             >
               <i class="fas fa-flag"></i>
-              {{ course.name }}
+              <span class="course-nav-label">
+                {{ course.name }}
+                <span v-if="duplicateCourseNames.has(course.name) && course.playDate" class="course-nav-date">
+                  {{ formatNavDate(course.playDate) }}
+                </span>
+              </span>
             </router-link>
           </li>
         </ul>
@@ -88,6 +93,21 @@ const adminItems = [
 const activeSection = computed(() => uiStore.activeSection);
 const activeSidebarItem = computed(() => uiStore.activeSidebarItem);
 const courses = computed(() => coursesStore.allCourses);
+
+// Set of course names that appear more than once — these need a date disambiguator
+const duplicateCourseNames = computed(() => {
+  const counts = {};
+  for (const c of courses.value) {
+    counts[c.name] = (counts[c.name] || 0) + 1;
+  }
+  return new Set(Object.keys(counts).filter(name => counts[name] > 1));
+});
+
+function formatNavDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
 const organizationsStore = useOrganizationsStore();
 
 const currentThumbnailImage = computed(() => {
@@ -170,6 +190,18 @@ const setActiveSidebarItem = (itemId) => {
   border-left: 3px solid var(--primary-color);
 }
 
+
+.course-nav-label {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.course-nav-date {
+  font-size: 0.82rem;
+  opacity: 0.7;
+  font-weight: 400;
+}
 
 .sidebar-thumbnail {
   margin: 20px 15px;

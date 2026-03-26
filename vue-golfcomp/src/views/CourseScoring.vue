@@ -74,13 +74,16 @@ const router = useRouter();
 const coursesStore = useCoursesStore();
 const scoresStore = useScoresStore();
 
-const courseId = computed(() => route.params.courseId);
-
-const courseName = computed(() => {
-    if (!courseId.value) return 'Unknown Course';
-    const course = coursesStore.courses.find(c => c.id === courseId.value);
-    return course ? course.name : 'Unknown Course';
+// Route param is roundId; look up the course entry by roundId (falling back to id match)
+const currentCourse = computed(() => {
+    const id = route.params.roundId;
+    if (!id) return null;
+    return coursesStore.courses.find(c => c.roundId === id || c.id === id) || null;
 });
+
+const courseId = computed(() => currentCourse.value?.id || null);
+
+const courseName = computed(() => currentCourse.value?.name || 'Unknown Course');
 
 const courseScoresByTeam = computed(() => {
     if (!courseId.value) return [];
@@ -88,8 +91,9 @@ const courseScoresByTeam = computed(() => {
 });
 
 onMounted(() => {
-    if (!courseId.value && coursesStore.courses.length > 0) {
-        router.replace({ name: 'CourseScoring', params: { courseId: coursesStore.courses[0].id } });
+    if (!route.params.roundId && coursesStore.courses.length > 0) {
+        const first = coursesStore.courses[0];
+        router.replace({ name: 'CourseScoring', params: { roundId: first.roundId || first.id } });
     }
 });
 </script>
