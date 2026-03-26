@@ -1,6 +1,6 @@
 # CLAUDE.md - Golf Competition App
 
-> **Version:** 3.2.0 | **Last Updated:** 2026-03-26
+> **Version:** 3.3.0 | **Last Updated:** 2026-03-26
 > **Purpose:** Essential guide for AI assistants working on this codebase
 
 ---
@@ -320,6 +320,8 @@ import ApiService from '@/services/ApiService';
 // URLs — competitions are scoped to organization; sub-resources scoped to competition
 ApiService.organizationsUrl(id?)      // /organizations or /organizations/{id}
 ApiService.competitionsUrl(id?)       // /organizations/{oid}/competitions[/{id}]  (legacy /competitions also works — backward compat until Phase 5)
+// Sub-resources — preferred: /organizations/{oid}/competitions/{cid}/...
+// Legacy (backward compat until Phase 5): /competitions/{cid}/...
 ApiService.playersUrl(id?)            // /competitions/{cid}/players[/{id}]
 ApiService.teamsUrl(id?)              // /competitions/{cid}/teams[/{id}]
 ApiService.roundsUrl(id?)             // /competitions/{cid}/rounds[/{id}]
@@ -445,7 +447,7 @@ Before finalizing changes:
 ### Common Pitfalls
 
 1. **Component not re-rendering?** → Wrap store access in `computed()`
-2. **API calls returning 404?** → Check `ApiService.organizationId` is set AND `ApiService.competitionId` is set (active organization and competition selected)
+2. **API calls returning 404?** → Check `ApiService.organizationId` is set AND `ApiService.competitionId` is set (active organization and competition selected). Also check that the competition belongs to the specified organization — use the `/organizations/{orgId}/competitions/...` prefix which enforces this automatically.
 3. **Scores not saving?** → Course needs a `roundId` — create a round first
 4. **Router not working?** → Use `<router-link>` not `<a>`
 5. **Theme broken?** → Check CSS variables for both `:root` and `.dark-mode`
@@ -463,6 +465,11 @@ Before finalizing changes:
 | Organization Service | `spring-golfcomp/src/main/java/com/golfcomp/api/service/OrganizationService.java` |
 | Organization Controller | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationController.java` |
 | Org-Scoped Competition API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationCompetitionController.java` |
+| Org-Scoped Player API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationPlayerController.java` |
+| Org-Scoped Team API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationTeamController.java` |
+| Org-Scoped Round API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationRoundController.java` |
+| Org-Scoped Score API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationScoreController.java` |
+| Org-Scoped Leaderboard API | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationLeaderboardController.java` |
 | Competitions Store | `vue-golfcomp/src/stores/competitions.js` |
 | Players Store | `vue-golfcomp/src/stores/players.js` |
 | Teams Store | `vue-golfcomp/src/stores/teams.js` |
@@ -547,4 +554,4 @@ Example: "Add player statistics dashboard"
 
 ---
 
-**Version:** 3.2.0 | **Maintained By:** AI Assistant (Claude)
+**Version:** 3.3.0 | **Maintained By:** AI Assistant (Claude)

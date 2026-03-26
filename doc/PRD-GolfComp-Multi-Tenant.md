@@ -87,15 +87,15 @@ Ensure all competition sub-resource APIs work correctly through the organization
 
 | Story | Status | Description |
 |-------|--------|-------------|
-| MT-016 | 🔲 To Do | **Nest player endpoints under organization** — `/api/v1/organizations/{orgId}/competitions/{compId}/players/...`. Controller validates that the competition belongs to the specified organization before delegating to service. |
-| MT-017 | 🔲 To Do | **Nest team endpoints under organization** — Same pattern as MT-016 for teams, including `/generate` and bulk delete. |
-| MT-018 | 🔲 To Do | **Nest round endpoints under organization** — Same pattern as MT-016 for rounds. |
-| MT-019 | 🔲 To Do | **Nest score endpoints under organization** — Same pattern as MT-016 for scores (upsert and bulk delete). |
-| MT-020 | 🔲 To Do | **Nest leaderboard endpoints under organization** — Same pattern as MT-016 for player and team leaderboards. |
-| MT-021 | 🔲 To Do | **Organization ownership validation helper** — Extract a shared method (or small service) that validates `competition.organization.id == orgId`, to avoid duplicating the check in every controller. |
-| MT-022 | 🔲 To Do | **Integration tests for nested resource paths** — Test all nested endpoints. Verify that accessing a competition's resources through the wrong organization returns 404. |
+| MT-016 | ✅ Done | **Nest player endpoints under organization** — `/api/v1/organizations/{orgId}/competitions/{compId}/players/...`. Controller validates that the competition belongs to the specified organization before delegating to service. |
+| MT-017 | ✅ Done | **Nest team endpoints under organization** — Same pattern as MT-016 for teams, including `/generate` and bulk delete. |
+| MT-018 | ✅ Done | **Nest round endpoints under organization** — Same pattern as MT-016 for rounds. |
+| MT-019 | ✅ Done | **Nest score endpoints under organization** — Same pattern as MT-016 for scores (upsert and bulk delete). |
+| MT-020 | ✅ Done | **Nest leaderboard endpoints under organization** — Same pattern as MT-016 for player and team leaderboards. |
+| MT-021 | ✅ Done | **Organization ownership validation helper** — Extract a shared method (or small service) that validates `competition.organization.id == orgId`, to avoid duplicating the check in every controller. |
+| MT-022 | ✅ Done | **Integration tests for nested resource paths** — Test all nested endpoints. Verify that accessing a competition's resources through the wrong organization returns 404. |
 
-| MT-022a | 🔲 To Do | **Update CLAUDE.md — Phase 3** — Update all API URL patterns in the ApiService section to show the full `/organizations/{orgId}/competitions/{compId}/...` paths. Update the Controller layer documentation. |
+| MT-022a | ✅ Done | **Update CLAUDE.md — Phase 3** — Update all API URL patterns in the ApiService section to show the full `/organizations/{orgId}/competitions/{compId}/...` paths. Update the Controller layer documentation. |
 
 **Acceptance criteria:** All sub-resource endpoints work under the `/organizations/{orgId}/` prefix. Cross-org access returns 404. CLAUDE.md reflects Phase 3 URL changes.
 
@@ -316,8 +316,8 @@ These items are **not** part of this PRD but the design accommodates them:
 | 5 | MT-029 – MT-037 | Full management UI, cleanup, all documentation updates |
 
 **Total stories:** 38
-**Completed:** 17
-**Remaining:** 21
+**Completed:** 25
+**Remaining:** 13
 
 ### Documentation Stories Quick Reference
 

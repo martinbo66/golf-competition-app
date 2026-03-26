@@ -84,4 +84,10 @@ public class CompetitionService {
         }
         competitionRepository.deleteById(id);
     }
+
+    public void verifyOrganizationOwnership(UUID organizationId, UUID competitionId) {
+        if (!competitionRepository.existsByOrganizationIdAndId(organizationId, competitionId)) {
+            throw ResourceNotFoundException.competition(competitionId);
+        }
+    }
 }
