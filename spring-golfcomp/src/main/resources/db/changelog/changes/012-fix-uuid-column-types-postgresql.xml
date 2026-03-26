@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Migrations 009 and 011 created organizations.id and competitions.organization_id
+        as VARCHAR(36), which works in H2 (test) but fails Hibernate schema validation
+        on PostgreSQL, which expects native uuid type.
+
+        These changesets are dbms="postgresql" only — H2 tests are unaffected.
+    -->
+
+    <changeSet id="012-1" author="dev" dbms="postgresql">
+        <comment>Drop FK before altering UUID column types on PostgreSQL</comment>
+        <dropForeignKeyConstraint baseTableName="competitions" constraintName="fk_competitions_organization"/>
+        <rollback>
+            <addForeignKeyConstraint
+                baseTableName="competitions"
+                baseColumnNames="organization_id"
+                constraintName="fk_competitions_organization"
+                referencedTableName="organizations"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="012-2" author="dev" dbms="postgresql">
+        <comment>Cast organizations.id from VARCHAR(36) to native uuid type</comment>
+        <sql>ALTER TABLE organizations ALTER COLUMN id TYPE uuid USING id::uuid</sql>
+        <rollback>
+            <sql>ALTER TABLE organizations ALTER COLUMN id TYPE varchar(36) USING id::text</sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="012-3" author="dev" dbms="postgresql">
+        <comment>Cast competitions.organization_id from VARCHAR(36) to native uuid type</comment>
+        <sql>ALTER TABLE competitions ALTER COLUMN organization_id TYPE uuid USING organization_id::uuid</sql>
+        <rollback>
+            <sql>ALTER TABLE competitions ALTER COLUMN organization_id TYPE varchar(36) USING organization_id::text</sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="012-4" author="dev" dbms="postgresql">
+        <comment>Re-add FK after UUID type fix</comment>
+        <addForeignKeyConstraint
+            baseTableName="competitions"
+            baseColumnNames="organization_id"
+            constraintName="fk_competitions_organization"
+            referencedTableName="organizations"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="competitions" constraintName="fk_competitions_organization"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
