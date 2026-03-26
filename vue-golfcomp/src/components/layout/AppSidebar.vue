@@ -29,7 +29,7 @@
               <i class="fas fa-flag"></i>
               <span class="course-nav-label">
                 {{ course.name }}
-                <span v-if="duplicateCourseNames.has(course.name) && course.playDate" class="course-nav-date">
+                <span v-if="course.playDate" class="course-nav-date">
                   {{ formatNavDate(course.playDate) }}
                 </span>
               </span>
@@ -93,15 +93,6 @@ const adminItems = [
 const activeSection = computed(() => uiStore.activeSection);
 const activeSidebarItem = computed(() => uiStore.activeSidebarItem);
 const courses = computed(() => coursesStore.allCourses);
-
-// Set of course names that appear more than once — these need a date disambiguator
-const duplicateCourseNames = computed(() => {
-  const counts = {};
-  for (const c of courses.value) {
-    counts[c.name] = (counts[c.name] || 0) + 1;
-  }
-  return new Set(Object.keys(counts).filter(name => counts[name] > 1));
-});
 
 function formatNavDate(dateStr) {
   if (!dateStr) return '';

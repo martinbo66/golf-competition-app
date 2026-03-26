@@ -1,7 +1,10 @@
 <template>
     <div class="course-scoring">
         <div class="page-header">
-            <h1>Scoring: {{ courseName }}</h1>
+            <h1>
+                Scoring: {{ courseName }}
+                <span v-if="currentCourse?.playDate" class="round-date">{{ formatRoundDate(currentCourse.playDate) }}</span>
+            </h1>
         </div>
 
         <div v-if="courseId" class="scoring-content">
@@ -83,6 +86,12 @@ const courseScoresByTeam = computed(() => {
     return scoresStore.courseScoresByTeam(courseId.value);
 });
 
+function formatRoundDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 onMounted(() => {
     if (!route.params.roundId && coursesStore.courses.length > 0) {
         const first = coursesStore.courses[0];
@@ -101,10 +110,25 @@ h1 {
   font-size: 1.8rem;
   font-weight: 500;
   color: #1a202c;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.round-date {
+  font-size: 1.2rem;
+  font-weight: 400;
+  font-style: italic;
+  color: #6c757d;
 }
 
 body.dark-mode h1 {
   color: #e2e8f0;
+}
+
+body.dark-mode .round-date {
+  color: #a0aec0;
 }
 
 .main-column {
