@@ -1,6 +1,6 @@
 # CLAUDE.md - Golf Competition App
 
-> **Version:** 3.4.0 | **Last Updated:** 2026-03-26
+> **Version:** 3.5.0 | **Last Updated:** 2026-03-26
 > **Purpose:** Essential guide for AI assistants working on this codebase
 
 ---
@@ -72,7 +72,7 @@ golf-competition-app/
 │   │   ├── main.js            # App entry (createApp + createPinia + router)
 │   │   ├── App.vue            # Root component
 │   │   ├── router/index.js    # Hash mode router (vue.config.js: port 8080)
-│   │   ├── stores/            # Pinia stores (competitions, players, teams, scores, courses, ui)
+│   │   ├── stores/            # Pinia stores (organizations, competitions, players, teams, scores, courses, ui)
 │   │   ├── services/          # ApiService, DataService, NotificationService, bootstrap.js
 │   │   ├── utils/             # Validation, formatting helpers
 │   │   ├── assets/            # Images and global styles
@@ -157,8 +157,8 @@ Courses are backend entities. The `courses` store fetches rounds from the active
   id: 'uuid',
   organizationId: 'uuid',
   name: 'Spring Tournament 2026',
-  startDate: 'ISO-8601' | null,
-  endDate: 'ISO-8601' | null,
+  startDate: 'ISO-8601',
+  endDate: 'ISO-8601',
   location: 'string' | null,
   createdAt: 'ISO-8601',
   updatedAt: 'ISO-8601'
@@ -332,9 +332,8 @@ import ApiService from '@/services/ApiService';
 
 // URLs — competitions are scoped to organization; sub-resources scoped to competition
 ApiService.organizationsUrl(id?)      // /organizations or /organizations/{id}
-ApiService.competitionsUrl(id?)       // /organizations/{oid}/competitions[/{id}]  (legacy /competitions also works — backward compat until Phase 5)
-// Sub-resources — preferred: /organizations/{oid}/competitions/{cid}/...
-// Legacy (backward compat until Phase 5): /competitions/{cid}/...
+ApiService.competitionsUrl(id?)       // /organizations/{oid}/competitions[/{id}]
+// Sub-resources scoped to organization and competition:
 ApiService.playersUrl(id?)            // /competitions/{cid}/players[/{id}]
 ApiService.teamsUrl(id?)              // /competitions/{cid}/teams[/{id}]
 ApiService.roundsUrl(id?)             // /competitions/{cid}/rounds[/{id}]
@@ -460,7 +459,7 @@ Before finalizing changes:
 ### Common Pitfalls
 
 1. **Component not re-rendering?** → Wrap store access in `computed()`
-2. **API calls returning 404?** → Check `ApiService.organizationId` is set AND `ApiService.competitionId` is set (active organization and competition selected). Also check that the competition belongs to the specified organization — use the `/organizations/{orgId}/competitions/...` prefix which enforces this automatically.
+2. **API calls returning 404?** → Check `ApiService.organizationId` is set AND `ApiService.competitionId` is set. The `/organizations/{orgId}/competitions/...` URL structure enforces tenant isolation automatically.
 3. **Scores not saving?** → Course needs a `roundId` — create a round first
 4. **Router not working?** → Use `<router-link>` not `<a>`
 5. **Theme broken?** → Check CSS variables for both `:root` and `.dark-mode`
@@ -475,6 +474,9 @@ Before finalizing changes:
 |-----------|------|
 | Organizations Store | `vue-golfcomp/src/stores/organizations.js` |
 | Organization Selector | `vue-golfcomp/src/components/layout/OrganizationSelector.vue` |
+| Organization Management View | `vue-golfcomp/src/views/OrganizationManagement.vue` |
+| Organization List Component | `vue-golfcomp/src/components/admin/OrganizationList.vue` |
+| Organization Form Component | `vue-golfcomp/src/components/admin/OrganizationForm.vue` |
 | Organization Entity | `spring-golfcomp/src/main/java/com/golfcomp/api/model/Organization.java` |
 | Organization Service | `spring-golfcomp/src/main/java/com/golfcomp/api/service/OrganizationService.java` |
 | Organization Controller | `spring-golfcomp/src/main/java/com/golfcomp/api/controller/OrganizationController.java` |
@@ -562,10 +564,10 @@ Example: "Add player statistics dashboard"
 6. **Team generation uses snake draft** — see `teams.js`
 7. **Mobile-first responsive design** — components adapt to screen size
 8. **Use MockStore pattern for testing** — see `tests/teams.test.js`
-9. **Organization is the tenant boundary** — Competitions belong to an Organization. The default Organization (slug: `default`) is seeded automatically. Multi-tenant isolation is being introduced incrementally.
+9. **Organization is the tenant boundary** — All data flows through Organization → Competition. The default Organization (slug: `default`) is seeded automatically. All API calls use `/api/v1/organizations/{orgId}/...` paths — legacy `/api/v1/competitions` endpoints have been removed.
 
 **When in doubt:** Look at existing similar code in the codebase.
 
 ---
 
-**Version:** 3.4.0 | **Maintained By:** AI Assistant (Claude)
+**Version:** 3.5.0 | **Maintained By:** AI Assistant (Claude)

@@ -3,6 +3,7 @@ package com.golfcomp.api.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golfcomp.api.dto.request.CreateOrganizationRequest;
 import com.golfcomp.api.dto.request.UpdateOrganizationRequest;
+import com.golfcomp.api.repository.CompetitionRepository;
 import com.golfcomp.api.repository.OrganizationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,7 @@ class OrganizationApiIntegrationTest {
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @Autowired OrganizationRepository organizationRepository;
+    @Autowired CompetitionRepository competitionRepository;
 
     @BeforeEach
     void cleanDatabase() {
@@ -172,5 +174,33 @@ class OrganizationApiIntegrationTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.error.code").value("BAD_REQUEST"));
+    }
+
+    @Test
+    @DisplayName("DELETE /organizations/{id} - cascades to competitions and sub-data")
+    void delete_cascadesToCompetitionsAndSubData() throws Exception {
+        // Create a new org
+        String orgBody = mockMvc.perform(post("/api/v1/organizations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Cascade Test Club\",\"slug\":\"cascade-test-club\"}"))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString();
+        UUID orgId = UUID.fromString(objectMapper.readTree(orgBody).at("/data/id").asText());
+
+        // Create a competition under that org
+        String compBody = mockMvc.perform(post("/api/v1/organizations/{orgId}/competitions", orgId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Cascade Competition\",\"startDate\":\"2026-07-01\",\"endDate\":\"2026-07-05\",\"location\":\"Nowhere\"}"))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString();
+        UUID compId = UUID.fromString(objectMapper.readTree(compBody).at("/data/id").asText());
+
+        // Delete the org
+        mockMvc.perform(delete("/api/v1/organizations/{id}", orgId))
+            .andExpect(status().isNoContent());
+
+        // Verify the competition is gone (GET returns 404)
+        mockMvc.perform(get("/api/v1/organizations/{orgId}/competitions/{id}", orgId, compId))
+            .andExpect(status().isNotFound());
     }
 }

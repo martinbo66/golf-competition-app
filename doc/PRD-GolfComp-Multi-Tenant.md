@@ -126,15 +126,15 @@ Full organization management and removal of legacy endpoints.
 
 | Story | Status | Description |
 |-------|--------|-------------|
-| MT-029 | 🔲 To Do | **Organization admin endpoints** — Ensure create/update/delete organization works end-to-end including cascade behavior (deleting an org deletes all its competitions and transitively all sub-data). |
-| MT-030 | 🔲 To Do | **Remove legacy competition endpoints** — Remove the unscoped `/api/v1/competitions` routes that were kept for backward compatibility. All competition access must go through `/api/v1/organizations/{orgId}/competitions`. |
-| MT-031 | 🔲 To Do | **Frontend organization management UI** — Admin page for creating/editing/deleting organizations. Reachable from nav or settings. |
-| MT-032 | 🔲 To Do | **Organization display in UI** — Show org name in header/breadcrumbs. Organization context is visible throughout the app. |
-| MT-033 | 🔲 To Do | **End-to-end testing** — Full workflow: create org → create competition → add players → generate teams → enter scores → view leaderboards. Verify tenant isolation across two orgs. |
-| MT-034 | 🔲 To Do | **Final CLAUDE.md review** — Comprehensive review of CLAUDE.md to ensure all sections reflect the multi-tenant architecture. Bump version number. Verify: Overview mentions Organization, all data structures are current, all store references are complete, all API URLs use org-scoped paths, File Shortcuts includes all new files, Key Takeaways updated, Common Pitfalls updated (e.g., "API calls returning 404? → Check organizationId is set"). Remove any transition/legacy endpoint references. |
-| MT-035 | 🔲 To Do | **Update user-guide.md** — Update `doc/user-guide.md` to describe organization selection, how competitions are scoped to orgs, and the default organization behavior. Add screenshots/descriptions of the org selector UI. |
-| MT-036 | 🔲 To Do | **Update test-plan.md** — Update `doc/test-plan.md` to include multi-tenant test scenarios: org CRUD, org isolation, cross-org access denial, default org behavior, cascade delete of org and all child data. |
-| MT-037 | 🔲 To Do | **Update MEMORY.md** — Add entry to `.claude/projects/.../memory/MEMORY.md` documenting the multi-tenant architecture decision, the Organization entity, and any implementation lessons learned during the feature build. |
+| MT-029 | ✅ Done | **Organization admin endpoints** — Ensure create/update/delete organization works end-to-end including cascade behavior (deleting an org deletes all its competitions and transitively all sub-data). |
+| MT-030 | ✅ Done | **Remove legacy competition endpoints** — Remove the unscoped `/api/v1/competitions` routes that were kept for backward compatibility. All competition access must go through `/api/v1/organizations/{orgId}/competitions`. |
+| MT-031 | ✅ Done | **Frontend organization management UI** — Admin page for creating/editing/deleting organizations. Reachable from nav or settings. |
+| MT-032 | ✅ Done | **Organization display in UI** — Show org name in header/breadcrumbs. Organization context is visible throughout the app. |
+| MT-033 | ✅ Done | **End-to-end testing** — Full workflow: create org → create competition → add players → generate teams → enter scores → view leaderboards. Verify tenant isolation across two orgs. |
+| MT-034 | ✅ Done | **Final CLAUDE.md review** — Comprehensive review of CLAUDE.md to ensure all sections reflect the multi-tenant architecture. Bump version number. Verify: Overview mentions Organization, all data structures are current, all store references are complete, all API URLs use org-scoped paths, File Shortcuts includes all new files, Key Takeaways updated, Common Pitfalls updated (e.g., "API calls returning 404? → Check organizationId is set"). Remove any transition/legacy endpoint references. |
+| MT-035 | ✅ Done | **Update user-guide.md** — Update `doc/user-guide.md` to describe organization selection, how competitions are scoped to orgs, and the default organization behavior. Add screenshots/descriptions of the org selector UI. |
+| MT-036 | ✅ Done | **Update test-plan.md** — Update `doc/test-plan.md` to include multi-tenant test scenarios: org CRUD, org isolation, cross-org access denial, default org behavior, cascade delete of org and all child data. |
+| MT-037 | ✅ Done | **Update MEMORY.md** — Add entry to `.claude/projects/.../memory/MEMORY.md` documenting the multi-tenant architecture decision, the Organization entity, and any implementation lessons learned during the feature build. |
 
 **Acceptance criteria:** `./gradlew ci` passes. Full org lifecycle works. Legacy endpoints removed. All documentation files updated: CLAUDE.md, user-guide.md, test-plan.md, MEMORY.md.
 
@@ -316,8 +316,8 @@ These items are **not** part of this PRD but the design accommodates them:
 | 5 | MT-029 – MT-037 | Full management UI, cleanup, all documentation updates |
 
 **Total stories:** 38
-**Completed:** 32
-**Remaining:** 6
+**Completed:** 38
+**Remaining:** 0
 
 ### Documentation Stories Quick Reference
 
