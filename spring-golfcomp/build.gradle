@@ -40,6 +40,13 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// Suppress the plain JAR — Spring Boot produces the executable fat JAR.
+// Without this, Gradle generates both app.jar and app-plain.jar, which
+// causes `cp *.jar` in the deploy script to fail.
+jar {
+	enabled = false
+}
+
 // Embed Vue frontend into the JAR as static assets.
 // vue-golfcomp/dist/ is copied to BOOT-INF/classes/static/ so Spring Boot
 // serves the SPA at / alongside the API at /api/v1/**.

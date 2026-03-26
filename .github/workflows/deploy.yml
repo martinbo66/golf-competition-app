@@ -42,6 +42,35 @@ jobs:
       - name: Build (frontend embedded in backend JAR)
         run: ./gradlew build -x test -x lint
 
+      - name: Diagnose SSH connection
+        env:
+          SSH_KEY: ${{ secrets.DO_SSH_KEY }}
+          DO_HOST: ${{ secrets.DO_HOST }}
+          DO_USER: ${{ secrets.DO_USER }}
+        run: |
+          echo "=== Secret presence check ==="
+          echo "DO_HOST set: ${{ secrets.DO_HOST != '' }}"
+          echo "DO_USER set: ${{ secrets.DO_USER != '' }}"
+          echo "DO_SSH_KEY set: ${{ secrets.DO_SSH_KEY != '' }}"
+          echo "Key character count: ${#SSH_KEY}"
+
+          echo "=== Write key and check format ==="
+          echo "$SSH_KEY" > /tmp/diag_key
+          chmod 600 /tmp/diag_key
+          head -1 /tmp/diag_key   # shows only the header line e.g. -----BEGIN OPENSSH PRIVATE KEY-----
+          tail -1 /tmp/diag_key   # shows footer
+          wc -l /tmp/diag_key     # should be >3 lines; 1 line = newlines were stripped
+          ssh-keygen -l -f /tmp/diag_key && echo "Key format: VALID" || echo "Key format: INVALID"
+
+          echo "=== Verbose SSH test (first 60 lines) ==="
+          ssh -vvv \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=10 \
+            -i /tmp/diag_key \
+            "${DO_USER}@${DO_HOST}" "echo SSH_OK" 2>&1 | head -60 || true
+
+          rm -f /tmp/diag_key
+
       - name: Copy JAR to droplet
         uses: appleboy/scp-action@v0.1.7
         with:
