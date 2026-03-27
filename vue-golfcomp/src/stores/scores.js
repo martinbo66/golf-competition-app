@@ -248,26 +248,26 @@ export const useScoresStore = defineStore('scores', {
             const existingIndex = this.scores.findIndex(
                 s => s.playerId === playerId && s.courseId === courseId
             );
-            if (existingIndex !== -1) {
-                this.scores[existingIndex] = mappedScore;
-            } else {
+            if (existingIndex === -1) {
                 this.scores.push(mappedScore);
+            } else {
+                this.scores[existingIndex] = mappedScore;
             }
         },
 
         deleteScore(id) {
-            // TODO: Backend needs DELETE /api/v1/.../scores/{id} endpoint.
-            // For now, remove from local state only. Score will reappear on next fetchScores().
+            // Backend DELETE /api/v1/.../scores/{id} not yet implemented.
+            // Removing from local state only; score will reappear on next fetchScores().
             this.scores = this.scores.filter(score => score.id !== id);
         },
 
         deletePlayerScores(playerId) {
-            // TODO: Backend may cascade on player delete; or add bulk delete. Local-only for now.
+            // Backend may cascade on player delete; bulk delete not yet implemented. Local-only for now.
             this.scores = this.scores.filter(score => score.playerId !== playerId);
         },
 
         deleteCourseScores(courseId) {
-            // TODO: Backend has no per-round clear. Local-only for now.
+            // Backend has no per-round clear endpoint. Local-only for now.
             this.scores = this.scores.filter(score => score.courseId !== courseId);
         }
     }

@@ -54,7 +54,6 @@ class ScoreLeaderboardApiIntegrationTest {
     private UUID roundId;
     private UUID playerAId;
     private UUID playerBId;
-    private UUID teamId;
 
     @BeforeEach
     void setUp() {
@@ -94,7 +93,6 @@ class ScoreLeaderboardApiIntegrationTest {
             .competition(competition)
             .name("Team Alpha")
             .build());
-        teamId = team.getId();
 
         playerAId = playerRepository.save(Player.builder()
             .competition(competition)

@@ -33,6 +33,10 @@ export const useCompetitionsStore = defineStore('competitions', {
         async fetchCompetitions() {
             const list = await ApiService.get(ApiService.competitionsUrl());
             this.competitions = (list || []).map(mapCompetitionResponse);
+            if (this.activeCompetition) {
+                const refreshed = this.competitions.find(c => c.id === this.activeCompetition.id);
+                this.activeCompetition = refreshed || null;
+            }
         },
 
         async createCompetition(data) {

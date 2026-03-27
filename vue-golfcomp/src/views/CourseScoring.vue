@@ -1,12 +1,14 @@
 <template>
     <div class="course-scoring">
         <div class="page-header">
-            <h1>Scoring: {{ courseName }}</h1>
+            <h1>
+                Scoring: {{ courseName }}
+                <span v-if="currentCourse?.playDate" class="round-date">{{ formatRoundDate(currentCourse.playDate) }}</span>
+            </h1>
         </div>
 
         <div v-if="courseId" class="scoring-content">
-            <div class="scoring-grid">
-                <div class="main-column">
+            <div class="main-column">
                     <ScoreEntry :courseId="courseId" />
 
                     <!-- Team Score Cards -->
@@ -48,11 +50,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="side-column">
-                    <CourseScorecard :courseId="courseId" />
-                </div>
             </div>
         </div>
         <div v-else class="loading-state">
@@ -67,29 +64,38 @@ import { useRoute, useRouter } from 'vue-router';
 import { useCoursesStore } from '@/stores/courses';
 import { useScoresStore } from '@/stores/scores';
 import ScoreEntry from '@/components/scoring/ScoreEntry.vue';
-import CourseScorecard from '@/components/scoring/CourseScorecard.vue';
 
 const route = useRoute();
 const router = useRouter();
 const coursesStore = useCoursesStore();
 const scoresStore = useScoresStore();
 
-const courseId = computed(() => route.params.courseId);
-
-const courseName = computed(() => {
-    if (!courseId.value) return 'Unknown Course';
-    const course = coursesStore.courses.find(c => c.id === courseId.value);
-    return course ? course.name : 'Unknown Course';
+// Route param is roundId; look up the course entry by roundId (falling back to id match)
+const currentCourse = computed(() => {
+    const id = route.params.roundId;
+    if (!id) return null;
+    return coursesStore.courses.find(c => c.roundId === id || c.id === id) || null;
 });
+
+const courseId = computed(() => currentCourse.value?.id || null);
+
+const courseName = computed(() => currentCourse.value?.name || 'Unknown Course');
 
 const courseScoresByTeam = computed(() => {
     if (!courseId.value) return [];
     return scoresStore.courseScoresByTeam(courseId.value);
 });
 
+function formatRoundDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 onMounted(() => {
-    if (!courseId.value && coursesStore.courses.length > 0) {
-        router.replace({ name: 'CourseScoring', params: { courseId: coursesStore.courses[0].id } });
+    if (!route.params.roundId && coursesStore.courses.length > 0) {
+        const first = coursesStore.courses[0];
+        router.replace({ name: 'CourseScoring', params: { roundId: first.roundId || first.id } });
     }
 });
 </script>
@@ -104,19 +110,28 @@ h1 {
   font-size: 1.8rem;
   font-weight: 500;
   color: #1a202c;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.round-date {
+  font-size: 1.2rem;
+  font-weight: 400;
+  font-style: italic;
+  color: #6c757d;
 }
 
 body.dark-mode h1 {
   color: #e2e8f0;
 }
 
-.scoring-grid {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 20px;
+body.dark-mode .round-date {
+  color: #a0aec0;
 }
 
-.main-column, .side-column {
+.main-column {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -124,13 +139,12 @@ body.dark-mode h1 {
 
 /* Team Scores Section */
 .team-scores-heading {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-color, #1a202c);
   margin: 0 0 10px 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-size: 0.8rem;
 }
 
 .team-score-cards {
@@ -251,10 +265,6 @@ body.dark-mode h1 {
 .talent-d { background-color: #dc3545; }
 
 @media (max-width: 992px) {
-  .scoring-grid {
-    grid-template-columns: 1fr;
-  }
-
   .team-score-cards {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }

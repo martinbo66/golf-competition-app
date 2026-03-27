@@ -37,7 +37,7 @@ export const useTeamsStore = defineStore('teams', {
             });
             const mapped = mapTeamResponse(created);
             this.teams.push(mapped);
-            return Promise.resolve(mapped.id);
+            return mapped.id;
         },
 
         async updateTeam({ id, updates }) {
@@ -48,14 +48,14 @@ export const useTeamsStore = defineStore('teams', {
             if (index !== -1) {
                 this.teams.splice(index, 1, {
                     ...existing,
-                    name: updates.name !== undefined ? updates.name : existing.name,
-                    logoUrl: updates.logoUrl !== undefined ? updates.logoUrl : existing.logoUrl
+                    name: updates.name === undefined ? existing.name : updates.name,
+                    logoUrl: updates.logoUrl === undefined ? existing.logoUrl : updates.logoUrl
                 });
             }
 
             const updated = await ApiService.put(ApiService.teamsUrl(id), {
-                name: updates.name !== undefined ? updates.name : (existing?.name ?? ''),
-                logoUrl: updates.logoUrl !== undefined ? updates.logoUrl : (existing?.logoUrl ?? null)
+                name: updates.name === undefined ? (existing?.name ?? '') : updates.name,
+                logoUrl: updates.logoUrl === undefined ? (existing?.logoUrl ?? null) : updates.logoUrl
             });
             const mapped = mapTeamResponse(updated);
             // Preserve logoUrl from updates if the server response didn't return it
@@ -63,10 +63,10 @@ export const useTeamsStore = defineStore('teams', {
                 mapped.logoUrl = updates.logoUrl;
             }
             const finalIndex = this.teams.findIndex(t => t.id === id);
-            if (finalIndex !== -1) {
-                this.teams.splice(finalIndex, 1, mapped);
-            } else {
+            if (finalIndex === -1) {
                 this.teams.push(mapped);
+            } else {
+                this.teams.splice(finalIndex, 1, mapped);
             }
         },
 

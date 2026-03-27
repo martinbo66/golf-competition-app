@@ -102,8 +102,9 @@ class TeamServiceTest {
     void create_throwsWhenCompetitionNotFound() {
         when(competitionRepository.findById(competitionId)).thenReturn(Optional.empty());
 
+        CreateTeamRequest request = new CreateTeamRequest("Team A", null);
         assertThrows(ResourceNotFoundException.class,
-            () -> teamService.create(competitionId, new CreateTeamRequest("Team A", null)));
+            () -> teamService.create(competitionId, request));
     }
 
     @Test

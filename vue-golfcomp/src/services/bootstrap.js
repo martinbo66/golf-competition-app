@@ -2,9 +2,6 @@ import ApiService from './ApiService';
 import { useOrganizationsStore } from '@/stores/organizations';
 import { useCompetitionsStore } from '@/stores/competitions';
 import { useCoursesStore } from '@/stores/courses';
-import { usePlayersStore } from '@/stores/players';
-import { useTeamsStore } from '@/stores/teams';
-import { useScoresStore } from '@/stores/scores';
 import { useUiStore } from '@/stores/ui';
 import NotificationService from './NotificationService';
 
@@ -17,79 +14,66 @@ const COURSE_IDS = [
 ];
 
 /**
- * Find or create the default competition, ensure 4 rounds exist, then load all
- * store data from the API. Idempotent: safe to run multiple times.
- * @throws {Error} When the backend is unavailable or competition bootstrap fails
+ * Bootstrap the app: select the default org (auto-selects best competition and
+ * loads all data), handle edge cases (no competitions, no rounds), and load
+ * the global course pool.
+ * @throws {Error} When the backend is unavailable
  */
 export async function initializeApp() {
   const uiStore = useUiStore();
   uiStore.setLoading(true);
 
   try {
-    // 0. Initialize organization context
+    // 1. Load orgs and activate the default one.
+    //    setActiveOrganization fetches competitions and auto-selects the best
+    //    one via setActiveCompetition, which loads courses/players/teams/scores.
     const orgsStore = useOrganizationsStore();
     await orgsStore.fetchOrganizations();
 
-    // Auto-select the default org (by slug 'default', or first available)
     const defaultOrg = orgsStore.organizations.find(o => o.slug === 'default')
       || orgsStore.organizations[0];
     if (defaultOrg) {
       await orgsStore.setActiveOrganization(defaultOrg);
     }
 
-    // 1. Find or create competition
+    // 2. If the org had no competitions, create a starter one.
     const competitionsStore = useCompetitionsStore();
-    await competitionsStore.fetchCompetitions();
-
-    let competition;
-    if (competitionsStore.competitions.length > 0) {
-      competition = competitionsStore.competitions[0];
-    } else {
+    if (!competitionsStore.activeCompetition) {
       const today = new Date().toISOString().split('T')[0];
       const endDate = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
-      competition = await competitionsStore.createCompetition({
-        name: 'Golf Competition',
-        startDate: today,
-        endDate,
-        location: null
-      });
-    }
-
-    competitionsStore.activeCompetition = competition;
-    ApiService.competitionId = competition.id;
-
-    // 2. Ensure rounds exist (one per course)
-    const rounds = await ApiService.get(ApiService.roundsUrl());
-    if (!rounds || rounds.length === 0) {
-      const today = new Date().toISOString().split('T')[0];
-      for (let i = 0; i < COURSE_IDS.length; i++) {
-        await ApiService.post(ApiService.roundsUrl(), {
-          courseId: COURSE_IDS[i],
-          playDate: today,
-          roundNumber: i + 1
+      try {
+        await competitionsStore.createCompetition({
+          name: 'Golf Competition',
+          startDate: today,
+          endDate,
+          location: null
         });
+      } catch (err) {
+        NotificationService.error(`Failed to create a default competition: ${err.message || err}`);
       }
     }
 
-    // 3. Load all data from API in dependency order
+    // 3. Ensure the active competition has at least one round (first-run setup).
+    if (competitionsStore.activeCompetition) {
+      const rounds = await ApiService.get(ApiService.roundsUrl());
+      if (!rounds || rounds.length === 0) {
+        const today = new Date().toISOString().split('T')[0];
+        for (let i = 0; i < COURSE_IDS.length; i++) {
+          await ApiService.post(ApiService.roundsUrl(), {
+            courseId: COURSE_IDS[i],
+            playDate: today,
+            roundNumber: i + 1
+          });
+        }
+      }
+    }
+
+    // 4. Load the global course pool (used in course management / round selection).
+    //    Competition-specific data was already loaded by setActiveCompetition.
     const coursesStore = useCoursesStore();
-    const playersStore = usePlayersStore();
-    const teamsStore = useTeamsStore();
-    const scoresStore = useScoresStore();
-
-    // Load global course pool first (used in course management and round selection)
-    await coursesStore.fetchAllCourses();
-
-    // Courses must load next — scores need the roundId mapping
-    await coursesStore.fetchCourses();
-
     try {
-      await Promise.all([
-        playersStore.fetchPlayers(),
-        teamsStore.fetchTeams()
-      ]);
-      await scoresStore.fetchScores(); // After courses (needs roundId mapping)
-    } catch (dataError) {
+      await coursesStore.fetchAllCourses();
+    } catch (err) {
       NotificationService.error('Some data failed to load. Please refresh.');
     }
 

@@ -2,3 +2,4 @@ paths-ignore:
   - '**/build/**'
   - '**/node_modules/**'
   - '**/dist/**'
+  - '**/coverage/**'

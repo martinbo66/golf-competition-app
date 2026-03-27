@@ -15,7 +15,7 @@
     </div>
 
     <div class="form-group">
-      <label>Team Logo (Optional)</label>
+      <span class="form-label">Team Logo (Optional)</span>
 
       <div class="logo-tabs">
         <button type="button" :class="['logo-tab', { active: activeTab === 'preset' }]" @click="switchTab('preset')">Preset</button>
@@ -155,16 +155,8 @@ export default {
     switchTab(tab) {
       this.activeTab = tab;
       // Clear logo when switching tabs so stale values don't carry over
-      if (tab === 'preset') {
-        this.selectedPresetId = null;
-        this.form.logoUrl = '';
-      } else if (tab === 'upload') {
-        this.selectedPresetId = null;
-        this.form.logoUrl = '';
-      } else if (tab === 'url') {
-        this.selectedPresetId = null;
-        this.form.logoUrl = '';
-      }
+      this.selectedPresetId = null;
+      this.form.logoUrl = '';
       this.errors = {};
     },
     selectPreset(preset) {

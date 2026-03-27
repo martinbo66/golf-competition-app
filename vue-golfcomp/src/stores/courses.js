@@ -80,7 +80,8 @@ export const useCoursesStore = defineStore('courses', {
                             id: round.course.id,
                             name: round.course.name,
                             order: index + 1,
-                            roundId: round.id
+                            roundId: round.id,
+                            playDate: round.playDate || null
                         }));
                 } else {
                     this.courses = this.allCoursesCache.length > 0
@@ -88,8 +89,9 @@ export const useCoursesStore = defineStore('courses', {
                         : [...FALLBACK_COURSES];
                 }
                 this.loaded = true;
-            } catch (_err) {
+            } catch (err) {
                 // Keep fallback courses (roundId remains null)
+                console.warn('Failed to fetch courses, using fallback:', err.message || err);
                 this.loaded = true;
             }
         }

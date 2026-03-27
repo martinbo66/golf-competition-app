@@ -20,14 +20,19 @@
       <div v-if="activeSection === 'scoring'">
         <h3>Scoring</h3>
         <ul>
-          <li v-for="course in courses" :key="course.id">
-            <router-link 
-              :to="`/scoring/${course.id}`" 
-              :class="{ active: activeSidebarItem === course.id }"
-              @click.native="setActiveSidebarItem(course.id)"
+          <li v-for="course in courses" :key="course.roundId || course.id">
+            <router-link
+              :to="`/scoring/${course.roundId || course.id}`"
+              :class="{ active: activeSidebarItem === (course.roundId || course.id) }"
+              @click.native="setActiveSidebarItem(course.roundId || course.id)"
             >
               <i class="fas fa-flag"></i>
-              {{ course.name }}
+              <span class="course-nav-label">
+                {{ course.name }}
+                <span v-if="course.playDate" class="course-nav-date">
+                  {{ formatNavDate(course.playDate) }}
+                </span>
+              </span>
             </router-link>
           </li>
         </ul>
@@ -72,6 +77,7 @@
 import { computed } from 'vue';
 import { useUiStore } from '@/stores/ui';
 import { useCoursesStore } from '@/stores/courses';
+import { useOrganizationsStore } from '@/stores/organizations';
 
 const uiStore = useUiStore();
 const coursesStore = useCoursesStore();
@@ -88,7 +94,16 @@ const activeSection = computed(() => uiStore.activeSection);
 const activeSidebarItem = computed(() => uiStore.activeSidebarItem);
 const courses = computed(() => coursesStore.allCourses);
 
+function formatNavDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+const organizationsStore = useOrganizationsStore();
+
 const currentThumbnailImage = computed(() => {
+  const orgName = organizationsStore.activeOrganization?.name ?? '';
+  if (!orgName.toLowerCase().includes('bathe')) return null;
   const imageMap = {
     'administration': require('@/assets/bathe-head-1.png'),
     'scoring': require('@/assets/bathe-head-2.png'),
@@ -166,6 +181,18 @@ const setActiveSidebarItem = (itemId) => {
   border-left: 3px solid var(--primary-color);
 }
 
+
+.course-nav-label {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.course-nav-date {
+  font-size: 0.82rem;
+  opacity: 0.7;
+  font-weight: 400;
+}
 
 .sidebar-thumbnail {
   margin: 20px 15px;

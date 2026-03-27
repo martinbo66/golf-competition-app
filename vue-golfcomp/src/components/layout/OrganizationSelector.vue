@@ -25,23 +25,16 @@
 
 <script setup>
 import { useOrganizationsStore } from '@/stores/organizations';
-import { useCompetitionsStore } from '@/stores/competitions';
-import ApiService from '@/services/ApiService';
 
 const orgsStore = useOrganizationsStore();
-const competitionsStore = useCompetitionsStore();
 
 async function onOrgChange(event) {
   const selectedId = event.target.value;
   const org = orgsStore.organizations.find(o => o.id === selectedId);
   if (!org) return;
 
+  // setActiveOrganization fetches competitions and auto-selects the best one
   await orgsStore.setActiveOrganization(org);
-
-  // Clear active competition and reload competitions for the new org
-  competitionsStore.activeCompetition = null;
-  ApiService.competitionId = null;
-  await competitionsStore.fetchCompetitions();
 }
 </script>
 

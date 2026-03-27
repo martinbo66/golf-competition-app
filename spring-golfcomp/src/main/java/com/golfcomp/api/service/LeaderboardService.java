@@ -69,7 +69,7 @@ public class LeaderboardService {
             .sorted(Comparator
                 .comparingInt(PlayerLeaderboardEntry::roundsPlayed).reversed()
                 .thenComparingInt(PlayerLeaderboardEntry::totalScore))
-            .collect(Collectors.toList());
+            .toList();
 
         return assignRanks(unranked);
     }
@@ -102,7 +102,7 @@ public class LeaderboardService {
                 );
             })
             .sorted(Comparator.comparingInt(TeamLeaderboardEntry::totalScore))
-            .collect(Collectors.toList());
+            .toList();
 
         return assignTeamRanks(unranked);
     }

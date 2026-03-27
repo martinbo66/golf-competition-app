@@ -33,5 +33,6 @@
     <include file="changes/010-seed-default-organization.xml" relativeToChangelogFile="true"/>
     <include file="changes/011-add-organization-to-competitions.xml" relativeToChangelogFile="true"/>
     <include file="changes/012-fix-uuid-column-types-postgresql.xml" relativeToChangelogFile="true"/>
+    <include file="changes/013-rename-default-organization.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

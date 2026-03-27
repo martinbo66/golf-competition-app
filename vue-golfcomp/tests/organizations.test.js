@@ -9,13 +9,25 @@ jest.mock('@/services/ApiService', () => ({
   __esModule: true,
   default: {
     _organizationId: null,
+    _competitionId: null,
     get organizationId() { return this._organizationId; },
     set organizationId(id) { this._organizationId = id; },
+    get competitionId() { return this._competitionId; },
+    set competitionId(id) { this._competitionId = id; },
     get: jest.fn(),
     post: jest.fn(),
     put: jest.fn(),
     delete: jest.fn(),
-    organizationsUrl: jest.fn(id => (id ? `/organizations/${id}` : '/organizations'))
+    organizationsUrl: jest.fn(id => (id ? `/organizations/${id}` : '/organizations')),
+    competitionsUrl: jest.fn(function competitionsUrlMock(id) {
+      const oid = this._organizationId;
+      if (oid) {
+        return id
+          ? `/organizations/${oid}/competitions/${id}`
+          : `/organizations/${oid}/competitions`;
+      }
+      return id ? `/competitions/${id}` : '/competitions';
+    })
   }
 }));
 
@@ -23,11 +35,22 @@ describe('organizations store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     ApiService._organizationId = null;
+    ApiService._competitionId = null;
     ApiService.get.mockReset();
     ApiService.post.mockReset();
     ApiService.put.mockReset();
     ApiService.delete.mockReset();
     ApiService.organizationsUrl.mockImplementation(id => (id ? `/organizations/${id}` : '/organizations'));
+    ApiService.competitionsUrl.mockImplementation(function competitionsUrlImpl(id) {
+      const oid = this._organizationId;
+      if (oid) {
+        return id
+          ? `/organizations/${oid}/competitions/${id}`
+          : `/organizations/${oid}/competitions`;
+      }
+      return id ? `/competitions/${id}` : '/competitions';
+    });
+    ApiService.get.mockResolvedValue([]);
   });
 
   describe('fetchOrganizations', () => {

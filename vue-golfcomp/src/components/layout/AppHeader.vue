@@ -4,7 +4,7 @@
     <div class="header-main-section" v-if="currentHeaderImage">
       <div class="logo-section">
         <router-link to="/" class="logo-link">
-          <img src="@/assets/logo.png" alt="Bathe Golf Competition" class="logo-img" />
+          <img src="@/assets/logo.png" :alt="appTitle" class="logo-img" />
         </router-link>
       </div>
       <div class="header-image-section">
@@ -13,16 +13,20 @@
     </div>
     
     <div class="header-content">
-      <div class="site-title">
-        <router-link to="/">
-          <h1>Bathe Golf Competition</h1>
-        </router-link>
+      <div class="header-left">
+        <div class="site-title">
+          <router-link to="/">
+            <h1>{{ appTitle }}</h1>
+          </router-link>
+        </div>
+        <OrganizationSelector />
+        <CompetitionBadge />
       </div>
       <nav class="top-nav">
         <ul>
           <li v-for="item in navItems" :key="item.id">
-            <router-link 
-              :to="item.route" 
+            <router-link
+              :to="item.route"
               :class="{ active: activeSection === item.id }"
               @click.native="setActiveSection(item.id)"
             >
@@ -32,8 +36,6 @@
           </li>
         </ul>
       </nav>
-      <CompetitionBadge />
-      <OrganizationSelector />
       <div class="user-menu">
         <button class="btn-icon" @click="toggleTheme">
           <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
@@ -104,6 +106,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useUiStore } from '@/stores/ui';
 import { useCoursesStore } from '@/stores/courses';
+import { useOrganizationsStore } from '@/stores/organizations';
 import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
 import { getUserFriendlyErrorMessage } from '@/utils';
@@ -112,6 +115,12 @@ import OrganizationSelector from '@/components/layout/OrganizationSelector.vue';
 
 const uiStore = useUiStore();
 const coursesStore = useCoursesStore();
+const organizationsStore = useOrganizationsStore();
+
+const appTitle = computed(() => {
+  const orgName = organizationsStore.activeOrganization?.name;
+  return orgName ? `${orgName} Golf Competition` : 'Golf Competition';
+});
 
 const scoringRoute = computed(() => {
   const firstCourse = coursesStore.allCourses[0];
@@ -190,7 +199,7 @@ const importDataFromJson = async () => {
     NotificationService.warning('Please paste JSON data to import');
     return;
   }
-  const confirmed = window.confirm(
+  const confirmed = globalThis.confirm(
     'This will delete all existing players, teams, and scores and replace them with the imported data. Continue?'
   );
   if (!confirmed) return;
@@ -205,7 +214,7 @@ const importDataFromJson = async () => {
     importProgress.value = '';
     showImportModal.value = false;
     NotificationService.success('Data imported successfully');
-    setTimeout(() => window.location.reload(), 500);
+    setTimeout(() => globalThis.location.reload(), 500);
   } catch (error) {
     NotificationService.error(getUserFriendlyErrorMessage(error));
     importProgress.value = '';
@@ -281,12 +290,20 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   padding: 0 20px;
-  height: 60px;
+  min-height: 60px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
 }
 
 .site-title {
-  flex: 1;
+  flex-shrink: 0;
 }
 
 .site-title a {

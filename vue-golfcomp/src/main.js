@@ -14,6 +14,6 @@ initializeApp()
   .then(() => app.mount('#app'))
   .catch((error) => {
     console.error('Failed to initialize app:', error);
-    window.__bootstrapError = error;
+    globalThis.__bootstrapError = error;
     app.mount('#app');
   });

@@ -39,12 +39,11 @@ class CourseTest {
 
     @Test
     @DisplayName("Should update timestamp on onUpdate")
-    void shouldUpdateTimestampOnUpdate() throws InterruptedException {
+    void shouldUpdateTimestampOnUpdate() {
         Course course = Course.builder().name("Test Course").build();
         course.onCreate();
         Instant originalCreatedAt = course.getCreatedAt();
 
-        Thread.sleep(10);
         course.onUpdate();
 
         assertEquals(originalCreatedAt, course.getCreatedAt());

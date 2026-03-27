@@ -37,7 +37,7 @@ const routes = [
     component: () => import('@/views/CourseManagement.vue')
   },
   {
-    path: '/scoring/:courseId',
+    path: '/scoring/:roundId',
     name: 'CourseScoring',
     component: CourseScoring,
     props: true
@@ -50,7 +50,7 @@ const routes = [
         const coursesStore = useCoursesStore();
         const firstCourse = coursesStore.allCourses[0];
         if (firstCourse) {
-          return `/scoring/${firstCourse.id}`;
+          return `/scoring/${firstCourse.roundId || firstCourse.id}`;
         }
         return '/admin/players';
       } catch (e) {
@@ -105,23 +105,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.path === '/admin/courses') {
     uiStore.setActiveSidebarItem('courses');
   } else if (to.path.startsWith('/scoring/')) {
-    // In Vue Router 4, params are available in to.params
-    // But we need to check if courseName is available or if we need to derive it
-    // The route is /scoring/:courseId
-    // The old code used to.params.courseName which implies it was passed or derived?
-    // Wait, the route definition is /scoring/:courseId
-    // So to.params.courseId is available.
-    // The old code checked `to.path.startsWith('/scoring/')` and used `to.params.courseName`.
-    // This suggests the sidebar item expects a name, or maybe ID?
-    // Let's assume we pass the ID for now or we need to look up the name.
-    // But `uiStore.setActiveSidebarItem` expects what?
-    // In `ui.js` state: `activeSidebarItem: 'players'`.
-    // It seems to be a string identifier.
-    // If I look at `CourseScoring.vue` (not read yet), I might see what it expects.
-    // For now, I'll use courseId if courseName is missing.
-
-    const courseId = to.params.courseId;
-    uiStore.setActiveSidebarItem(courseId);
+    uiStore.setActiveSidebarItem(to.params.roundId);
   } else if (to.path === '/leaderboards') {
     uiStore.setActiveSidebarItem('points-leaderboards');
   } else if (to.path === '/money-leaderboards') {

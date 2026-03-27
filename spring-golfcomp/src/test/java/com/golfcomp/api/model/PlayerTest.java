@@ -63,7 +63,7 @@ class PlayerTest {
 
     @Test
     @DisplayName("Should update timestamp on onUpdate")
-    void shouldUpdateTimestampOnUpdate() throws InterruptedException {
+    void shouldUpdateTimestampOnUpdate() {
         Player player = Player.builder()
                 .name("Test Player")
                 .talentRating(TalentRating.C)
@@ -72,7 +72,6 @@ class PlayerTest {
         player.onCreate();
         LocalDateTime originalCreatedAt = player.getCreatedAt();
 
-        Thread.sleep(10);
         player.onUpdate();
 
         assertEquals(originalCreatedAt, player.getCreatedAt());

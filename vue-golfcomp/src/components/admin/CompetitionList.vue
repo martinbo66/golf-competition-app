@@ -44,7 +44,7 @@
             <div class="comp-card__actions">
               <button
                 v-if="!isActive(comp)"
-                class="btn btn-primary"
+                class="btn btn-secondary"
                 @click="confirmSwitch(comp)"
                 title="Set as active competition"
               >
