@@ -93,7 +93,6 @@ class ScoreLeaderboardApiIntegrationTest {
             .competition(competition)
             .name("Team Alpha")
             .build());
-        teamId = team.getId();
 
         playerAId = playerRepository.save(Player.builder()
             .competition(competition)
