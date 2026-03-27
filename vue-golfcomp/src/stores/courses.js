@@ -89,8 +89,9 @@ export const useCoursesStore = defineStore('courses', {
                         : [...FALLBACK_COURSES];
                 }
                 this.loaded = true;
-            } catch (_err) {
+            } catch (err) {
                 // Keep fallback courses (roundId remains null)
+                console.warn('Failed to fetch courses, using fallback:', err.message || err);
                 this.loaded = true;
             }
         }

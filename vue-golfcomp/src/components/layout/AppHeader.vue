@@ -199,7 +199,7 @@ const importDataFromJson = async () => {
     NotificationService.warning('Please paste JSON data to import');
     return;
   }
-  const confirmed = window.confirm(
+  const confirmed = globalThis.confirm(
     'This will delete all existing players, teams, and scores and replace them with the imported data. Continue?'
   );
   if (!confirmed) return;
@@ -214,7 +214,7 @@ const importDataFromJson = async () => {
     importProgress.value = '';
     showImportModal.value = false;
     NotificationService.success('Data imported successfully');
-    setTimeout(() => window.location.reload(), 500);
+    setTimeout(() => globalThis.location.reload(), 500);
   } catch (error) {
     NotificationService.error(getUserFriendlyErrorMessage(error));
     importProgress.value = '';

@@ -14,7 +14,7 @@ class ApiService {
       (response) => {
         if (response.status === 204) return null;
         const apiResponse = response.data;
-        if (apiResponse && apiResponse.success !== undefined) {
+        if (apiResponse?.success !== undefined) {
           return apiResponse.data;
         }
         return response.data;

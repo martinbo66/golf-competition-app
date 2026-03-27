@@ -49,7 +49,7 @@ export async function initializeApp() {
           location: null
         });
       } catch (err) {
-        NotificationService.error('Failed to create a default competition.');
+        NotificationService.error(`Failed to create a default competition: ${err.message || err}`);
       }
     }
 

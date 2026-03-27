@@ -37,12 +37,11 @@ class TeamTest {
 
     @Test
     @DisplayName("Should update timestamp on onUpdate")
-    void shouldUpdateTimestampOnUpdate() throws InterruptedException {
+    void shouldUpdateTimestampOnUpdate() {
         Team team = Team.builder().name("Test Team").build();
         team.onCreate();
         LocalDateTime originalCreatedAt = team.getCreatedAt();
 
-        Thread.sleep(10);
         team.onUpdate();
 
         assertEquals(originalCreatedAt, team.getCreatedAt());

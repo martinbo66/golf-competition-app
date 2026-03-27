@@ -104,9 +104,9 @@ class PlayerServiceTest {
     void create_throwsWhenCompetitionNotFound() {
         when(competitionRepository.findById(competitionId)).thenReturn(Optional.empty());
 
+        CreatePlayerRequest request = new CreatePlayerRequest("Erik", TalentRating.B, null, null);
         assertThrows(ResourceNotFoundException.class,
-            () -> playerService.create(competitionId,
-                new CreatePlayerRequest("Erik", TalentRating.B, null, null)));
+            () -> playerService.create(competitionId, request));
     }
 
     @Test

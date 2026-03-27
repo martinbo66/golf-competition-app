@@ -41,7 +41,7 @@ class RoundTest {
 
     @Test
     @DisplayName("Should update timestamp on onUpdate")
-    void shouldUpdateTimestampOnUpdate() throws InterruptedException {
+    void shouldUpdateTimestampOnUpdate() {
         Round round = Round.builder()
                 .playDate(LocalDate.now())
                 .roundNumber(1)
@@ -49,7 +49,6 @@ class RoundTest {
         round.onCreate();
         Instant originalCreatedAt = round.getCreatedAt();
 
-        Thread.sleep(10);
         round.onUpdate();
 
         assertEquals(originalCreatedAt, round.getCreatedAt());

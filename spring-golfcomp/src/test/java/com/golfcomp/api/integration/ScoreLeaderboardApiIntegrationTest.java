@@ -54,7 +54,6 @@ class ScoreLeaderboardApiIntegrationTest {
     private UUID roundId;
     private UUID playerAId;
     private UUID playerBId;
-    private UUID teamId;
 
     @BeforeEach
     void setUp() {

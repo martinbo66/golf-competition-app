@@ -155,16 +155,8 @@ export default {
     switchTab(tab) {
       this.activeTab = tab;
       // Clear logo when switching tabs so stale values don't carry over
-      if (tab === 'preset') {
-        this.selectedPresetId = null;
-        this.form.logoUrl = '';
-      } else if (tab === 'upload') {
-        this.selectedPresetId = null;
-        this.form.logoUrl = '';
-      } else if (tab === 'url') {
-        this.selectedPresetId = null;
-        this.form.logoUrl = '';
-      }
+      this.selectedPresetId = null;
+      this.form.logoUrl = '';
       this.errors = {};
     },
     selectPreset(preset) {
