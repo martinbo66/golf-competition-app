@@ -1,3 +1,6 @@
+[![CI/CD Pipeline](https://github.com/martinbo66/golf-competition-app/actions/workflows/ci.yml/badge.svg)](https://github.com/martinbo66/golf-competition-app/actions/workflows/ci.yml)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=martinbo66_golf-competition-app&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=martinbo66_golf-competition-app)
 # Golf Team Competition App
 
 A full-stack application for managing golf team competitions. The project is a monorepo containing a Vue.js 2 single-page application and a Spring Boot REST API backend.
