@@ -84,7 +84,8 @@ describe('Courses Store', () => {
             id: 'course-1',
             name: 'Parkland',
             order: 1,
-            roundId: 'round-1'
+            roundId: 'round-1',
+            playDate: null
         });
         expect(store.rounds).toEqual(rounds);
         expect(store.loaded).toBe(true);
