@@ -139,13 +139,12 @@ body.dark-mode .round-date {
 
 /* Team Scores Section */
 .team-scores-heading {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-color, #1a202c);
   margin: 0 0 10px 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-size: 0.8rem;
 }
 
 .team-score-cards {

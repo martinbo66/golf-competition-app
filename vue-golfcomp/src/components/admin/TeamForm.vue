@@ -15,7 +15,7 @@
     </div>
 
     <div class="form-group">
-      <label>Team Logo (Optional)</label>
+      <span class="form-label">Team Logo (Optional)</span>
 
       <div class="logo-tabs">
         <button type="button" :class="['logo-tab', { active: activeTab === 'preset' }]" @click="switchTab('preset')">Preset</button>

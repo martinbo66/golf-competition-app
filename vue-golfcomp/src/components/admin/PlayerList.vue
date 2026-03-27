@@ -99,8 +99,8 @@
         <div class="modal-body">
           <p class="copy-description">Select a competition to copy players from. Players will be added to the current competition without replacing existing ones.</p>
           <div class="form-group">
-            <label class="form-label">Source Competition</label>
-            <select v-model="selectedSourceCompetitionId" class="form-control">
+            <label class="form-label" for="source-competition">Source Competition</label>
+            <select id="source-competition" v-model="selectedSourceCompetitionId" class="form-control">
               <option value="">-- Select a competition --</option>
               <option
                 v-for="comp in otherCompetitions"
