@@ -236,7 +236,7 @@ class DataService {
       failures.push({ type: 'clear', message: err.message || String(err) });
     }
     await this.teamsStore.deleteAllTeams();
-    for (const player of [...this.playersStore.allPlayers]) {
+    for (const player of this.playersStore.allPlayers) {
       try {
         await this.playersStore.deletePlayer(player.id);
       } catch (err) {
