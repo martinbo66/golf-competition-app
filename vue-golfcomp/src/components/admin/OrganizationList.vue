@@ -130,7 +130,7 @@ async function handleSetActive(org) {
 }
 
 async function confirmDelete(org) {
-  const confirmed = window.confirm(
+  const confirmed = globalThis.confirm(
     `Delete organization "${org.name}"? This will permanently delete all its competitions and data.`
   );
   if (!confirmed) return;
