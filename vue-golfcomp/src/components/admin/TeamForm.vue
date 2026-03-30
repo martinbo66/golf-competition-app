@@ -14,8 +14,8 @@
       <div v-if="errors.name" class="invalid-feedback">{{ errors.name }}</div>
     </div>
 
-    <div class="form-group">
-      <span class="form-label">Team Logo (Optional)</span>
+    <fieldset class="form-group">
+      <legend class="form-label">Team Logo (Optional)</legend>
 
       <div class="logo-tabs">
         <button type="button" :class="['logo-tab', { active: activeTab === 'preset' }]" @click="switchTab('preset')">Preset</button>
@@ -71,7 +71,7 @@
           <button type="button" class="btn btn-secondary btn-sm" @click="clearLogo">Remove Logo</button>
         </div>
       </div>
-    </div>
+    </fieldset>
 
     <div class="form-actions">
       <button type="button" class="btn btn-secondary" @click="cancel" :disabled="loading">Cancel</button>
