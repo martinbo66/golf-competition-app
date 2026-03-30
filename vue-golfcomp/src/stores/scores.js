@@ -248,10 +248,10 @@ export const useScoresStore = defineStore('scores', {
             const existingIndex = this.scores.findIndex(
                 s => s.playerId === playerId && s.courseId === courseId
             );
-            if (existingIndex === -1) {
-                this.scores.push(mappedScore);
-            } else {
+            if (existingIndex !== -1) {
                 this.scores[existingIndex] = mappedScore;
+            } else {
+                this.scores.push(mappedScore);
             }
         },
 

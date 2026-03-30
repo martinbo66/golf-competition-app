@@ -270,8 +270,8 @@ class DataService {
         const newId = await this.playersStore.addPlayer({
           name: player.name,
           talentRating: player.talentRating,
-          entryFee: player.entryFee == null ? 0 : Number(player.entryFee),
-          winnings: player.winnings == null ? 0 : Number(player.winnings)
+          entryFee: player.entryFee != null ? Number(player.entryFee) : 0,
+          winnings: player.winnings != null ? Number(player.winnings) : 0
         });
         playerIdMap[player.id] = newId;
         if (player.teamId && teamIdMap[player.teamId]) {
