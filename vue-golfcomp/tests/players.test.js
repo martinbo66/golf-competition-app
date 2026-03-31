@@ -141,4 +141,108 @@ describe('Players Store', () => {
         expect(store.players[0].entryFee).toBe(100.5);
         expect(store.players[0].winnings).toBe(25.25);
     });
+
+    describe('copyPlayersFromCompetition', () => {
+        const makeCreated = (id, name, rating) => ({
+            id, name, talentRating: rating, entryFee: 0, winnings: 0,
+            teamId: null, teamName: null, createdAt: '', updatedAt: ''
+        });
+
+        test('fetches from source competition URL and adds each player', async () => {
+            const store = usePlayersStore();
+            const sourcePlayers = [
+                { id: 'src-p1', name: 'Alice', talentRating: 'A', entryFee: 100, winnings: 50, teamId: 't1' },
+                { id: 'src-p2', name: 'Bob',   talentRating: 'B', entryFee: 200, winnings: 0,  teamId: null }
+            ];
+            ApiService.get.mockResolvedValue(sourcePlayers);
+            ApiService.post
+                .mockResolvedValueOnce(makeCreated('new-p1', 'Alice', 'A'))
+                .mockResolvedValueOnce(makeCreated('new-p2', 'Bob', 'B'));
+
+            const count = await store.copyPlayersFromCompetition('src-comp-id');
+
+            expect(ApiService.get).toHaveBeenCalledWith('/competitions/src-comp-id/players');
+            expect(ApiService.post).toHaveBeenCalledTimes(2);
+            expect(count).toBe(2);
+            expect(store.players).toHaveLength(2);
+        });
+
+        test('resets entryFee and winnings to 0 regardless of source values', async () => {
+            const store = usePlayersStore();
+            ApiService.get.mockResolvedValue([
+                { id: 'src-p1', name: 'Alice', talentRating: 'A', entryFee: 999, winnings: 500, teamId: null }
+            ]);
+            ApiService.post.mockResolvedValue(makeCreated('new-p1', 'Alice', 'A'));
+
+            await store.copyPlayersFromCompetition('src-comp-id');
+
+            expect(ApiService.post).toHaveBeenCalledWith(
+                '/competitions/c1/players',
+                expect.objectContaining({ entryFee: 0, winnings: 0 })
+            );
+        });
+
+        test('copies name and talentRating from source player', async () => {
+            const store = usePlayersStore();
+            ApiService.get.mockResolvedValue([
+                { id: 'src-p1', name: 'Carol', talentRating: 'C', entryFee: 0, winnings: 0, teamId: null }
+            ]);
+            ApiService.post.mockResolvedValue(makeCreated('new-p1', 'Carol', 'C'));
+
+            await store.copyPlayersFromCompetition('src-comp-id');
+
+            expect(ApiService.post).toHaveBeenCalledWith(
+                '/competitions/c1/players',
+                expect.objectContaining({ name: 'Carol', talentRating: 'C' })
+            );
+        });
+
+        test('returns 0 and makes no API calls when source has no players', async () => {
+            const store = usePlayersStore();
+            ApiService.get.mockResolvedValue([]);
+
+            const count = await store.copyPlayersFromCompetition('empty-comp');
+
+            expect(count).toBe(0);
+            expect(ApiService.post).not.toHaveBeenCalled();
+            expect(store.players).toHaveLength(0);
+        });
+
+        test('handles null API response without throwing', async () => {
+            const store = usePlayersStore();
+            ApiService.get.mockResolvedValue(null);
+
+            const count = await store.copyPlayersFromCompetition('src-comp-id');
+
+            expect(count).toBe(0);
+            expect(ApiService.post).not.toHaveBeenCalled();
+        });
+
+        test('does not copy teamId — new players start unassigned', async () => {
+            const store = usePlayersStore();
+            ApiService.get.mockResolvedValue([
+                { id: 'src-p1', name: 'Dave', talentRating: 'D', entryFee: 0, winnings: 0, teamId: 't99' }
+            ]);
+            ApiService.post.mockResolvedValue(makeCreated('new-p1', 'Dave', 'D'));
+
+            await store.copyPlayersFromCompetition('src-comp-id');
+
+            const postPayload = ApiService.post.mock.calls[0][1];
+            expect(postPayload).not.toHaveProperty('teamId');
+        });
+
+        test('appends copied players without replacing existing ones', async () => {
+            const store = usePlayersStore();
+            store.players = [makeCreated('existing-p1', 'Existing', 'A')];
+            ApiService.get.mockResolvedValue([
+                { id: 'src-p1', name: 'New Player', talentRating: 'B', entryFee: 0, winnings: 0, teamId: null }
+            ]);
+            ApiService.post.mockResolvedValue(makeCreated('new-p1', 'New Player', 'B'));
+
+            await store.copyPlayersFromCompetition('src-comp-id');
+
+            expect(store.players).toHaveLength(2);
+            expect(store.players.map(p => p.name)).toEqual(['Existing', 'New Player']);
+        });
+    });
 });
