@@ -216,8 +216,18 @@ class DataService {
     if (!data) throw new Error('Invalid data format');
 
     const failures = [];
+    await this._clearData(failures, onProgress);
+    const teamIdMap = await this._importTeams(data.teams || [], failures, onProgress);
+    const playerIdMap = await this._importPlayers(data.players || [], teamIdMap, failures, onProgress);
+    await this._importScores(data.scores || [], playerIdMap, failures, onProgress);
 
-    // 1. Clear existing data via API
+    if (failures.length > 0) {
+      const details = failures.map(f => `${f.type}: ${f.name || f.id || ''} - ${f.message}`).join('; ');
+      throw new Error(`Import completed with errors: ${details}`);
+    }
+  }
+
+  async _clearData(failures, onProgress) {
     onProgress('Clearing existing data…');
     try {
       await ApiService.delete(ApiService.compUrl + '/scores');
@@ -226,86 +236,67 @@ class DataService {
       failures.push({ type: 'clear', message: err.message || String(err) });
     }
     await this.teamsStore.deleteAllTeams();
-    const players = [...this.playersStore.allPlayers];
-    for (const player of players) {
+    for (const player of this.playersStore.allPlayers) {
       try {
         await this.playersStore.deletePlayer(player.id);
       } catch (err) {
         failures.push({ type: 'player', id: player.id, message: err.message || String(err) });
       }
     }
+  }
 
-    // 2. Create teams (new IDs from server)
+  async _importTeams(teams, failures, onProgress) {
     const teamIdMap = {};
-    const teams = data.teams || [];
     onProgress(`Importing teams (0/${teams.length})…`);
     for (let i = 0; i < teams.length; i++) {
       const team = teams[i];
       try {
-        const newId = await this.teamsStore.addTeam({
-          name: team.name,
-          logoUrl: team.logoUrl || null
-        });
+        const newId = await this.teamsStore.addTeam({ name: team.name, logoUrl: team.logoUrl || null });
         teamIdMap[team.id] = newId;
       } catch (err) {
         failures.push({ type: 'team', name: team.name, message: err.message || String(err) });
       }
       onProgress(`Importing teams (${i + 1}/${teams.length})…`);
     }
+    return teamIdMap;
+  }
 
-    // 3. Create players and assign to teams
+  async _importPlayers(players, teamIdMap, failures, onProgress) {
     const playerIdMap = {};
-    const playersToImport = data.players || [];
-    onProgress(`Importing players (0/${playersToImport.length})…`);
-    for (let i = 0; i < playersToImport.length; i++) {
-      const player = playersToImport[i];
+    onProgress(`Importing players (0/${players.length})…`);
+    for (let i = 0; i < players.length; i++) {
+      const player = players[i];
       try {
         const newId = await this.playersStore.addPlayer({
           name: player.name,
           talentRating: player.talentRating,
-          entryFee: player.entryFee == null ? 0 : Number(player.entryFee),
-          winnings: player.winnings == null ? 0 : Number(player.winnings)
+          entryFee: player.entryFee != null ? Number(player.entryFee) : 0,
+          winnings: player.winnings != null ? Number(player.winnings) : 0
         });
         playerIdMap[player.id] = newId;
         if (player.teamId && teamIdMap[player.teamId]) {
-          await this.playersStore.assignPlayerToTeam({
-            playerId: newId,
-            teamId: teamIdMap[player.teamId]
-          });
+          await this.playersStore.assignPlayerToTeam({ playerId: newId, teamId: teamIdMap[player.teamId] });
         }
       } catch (err) {
         failures.push({ type: 'player', name: player.name, message: err.message || String(err) });
       }
-      onProgress(`Importing players (${i + 1}/${playersToImport.length})…`);
+      onProgress(`Importing players (${i + 1}/${players.length})…`);
     }
+    return playerIdMap;
+  }
 
-    // 4. Create scores (courseId from file → roundId for API via store)
-    const scores = data.scores || [];
+  async _importScores(scores, playerIdMap, failures, onProgress) {
     onProgress(`Importing scores (0/${scores.length})…`);
     for (let i = 0; i < scores.length; i++) {
       const score = scores[i];
       const newPlayerId = playerIdMap[score.playerId];
       if (!newPlayerId) continue;
       try {
-        await this.scoresStore.updateScore({
-          playerId: newPlayerId,
-          courseId: score.courseId,
-          value: score.value
-        });
+        await this.scoresStore.updateScore({ playerId: newPlayerId, courseId: score.courseId, value: score.value });
       } catch (err) {
-        failures.push({
-          type: 'score',
-          playerId: score.playerId,
-          courseId: score.courseId,
-          message: err.message || String(err)
-        });
+        failures.push({ type: 'score', playerId: score.playerId, courseId: score.courseId, message: err.message || String(err) });
       }
       onProgress(`Importing scores (${i + 1}/${scores.length})…`);
-    }
-
-    if (failures.length > 0) {
-      const details = failures.map(f => `${f.type}: ${f.name || f.id || ''} - ${f.message}`).join('; ');
-      throw new Error(`Import completed with errors: ${details}`);
     }
   }
 }

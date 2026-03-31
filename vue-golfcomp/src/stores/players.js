@@ -51,10 +51,10 @@ export const usePlayersStore = defineStore('players', {
 
         async updatePlayer({ id, updates }) {
             const updated = await ApiService.put(ApiService.playersUrl(id), {
-                name: updates.name === undefined ? this.playerById(id)?.name : updates.name,
-                talentRating: updates.talentRating === undefined ? this.playerById(id)?.talentRating : updates.talentRating,
-                entryFee: updates.entryFee === undefined ? (this.playerById(id)?.entryFee ?? 0) : (Number.parseFloat(updates.entryFee) || 0),
-                winnings: updates.winnings === undefined ? (this.playerById(id)?.winnings ?? 0) : (Number.parseFloat(updates.winnings) || 0)
+                name: updates.name !== undefined ? updates.name : this.playerById(id)?.name,
+                talentRating: updates.talentRating !== undefined ? updates.talentRating : this.playerById(id)?.talentRating,
+                entryFee: updates.entryFee !== undefined ? (Number.parseFloat(updates.entryFee) || 0) : (this.playerById(id)?.entryFee ?? 0),
+                winnings: updates.winnings !== undefined ? (Number.parseFloat(updates.winnings) || 0) : (this.playerById(id)?.winnings ?? 0)
             });
             const mapped = mapPlayerResponse(updated);
             const index = this.players.findIndex(p => p.id === id);
@@ -85,10 +85,10 @@ export const usePlayersStore = defineStore('players', {
             const updated = await ApiService.put(ApiService.playersUrl(playerId) + '/unassign');
             const mapped = mapPlayerResponse(updated);
             const index = this.players.findIndex(p => p.id === playerId);
-            if (index === -1) {
-                this.players.push(mapped);
-            } else {
+            if (index !== -1) {
                 this.players[index] = mapped;
+            } else {
+                this.players.push(mapped);
             }
         },
 

@@ -74,7 +74,7 @@ export async function initializeApp() {
     try {
       await coursesStore.fetchAllCourses();
     } catch (err) {
-      NotificationService.error('Some data failed to load. Please refresh.');
+      NotificationService.error(`Some data failed to load. Please refresh. (${err.message || err})`);
     }
 
   } finally {

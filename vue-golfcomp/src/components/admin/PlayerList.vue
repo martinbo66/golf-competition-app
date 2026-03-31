@@ -272,7 +272,7 @@ const copyPlayers = async () => {
   isCopying.value = true;
   try {
     const count = await playersStore.copyPlayersFromCompetition(selectedSourceCompetitionId.value);
-    NotificationService.success(`${count} player${count !== 1 ? 's' : ''} copied successfully.`);
+    NotificationService.success(`${count} player${count === 1 ? '' : 's'} copied successfully.`);
     closeCopyModal();
   } catch (error) {
     NotificationService.error(getUserFriendlyErrorMessage(error));

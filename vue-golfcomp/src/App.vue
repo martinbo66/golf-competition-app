@@ -47,7 +47,7 @@ export default {
   },
   data() {
     return {
-      bootstrapError: typeof globalThis.window === 'undefined' ? null : globalThis.__bootstrapError
+      bootstrapError: globalThis.window !== undefined ? globalThis.__bootstrapError : null
     };
   },
   mounted() {
