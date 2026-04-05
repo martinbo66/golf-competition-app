@@ -18,10 +18,17 @@ fi
 
 echo "=== Golf Competition App - Droplet Setup ==="
 
-# ── Install Java 21 ──────────────────────────────────────────────────────────
-echo "Installing Java 21..."
+# ── Install Java 25 (Temurin / Eclipse Adoptium) ─────────────────────────────
+echo "Installing Java 25 (Temurin)..."
 apt-get update -q
-apt-get install -y openjdk-21-jre-headless
+apt-get install -y wget apt-transport-https gnupg
+wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public \
+    | gpg --dearmor \
+    | tee /usr/share/keyrings/adoptium.gpg > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $(lsb_release -cs) main" \
+    | tee /etc/apt/sources.list.d/adoptium.list
+apt-get update -q
+apt-get install -y temurin-25-jre
 java -version
 
 # ── Create dedicated app user and directories ─────────────────────────────────
