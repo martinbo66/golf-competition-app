@@ -52,8 +52,8 @@ export const useScoresStore = defineStore('scores', {
             return players.map(player => {
                 const courseScores = {};
                 courses.forEach(course => {
-                    const score = state.scores.find(s => s.playerId === player.id && s.courseId === course.id);
-                    courseScores[course.name] = score ? score.value : null;
+                    const score = state.scores.find(s => s.playerId === player.id && s.roundId === course.roundId);
+                    courseScores[course.roundId] = score ? score.value : null;
                 });
 
                 const totalScore = state.scores
@@ -92,12 +92,12 @@ export const useScoresStore = defineStore('scores', {
                 courses.forEach(course => {
                     let courseTotal = 0;
                     teamPlayers.forEach(player => {
-                        const score = state.scores.find(s => s.playerId === player.id && s.courseId === course.id);
+                        const score = state.scores.find(s => s.playerId === player.id && s.roundId === course.roundId);
                         if (score) {
                             courseTotal += score.value;
                         }
                     });
-                    courseScores[course.name] = courseTotal;
+                    courseScores[course.roundId] = courseTotal;
                 });
 
                 const teamTotalScore = teamPlayers.reduce((total, player) => {

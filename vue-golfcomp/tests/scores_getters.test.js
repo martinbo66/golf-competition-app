@@ -123,8 +123,8 @@ describe('Scores Store - Getters', () => {
 
             const alice = lb.find(e => e.id === 'p1');
             expect(alice.totalScore).toBe(142);
-            expect(alice.courseScores['Parkland']).toBe(70);
-            expect(alice.courseScores['Heathland']).toBe(72);
+            expect(alice.courseScores['round1']).toBe(70);
+            expect(alice.courseScores['round2']).toBe(72);
             expect(alice.teamName).toBe('Eagles');
             expect(alice.talentRating).toBe('A');
         });
@@ -132,7 +132,7 @@ describe('Scores Store - Getters', () => {
         test('uses null for missing course scores', () => {
             const lb = scoresStore.playerLeaderboard;
             const carol = lb.find(e => e.id === 'p3');
-            expect(carol.courseScores['Heathland']).toBeNull();
+            expect(carol.courseScores['round2']).toBeNull();
         });
 
         test('is sorted by total score descending', () => {
@@ -164,8 +164,8 @@ describe('Scores Store - Getters', () => {
 
             const eagles = lb.find(e => e.id === 't1');
             expect(eagles.totalScore).toBe(210);
-            expect(eagles.courseScores['Parkland']).toBe(138); // 70 + 68
-            expect(eagles.courseScores['Heathland']).toBe(72);
+            expect(eagles.courseScores['round1']).toBe(138); // 70 + 68
+            expect(eagles.courseScores['round2']).toBe(72);
             expect(eagles.playerCount).toBe(2);
         });
 
