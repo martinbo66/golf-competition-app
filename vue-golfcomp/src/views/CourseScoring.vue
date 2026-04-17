@@ -1,9 +1,9 @@
 <template>
     <div class="course-scoring">
-        <div class="page-header">
+        <div class="page-header" v-if="currentCourse">
             <h1>
                 Scoring: {{ courseName }}
-                <span v-if="currentCourse?.playDate" class="round-date">{{ formatRoundDate(currentCourse.playDate) }}</span>
+                <span v-if="currentCourse.playDate" class="round-date">{{ formatRoundDate(currentCourse.playDate) }}</span>
             </h1>
         </div>
 
@@ -52,8 +52,8 @@
                     </div>
             </div>
         </div>
-        <div v-else class="loading-state">
-            <p>Select a course to view scoring.</p>
+        <div v-else class="no-round-state">
+            <p>No rounds are scheduled for this competition. Add rounds in Competition Management before entering scores.</p>
         </div>
     </div>
 </template>
@@ -70,11 +70,10 @@ const router = useRouter();
 const coursesStore = useCoursesStore();
 const scoresStore = useScoresStore();
 
-// Route param is roundId; look up the course entry by roundId (falling back to id match)
 const currentCourse = computed(() => {
     const id = route.params.roundId;
     if (!id) return null;
-    return coursesStore.courses.find(c => c.roundId === id || c.id === id) || null;
+    return coursesStore.courses.find(c => c.roundId === id) || null;
 });
 
 const courseId = computed(() => currentCourse.value?.id || null);
@@ -93,9 +92,13 @@ function formatRoundDate(dateStr) {
 }
 
 onMounted(() => {
-    if (!route.params.roundId && coursesStore.courses.length > 0) {
-        const first = coursesStore.courses[0];
-        router.replace({ name: 'CourseScoring', params: { roundId: first.roundId || first.id } });
+    const paramId = route.params.roundId;
+    const validRound = paramId && coursesStore.courses.find(c => c.roundId === paramId);
+    if (!validRound) {
+        const first = coursesStore.courses.find(c => c.roundId !== null);
+        if (first) {
+            router.replace({ name: 'CourseScoring', params: { roundId: first.roundId } });
+        }
     }
 });
 </script>
@@ -103,6 +106,12 @@ onMounted(() => {
 <style scoped>
 .course-scoring {
   padding: 20px;
+}
+
+.no-round-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-muted, #6c757d);
 }
 
 h1 {
