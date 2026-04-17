@@ -4,6 +4,13 @@ import { usePlayersStore } from './players';
 import { useTeamsStore } from './teams';
 import { useCoursesStore } from './courses';
 
+function playerDisplayName(player) {
+    if (!player.nickname) return player.name;
+    const parts = player.name.trim().split(' ');
+    const lastName = parts[parts.length - 1];
+    return `${player.nickname} ${lastName}`;
+}
+
 export const useScoresStore = defineStore('scores', {
     state: () => ({
         scores: []
@@ -57,7 +64,7 @@ export const useScoresStore = defineStore('scores', {
 
                 return {
                     id: player.id,
-                    name: player.nickname || player.name,
+                    name: playerDisplayName(player),
                     talentRating: player.talentRating,
                     teamId: player.teamId,
                     teamName: team ? team.name : null,
@@ -124,7 +131,7 @@ export const useScoresStore = defineStore('scores', {
                 const team = player.teamId ? teamsStore.teamById(player.teamId) : null;
                 return {
                     id: player.id,
-                    name: player.nickname || player.name,
+                    name: playerDisplayName(player),
                     talentRating: player.talentRating,
                     teamId: player.teamId,
                     teamName: team ? team.name : null,
@@ -185,7 +192,7 @@ export const useScoresStore = defineStore('scores', {
                     const score = state.scores.find(s => s.playerId === player.id && s.roundId === roundId);
                     return {
                         playerId: player.id,
-                        playerName: player.nickname || player.name,
+                        playerName: playerDisplayName(player),
                         talentRating: player.talentRating,
                         score: score ? score.value : null
                     };
