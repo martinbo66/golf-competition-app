@@ -21,6 +21,7 @@
                 Name
                 <span v-if="sortKey === 'name'" :class="sortDirection === 'asc' ? 'sort-asc' : 'sort-desc'"></span>
               </th>
+              <th>Nickname</th>
               <th @click="sortBy('talentRating')">
                 Talent Rating
                 <span v-if="sortKey === 'talentRating'" :class="sortDirection === 'asc' ? 'sort-asc' : 'sort-desc'"></span>
@@ -43,6 +44,7 @@
           <tbody>
             <tr v-for="player in sortedPlayers" :key="player.id">
               <td>{{ player.name }}</td>
+              <td>{{ player.nickname || '' }}</td>
               <td>{{ player.talentRating }}</td>
               <td>{{ formatCurrency(player.entryFee) }}</td>
               <td>{{ formatCurrency(player.winnings) }}</td>
@@ -60,6 +62,7 @@
           <tfoot>
             <tr>
               <td><strong>Total</strong></td>
+              <td></td>
               <td></td>
               <td><strong>{{ formatCurrency(totalEntryFees) }}</strong></td>
               <td><strong>{{ formatCurrency(totalWinnings) }}</strong></td>

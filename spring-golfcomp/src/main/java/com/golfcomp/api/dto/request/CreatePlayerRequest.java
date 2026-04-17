@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 
 public record CreatePlayerRequest(
     @NotBlank @Size(max = 100) String name,
+    @Size(max = 50) String nickname,
     @NotNull TalentRating talentRating,
     @DecimalMin("0.00") BigDecimal entryFee,
     @DecimalMin("0.00") BigDecimal winnings

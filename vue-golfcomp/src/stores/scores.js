@@ -54,7 +54,7 @@ export const useScoresStore = defineStore('scores', {
 
                 return {
                     id: player.id,
-                    name: player.name,
+                    name: player.nickname || player.name,
                     talentRating: player.talentRating,
                     teamId: player.teamId,
                     teamName: team ? team.name : null,
@@ -121,7 +121,7 @@ export const useScoresStore = defineStore('scores', {
                 const team = player.teamId ? teamsStore.teamById(player.teamId) : null;
                 return {
                     id: player.id,
-                    name: player.name,
+                    name: player.nickname || player.name,
                     talentRating: player.talentRating,
                     teamId: player.teamId,
                     teamName: team ? team.name : null,
@@ -182,7 +182,7 @@ export const useScoresStore = defineStore('scores', {
                     const score = state.scores.find(s => s.playerId === player.id && s.courseId === courseId);
                     return {
                         playerId: player.id,
-                        playerName: player.name,
+                        playerName: player.nickname || player.name,
                         talentRating: player.talentRating,
                         score: score ? score.value : null
                     };

@@ -35,4 +35,7 @@
     <include file="changes/012-fix-uuid-column-types-postgresql.xml" relativeToChangelogFile="true"/>
     <include file="changes/013-rename-default-organization.xml" relativeToChangelogFile="true"/>
 
+    <!-- Player enhancements -->
+    <include file="changes/014-add-nickname-to-players.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
