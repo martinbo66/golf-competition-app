@@ -43,7 +43,7 @@
           </thead>
           <tbody>
             <tr v-for="player in sortedPlayers" :key="player.id">
-              <td>{{ player.name }}</td>
+              <td><button class="name-link" @click="editPlayer(player)">{{ player.name }}</button></td>
               <td>{{ player.nickname || '' }}</td>
               <td>{{ player.talentRating }}</td>
               <td>{{ formatCurrency(player.entryFee) }}</td>
@@ -357,6 +357,22 @@ const copyPlayers = async () => {
 
 .close-btn:hover {
   color: var(--text-color);
+}
+
+.name-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--primary-color);
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.name-link:hover {
+  color: var(--primary-dark, var(--primary-color));
+  text-decoration: none;
 }
 
 .action-cell {
