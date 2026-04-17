@@ -16,6 +16,7 @@
     -->
 
     <changeSet id="007-seed-courses-parkland" author="golfcomp" runOnChange="false">
+        <validCheckSum>9:925ebb92f51251df4256f4333304aa42</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <sqlCheck expectedResult="1">
@@ -35,6 +36,7 @@
     </changeSet>
 
     <changeSet id="007-seed-courses-heathland" author="golfcomp" runOnChange="false">
+        <validCheckSum>9:bc2335cd2a96936d9e94545a94b3be10</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <sqlCheck expectedResult="1">
@@ -54,6 +56,7 @@
     </changeSet>
 
     <changeSet id="007-seed-courses-heritage-club" author="golfcomp" runOnChange="false">
+        <validCheckSum>9:00be33e86e2e5ea85dda3c9fae427822</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <sqlCheck expectedResult="1">
@@ -73,6 +76,7 @@
     </changeSet>
 
     <changeSet id="007-seed-courses-moorland" author="golfcomp" runOnChange="false">
+        <validCheckSum>9:336c4931d1537263c1911f89e0fe87f3</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <sqlCheck expectedResult="1">
