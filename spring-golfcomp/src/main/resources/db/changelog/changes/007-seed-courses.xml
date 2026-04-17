@@ -27,8 +27,8 @@
         <insert tableName="courses">
             <column name="id" value="071aaf93-773e-49d0-935e-4b825e25670f"/>
             <column name="name" value="Parkland"/>
-            <column name="facility" valueComputed="NULL"/>
-            <column name="location" valueComputed="NULL"/>
+            <column name="facility" value="Legends"/>
+            <column name="location" value="Myrtle Beach, SC"/>
             <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
             <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
         </insert>
@@ -46,8 +46,8 @@
         <insert tableName="courses">
             <column name="id" value="2b81e674-816a-42ea-b524-54a96bfb2b14"/>
             <column name="name" value="Heathland"/>
-            <column name="facility" valueComputed="NULL"/>
-            <column name="location" valueComputed="NULL"/>
+            <column name="facility" value="Legends"/>
+            <column name="location" value="Myrtle Beach, SC"/>
             <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
             <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
         </insert>
@@ -66,7 +66,7 @@
             <column name="id" value="38a5c806-7f44-4ebb-9472-6ec79431c5ff"/>
             <column name="name" value="Heritage Club"/>
             <column name="facility" valueComputed="NULL"/>
-            <column name="location" valueComputed="NULL"/>
+            <column name="location" value="Pawleys Island, SC"/>
             <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
             <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
         </insert>
@@ -84,8 +84,8 @@
         <insert tableName="courses">
             <column name="id" value="d3d8aa11-5320-477b-9602-6501dd63b186"/>
             <column name="name" value="Moorland"/>
-            <column name="facility" valueComputed="NULL"/>
-            <column name="location" valueComputed="NULL"/>
+            <column name="facility" value="Legends"/>
+            <column name="location" value="Myrtle Beach, SC"/>
             <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
             <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
         </insert>
