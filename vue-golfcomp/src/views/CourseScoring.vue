@@ -9,7 +9,7 @@
 
         <div v-if="courseId" class="scoring-content">
             <div class="main-column">
-                    <ScoreEntry :courseId="courseId" />
+                    <ScoreEntry :roundId="currentCourse.roundId" />
 
                     <!-- Team Score Cards -->
                     <div v-if="courseScoresByTeam.length" class="team-scores-section">
@@ -81,8 +81,8 @@ const courseId = computed(() => currentCourse.value?.id || null);
 const courseName = computed(() => currentCourse.value?.name || 'Unknown Course');
 
 const courseScoresByTeam = computed(() => {
-    if (!courseId.value) return [];
-    return scoresStore.courseScoresByTeam(courseId.value);
+    if (!currentCourse.value?.roundId) return [];
+    return scoresStore.courseScoresByTeam(currentCourse.value.roundId);
 });
 
 function formatRoundDate(dateStr) {

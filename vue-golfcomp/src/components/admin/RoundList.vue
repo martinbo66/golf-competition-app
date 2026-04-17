@@ -95,6 +95,15 @@
             <tr class="round-list__add-row">
               <td>{{ nextRoundNumber }}</td>
               <td>
+                <input
+                  v-model="form.playDate"
+                  type="date"
+                  class="form-control"
+                  aria-label="Play date"
+                  required
+                />
+              </td>
+              <td>
                 <select
                   v-model="form.courseId"
                   class="form-control"
@@ -110,15 +119,6 @@
                     {{ courseLabel(opt) }}
                   </option>
                 </select>
-              </td>
-              <td>
-                <input
-                  v-model="form.playDate"
-                  type="date"
-                  class="form-control"
-                  aria-label="Play date"
-                  required
-                />
               </td>
               <td class="round-list__td-actions">
                 <button

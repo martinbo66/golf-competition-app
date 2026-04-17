@@ -51,7 +51,7 @@ describe('ScoreEntry Component', () => {
 
         const wrapper = mount(ScoreEntry, {
             props: {
-                courseId: 'c1'
+                roundId: 'round1'
             }
         });
 
@@ -69,7 +69,7 @@ describe('ScoreEntry Component', () => {
 
         const wrapper = mount(ScoreEntry, {
             props: {
-                courseId: 'c1'
+                roundId: 'round1'
             }
         });
 
@@ -102,7 +102,7 @@ describe('ScoreEntry Component', () => {
 
         const wrapper = mount(ScoreEntry, {
             props: {
-                courseId: 'c1'
+                roundId: 'round1'
             }
         });
 
@@ -114,7 +114,7 @@ describe('ScoreEntry Component', () => {
 
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        const score = scoresStore.scoreByPlayerAndCourse('p1', 'c1');
+        const score = scoresStore.scoreByPlayerAndRound('p1', 'round1');
         expect(score).toBeDefined();
         expect(score.value).toBe(72);
         expect(NotificationService.success).toHaveBeenCalledWith('1 score(s) saved successfully');
@@ -130,7 +130,7 @@ describe('ScoreEntry Component', () => {
         let resolvePut;
         ApiService.put.mockImplementation(() => new Promise(resolve => { resolvePut = resolve; }));
 
-        const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
+        const wrapper = mount(ScoreEntry, { props: { roundId: 'round1' } });
         await wrapper.find('input[type="number"]').setValue(72);
         const saveBtn = wrapper.find('button.btn-primary');
         expect(saveBtn.text()).toContain('Save All Scores');
@@ -152,7 +152,7 @@ describe('ScoreEntry Component', () => {
         coursesStore.courses = [{ id: 'c1', name: 'Course 1', order: 1, roundId: 'round1' }];
         ApiService.put.mockRejectedValue(new Error('Network Error'));
 
-        const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
+        const wrapper = mount(ScoreEntry, { props: { roundId: 'round1' } });
         await wrapper.find('input[type="number"]').setValue(72);
         await wrapper.find('button.btn-primary').trigger('click');
 
@@ -168,10 +168,10 @@ describe('ScoreEntry Component', () => {
         playersStore.players = [{ id: 'p1', name: 'Player 1', talentRating: 'A' }];
         coursesStore.courses = [{ id: 'c1', name: 'Course 1', order: 1, roundId: 'round1' }];
         scoresStore.scores = [
-            { id: 's1', playerId: 'p1', courseId: 'c1', value: 68 }
+            { id: 's1', playerId: 'p1', roundId: 'round1', value: 68 }
         ];
 
-        const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
+        const wrapper = mount(ScoreEntry, { props: { roundId: 'round1' } });
         await wrapper.vm.$nextTick();
         const input = wrapper.find('input[type="number"]');
         expect(Number(input.element.value)).toBe(68);
@@ -185,10 +185,10 @@ describe('ScoreEntry Component', () => {
         playersStore.players = [{ id: 'p1', name: 'Player 1', talentRating: 'A' }];
         coursesStore.courses = [{ id: 'c1', name: 'Course 1', order: 1, roundId: 'round1' }];
         scoresStore.scores = [
-            { id: 's1', playerId: 'p1', courseId: 'c1', value: 72 }
+            { id: 's1', playerId: 'p1', roundId: 'round1', value: 72 }
         ];
 
-        const wrapper = mount(ScoreEntry, { props: { courseId: 'c1' } });
+        const wrapper = mount(ScoreEntry, { props: { roundId: 'round1' } });
         await wrapper.vm.$nextTick();
         expect(wrapper.find('input[type="number"]').element.value).toBe('72');
 

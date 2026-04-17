@@ -16,6 +16,9 @@ export const useScoresStore = defineStore('scores', {
         scoreByPlayerAndCourse: (state) => (playerId, courseId) => {
             return state.scores.find(score => score.playerId === playerId && score.courseId === courseId);
         },
+        scoreByPlayerAndRound: (state) => (playerId, roundId) => {
+            return state.scores.find(score => score.playerId === playerId && score.roundId === roundId);
+        },
         playerTotalScore: (state) => (playerId) => {
             return state.scores
                 .filter(score => score.playerId === playerId)
@@ -171,7 +174,7 @@ export const useScoresStore = defineStore('scores', {
                 return a.name.localeCompare(b.name);
             });
         },
-        courseScoresByTeam: (state) => (courseId) => {
+        courseScoresByTeam: (state) => (roundId) => {
             const teamsStore = useTeamsStore();
             const playersStore = usePlayersStore();
             const teams = teamsStore.allTeams;
@@ -179,7 +182,7 @@ export const useScoresStore = defineStore('scores', {
             return teams.map(team => {
                 const teamPlayers = playersStore.playersByTeam(team.id);
                 const playerScores = teamPlayers.map(player => {
-                    const score = state.scores.find(s => s.playerId === player.id && s.courseId === courseId);
+                    const score = state.scores.find(s => s.playerId === player.id && s.roundId === roundId);
                     return {
                         playerId: player.id,
                         playerName: player.nickname || player.name,
@@ -215,6 +218,7 @@ export const useScoresStore = defineStore('scores', {
                     id: score.id,
                     playerId: score.playerId,
                     courseId: course.id,
+                    roundId: course.roundId,
                     value: score.value,
                     timestamp: score.updatedAt || score.createdAt
                 }));
@@ -224,15 +228,22 @@ export const useScoresStore = defineStore('scores', {
             this.scores = allScores;
         },
 
-        async updateScore({ playerId, courseId, value }) {
+        async updateScore({ playerId, roundId, courseId, value }) {
             const coursesStore = useCoursesStore();
-            const roundId = coursesStore.roundIdByCourseId(courseId);
-            if (!roundId) throw new Error(`No round found for course ${courseId}`);
+            let resolvedRoundId = roundId;
+            let resolvedCourseId = courseId;
+
+            if (resolvedRoundId && !resolvedCourseId) {
+                resolvedCourseId = coursesStore.allCourses.find(c => c.roundId === resolvedRoundId)?.id;
+            } else if (!resolvedRoundId && resolvedCourseId) {
+                resolvedRoundId = coursesStore.roundIdByCourseId(resolvedCourseId);
+                if (!resolvedRoundId) throw new Error(`No round found for course ${resolvedCourseId}`);
+            }
 
             const scoreValue = Number.parseInt(value, 10);
             if (Number.isNaN(scoreValue)) throw new Error('Score must be a valid number');
 
-            const result = await ApiService.put(ApiService.scoresUrl(roundId), {
+            const result = await ApiService.put(ApiService.scoresUrl(resolvedRoundId), {
                 playerId,
                 value: scoreValue
             });
@@ -240,13 +251,14 @@ export const useScoresStore = defineStore('scores', {
             const mappedScore = {
                 id: result.id,
                 playerId: result.playerId,
-                courseId,
+                courseId: resolvedCourseId,
+                roundId: resolvedRoundId,
                 value: result.value,
                 timestamp: result.updatedAt || result.createdAt
             };
 
             const existingIndex = this.scores.findIndex(
-                s => s.playerId === playerId && s.courseId === courseId
+                s => s.playerId === playerId && s.roundId === resolvedRoundId
             );
             if (existingIndex !== -1) {
                 this.scores[existingIndex] = mappedScore;
