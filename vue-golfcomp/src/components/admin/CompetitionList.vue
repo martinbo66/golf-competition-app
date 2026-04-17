@@ -21,7 +21,7 @@
             :class="{ 'comp-card--active': isActive(comp) }"
           >
             <div class="comp-card__header">
-              <h3 class="comp-card__name">{{ comp.name }}</h3>
+              <h3 class="comp-card__name"><button class="name-link" @click="editComp(comp)">{{ comp.name }}</button></h3>
               <div class="comp-card__badges">
                 <span v-if="isActive(comp)" class="badge badge--active">ACTIVE</span>
                 <span v-else-if="comp.startDate || comp.endDate" :class="['badge', statusBadgeClass(comp)]">
@@ -305,6 +305,23 @@ export default {
   font-weight: 600;
   color: var(--text-color);
   margin: 0;
+}
+
+.name-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--primary-color);
+  font-size: inherit;
+  font-weight: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.name-link:hover {
+  color: var(--primary-dark, var(--primary-color));
+  text-decoration: none;
 }
 
 .comp-card__badges {
