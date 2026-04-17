@@ -21,7 +21,7 @@
             :class="{ 'org-card--active': isActive(org) }"
           >
             <div class="org-card__header">
-              <h3 class="org-card__name">{{ org.name }}</h3>
+              <h3 class="org-card__name"><button class="name-link" @click="editOrg(org)">{{ org.name }}</button></h3>
               <div class="org-card__badges">
                 <span v-if="isActive(org)" class="badge badge--active">ACTIVE</span>
               </div>
@@ -198,6 +198,23 @@ async function handleSave(formData) {
   font-weight: 600;
   color: var(--text-color);
   margin: 0;
+}
+
+.name-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--primary-color);
+  font-size: inherit;
+  font-weight: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.name-link:hover {
+  color: var(--primary-dark, var(--primary-color));
+  text-decoration: none;
 }
 
 .org-card__badges {

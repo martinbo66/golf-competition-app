@@ -42,10 +42,10 @@ const PLAYERS = [
 // p2: Parkland=68                (total 68)
 // p3: Parkland=75                (total 75)
 const SCORES = [
-    { id: 's1', playerId: 'p1', courseId: 'course1', value: 70, timestamp: '' },
-    { id: 's2', playerId: 'p1', courseId: 'course2', value: 72, timestamp: '' },
-    { id: 's3', playerId: 'p2', courseId: 'course1', value: 68, timestamp: '' },
-    { id: 's4', playerId: 'p3', courseId: 'course1', value: 75, timestamp: '' }
+    { id: 's1', playerId: 'p1', courseId: 'course1', roundId: 'round1', value: 70, timestamp: '' },
+    { id: 's2', playerId: 'p1', courseId: 'course2', roundId: 'round2', value: 72, timestamp: '' },
+    { id: 's3', playerId: 'p2', courseId: 'course1', roundId: 'round1', value: 68, timestamp: '' },
+    { id: 's4', playerId: 'p3', courseId: 'course1', roundId: 'round1', value: 75, timestamp: '' }
 ];
 
 describe('Scores Store - Getters', () => {
@@ -123,8 +123,8 @@ describe('Scores Store - Getters', () => {
 
             const alice = lb.find(e => e.id === 'p1');
             expect(alice.totalScore).toBe(142);
-            expect(alice.courseScores['Parkland']).toBe(70);
-            expect(alice.courseScores['Heathland']).toBe(72);
+            expect(alice.courseScores['round1']).toBe(70);
+            expect(alice.courseScores['round2']).toBe(72);
             expect(alice.teamName).toBe('Eagles');
             expect(alice.talentRating).toBe('A');
         });
@@ -132,7 +132,7 @@ describe('Scores Store - Getters', () => {
         test('uses null for missing course scores', () => {
             const lb = scoresStore.playerLeaderboard;
             const carol = lb.find(e => e.id === 'p3');
-            expect(carol.courseScores['Heathland']).toBeNull();
+            expect(carol.courseScores['round2']).toBeNull();
         });
 
         test('is sorted by total score descending', () => {
@@ -164,8 +164,8 @@ describe('Scores Store - Getters', () => {
 
             const eagles = lb.find(e => e.id === 't1');
             expect(eagles.totalScore).toBe(210);
-            expect(eagles.courseScores['Parkland']).toBe(138); // 70 + 68
-            expect(eagles.courseScores['Heathland']).toBe(72);
+            expect(eagles.courseScores['round1']).toBe(138); // 70 + 68
+            expect(eagles.courseScores['round2']).toBe(72);
             expect(eagles.playerCount).toBe(2);
         });
 
@@ -241,7 +241,7 @@ describe('Scores Store - Getters', () => {
 
     describe('courseScoresByTeam', () => {
         test('returns scores per team for a given course', () => {
-            const result = scoresStore.courseScoresByTeam('course1');
+            const result = scoresStore.courseScoresByTeam('round1');
             expect(result).toHaveLength(2);
 
             const eagles = result.find(r => r.teamId === 't1');
@@ -254,14 +254,14 @@ describe('Scores Store - Getters', () => {
         });
 
         test('returns null score for players with no score on that course', () => {
-            const result = scoresStore.courseScoresByTeam('course2');
+            const result = scoresStore.courseScoresByTeam('round2');
             const eagles = result.find(r => r.teamId === 't1');
             const bobScore = eagles.playerScores.find(ps => ps.playerId === 'p2');
             expect(bobScore.score).toBeNull();
         });
 
         test('player scores within team are sorted alphabetically by name', () => {
-            const result = scoresStore.courseScoresByTeam('course1');
+            const result = scoresStore.courseScoresByTeam('round1');
             const eagles = result.find(r => r.teamId === 't1');
             expect(eagles.playerScores[0].playerName).toBe('Alice');
             expect(eagles.playerScores[1].playerName).toBe('Bob');
@@ -269,7 +269,7 @@ describe('Scores Store - Getters', () => {
 
         test('includes logoUrl on team entry', () => {
             teamsStore.teams[0].logoUrl = 'data:image/png;base64,abc';
-            const result = scoresStore.courseScoresByTeam('course1');
+            const result = scoresStore.courseScoresByTeam('round1');
             const eagles = result.find(r => r.teamId === 't1');
             expect(eagles.logoUrl).toBe('data:image/png;base64,abc');
         });

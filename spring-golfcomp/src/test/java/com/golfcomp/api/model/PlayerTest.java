@@ -87,7 +87,7 @@ class PlayerTest {
         Competition comp = Competition.builder().name("Test").build();
         Team team = Team.builder().name("Team").build();
 
-        Player player = new Player(id, comp, team, "Name", TalentRating.D,
+        Player player = new Player(id, comp, team, "Name", null, TalentRating.D,
                 BigDecimal.TEN, BigDecimal.ONE, now, now);
 
         assertEquals(id, player.getId());

@@ -24,7 +24,7 @@
           </thead>
           <tbody>
             <tr v-for="course in courses" :key="course.id">
-              <td>{{ course.name }}</td>
+              <td><button class="name-link" @click="editCourse(course)">{{ course.name }}</button></td>
               <td>{{ course.facility || '—' }}</td>
               <td>{{ course.location || '—' }}</td>
               <td class="action-cell">
@@ -234,6 +234,22 @@ const saveCourse = async (data) => {
 
 .close-btn:hover {
   color: var(--text-color);
+}
+
+.name-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--primary-color);
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.name-link:hover {
+  color: var(--primary-dark, var(--primary-color));
+  text-decoration: none;
 }
 
 .action-cell {

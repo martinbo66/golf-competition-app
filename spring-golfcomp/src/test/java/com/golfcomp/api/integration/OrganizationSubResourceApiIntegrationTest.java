@@ -103,7 +103,7 @@ class OrganizationSubResourceApiIntegrationTest {
     }
 
     private UUID createPlayer(UUID orgId, UUID compId, String name) throws Exception {
-        CreatePlayerRequest req = new CreatePlayerRequest(name, TalentRating.A, null, null);
+        CreatePlayerRequest req = new CreatePlayerRequest(name, null, TalentRating.A, null, null);
         String body = mockMvc.perform(post("/api/v1/organizations/{orgId}/competitions/{compId}/players", orgId, compId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
@@ -123,7 +123,7 @@ class OrganizationSubResourceApiIntegrationTest {
         UUID compId = createCompetition(orgId, "Players CRUD Competition 2026");
 
         CreatePlayerRequest createReq = new CreatePlayerRequest(
-            "Alice Fairway", TalentRating.B, new BigDecimal("50.00"), BigDecimal.ZERO);
+            "Alice Fairway", null, TalentRating.B, new BigDecimal("50.00"), BigDecimal.ZERO);
 
         // CREATE
         String body = mockMvc.perform(
@@ -150,7 +150,7 @@ class OrganizationSubResourceApiIntegrationTest {
 
         // UPDATE name
         UpdatePlayerRequest updateReq = new UpdatePlayerRequest(
-            "Alice Updated", TalentRating.B, new BigDecimal("50.00"), BigDecimal.ZERO);
+            "Alice Updated", null, TalentRating.B, new BigDecimal("50.00"), BigDecimal.ZERO);
         mockMvc.perform(put("/api/v1/organizations/{orgId}/competitions/{compId}/players/{id}",
                 orgId, compId, playerId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -176,7 +176,7 @@ class OrganizationSubResourceApiIntegrationTest {
         UUID orgB = createOrg("Players Org B", "players-org-b");
         UUID compA = createCompetition(orgA, "Players Org A Competition 2026");
 
-        CreatePlayerRequest req = new CreatePlayerRequest("Bob Bogey", TalentRating.C, null, null);
+        CreatePlayerRequest req = new CreatePlayerRequest("Bob Bogey", null, TalentRating.C, null, null);
         mockMvc.perform(
                 post("/api/v1/organizations/{orgId}/competitions/{compId}/players", orgB, compA)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -195,10 +195,10 @@ class OrganizationSubResourceApiIntegrationTest {
         UUID compId = createCompetition(orgId, "Teams Generate Competition 2026");
 
         // Create 4 players with distinct talent ratings for a balanced draft
-        CreatePlayerRequest playerA = new CreatePlayerRequest("Player A", TalentRating.A, null, null);
-        CreatePlayerRequest playerB = new CreatePlayerRequest("Player B", TalentRating.B, null, null);
-        CreatePlayerRequest playerC = new CreatePlayerRequest("Player C", TalentRating.C, null, null);
-        CreatePlayerRequest playerD = new CreatePlayerRequest("Player D", TalentRating.D, null, null);
+        CreatePlayerRequest playerA = new CreatePlayerRequest("Player A", null, TalentRating.A, null, null);
+        CreatePlayerRequest playerB = new CreatePlayerRequest("Player B", null, TalentRating.B, null, null);
+        CreatePlayerRequest playerC = new CreatePlayerRequest("Player C", null, TalentRating.C, null, null);
+        CreatePlayerRequest playerD = new CreatePlayerRequest("Player D", null, TalentRating.D, null, null);
 
         for (CreatePlayerRequest p : new CreatePlayerRequest[]{playerA, playerB, playerC, playerD}) {
             mockMvc.perform(

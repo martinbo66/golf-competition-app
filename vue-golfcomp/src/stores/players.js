@@ -5,6 +5,7 @@ function mapPlayerResponse(response) {
     return {
         id: response.id,
         name: response.name,
+        nickname: response.nickname || null,
         talentRating: response.talentRating,
         entryFee: Number.parseFloat(response.entryFee) || 0,
         winnings: Number.parseFloat(response.winnings) || 0,
@@ -40,6 +41,7 @@ export const usePlayersStore = defineStore('players', {
         async addPlayer(player) {
             const created = await ApiService.post(ApiService.playersUrl(), {
                 name: player.name,
+                nickname: player.nickname || null,
                 talentRating: player.talentRating,
                 entryFee: Number.parseFloat(player.entryFee) || 0,
                 winnings: Number.parseFloat(player.winnings) || 0
@@ -52,6 +54,7 @@ export const usePlayersStore = defineStore('players', {
         async updatePlayer({ id, updates }) {
             const updated = await ApiService.put(ApiService.playersUrl(id), {
                 name: updates.name !== undefined ? updates.name : this.playerById(id)?.name,
+                nickname: updates.nickname !== undefined ? (updates.nickname || null) : (this.playerById(id)?.nickname ?? null),
                 talentRating: updates.talentRating !== undefined ? updates.talentRating : this.playerById(id)?.talentRating,
                 entryFee: updates.entryFee !== undefined ? (Number.parseFloat(updates.entryFee) || 0) : (this.playerById(id)?.entryFee ?? 0),
                 winnings: updates.winnings !== undefined ? (Number.parseFloat(updates.winnings) || 0) : (this.playerById(id)?.winnings ?? 0)

@@ -41,6 +41,7 @@ public class PlayerService {
         Player player = Player.builder()
             .competition(competition)
             .name(request.name())
+            .nickname(request.nickname())
             .talentRating(request.talentRating())
             .entryFee(request.entryFee() != null ? request.entryFee() : BigDecimal.ZERO)
             .winnings(request.winnings() != null ? request.winnings() : BigDecimal.ZERO)
@@ -74,6 +75,7 @@ public class PlayerService {
             throw ResourceNotFoundException.player(playerId);
         }
         player.setName(request.name());
+        player.setNickname(request.nickname());
         player.setTalentRating(request.talentRating());
         if (request.entryFee() != null) {
             player.setEntryFee(request.entryFee());

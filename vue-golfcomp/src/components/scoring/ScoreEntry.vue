@@ -122,7 +122,7 @@ import { validateScore, getUserFriendlyErrorMessage } from '@/utils';
 import NotificationService from '@/services/NotificationService';
 
 const props = defineProps({
-  courseId: {
+  roundId: {
     type: String,
     required: true
   }
@@ -142,7 +142,7 @@ const filterScored = ref('all');
 const teams = computed(() => teamsStore.allTeams);
 
 const getPlayerScore = (playerId) => {
-  const score = scoresStore.scoreByPlayerAndCourse(playerId, props.courseId);
+  const score = scoresStore.scoreByPlayerAndRound(playerId, props.roundId);
   return score ? score.value : null;
 };
 
@@ -226,11 +226,11 @@ const loadScores = () => {
   scoreErrors.value = {};
   dirtyScores.value = new Set();
 
-  if (!props.courseId) return;
+  if (!props.roundId) return;
 
   // Populate local inputs from store (API data from fetchScores)
   playersStore.allPlayers.forEach(player => {
-    const score = scoresStore.scoreByPlayerAndCourse(player.id, props.courseId);
+    const score = scoresStore.scoreByPlayerAndRound(player.id, props.roundId);
     scores.value[player.id] = score ? score.value : '';
     scoreErrors.value[player.id] = null;
   });
@@ -240,7 +240,7 @@ onMounted(() => {
   loadScores();
 });
 
-watch(() => props.courseId, () => {
+watch(() => props.roundId, () => {
   loadScores();
 });
 
@@ -286,7 +286,7 @@ const saveAllScores = async () => {
 
   const results = await Promise.allSettled(
     playersToSave.map(player =>
-      scoresStore.updateScore({ playerId: player.id, courseId: props.courseId, value: scores.value[player.id] })
+      scoresStore.updateScore({ playerId: player.id, roundId: props.roundId, value: scores.value[player.id] })
     )
   );
 
@@ -323,7 +323,7 @@ const clearScore = async (playerId) => {
   try {
     // Backend has no single-delete score endpoint; remove from local state only.
     // Score will reappear on next fetchScores() unless backend adds DELETE support.
-    const score = scoresStore.scoreByPlayerAndCourse(playerId, props.courseId);
+    const score = scoresStore.scoreByPlayerAndRound(playerId, props.roundId);
     if (score) {
       scoresStore.deleteScore(score.id);
     }

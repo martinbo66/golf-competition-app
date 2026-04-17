@@ -15,6 +15,18 @@
     </div>
     
     <div class="form-group">
+      <label for="nickname">Nickname <span class="hint">(shown on leaderboards instead of full name)</span></label>
+      <input
+        type="text"
+        id="nickname"
+        v-model="form.nickname"
+        class="form-control"
+        maxlength="50"
+        placeholder="Optional"
+      >
+    </div>
+
+    <div class="form-group">
       <label for="talentRating">Talent Rating</label>
       <select 
         id="talentRating" 
@@ -86,6 +98,7 @@ export default {
     return {
       form: {
         name: '',
+        nickname: '',
         talentRating: '',
         entryFee: 60,
         winnings: 0
@@ -106,6 +119,7 @@ export default {
         this.form = {
           id: this.player.id,
           name: this.player.name,
+          nickname: this.player.nickname || '',
           talentRating: this.player.talentRating,
           entryFee: this.player.entryFee,
           winnings: this.player.winnings
@@ -114,6 +128,7 @@ export default {
         // Add mode - reset form with default entry fee of $60
         this.form = {
           name: '',
+          nickname: '',
           talentRating: '',
           entryFee: 60,
           winnings: 0
@@ -171,6 +186,12 @@ export default {
 
 .is-invalid {
   border-color: var(--danger-color);
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  font-weight: normal;
 }
 </style>
 

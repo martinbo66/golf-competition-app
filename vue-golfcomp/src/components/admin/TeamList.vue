@@ -17,7 +17,7 @@
         <div v-else class="teams-grid">
           <div v-for="team in teams" :key="team.id" class="team-card">
             <div class="team-header">
-              <h3>{{ team.name }}</h3>
+              <h3><button class="name-link" @click="editTeam(team)">{{ team.name }}</button></h3>
               <div class="team-actions">
                 <button class="btn-icon" @click="editTeam(team)" title="Edit Team">
                   <i class="fas fa-edit"></i>
@@ -356,6 +356,23 @@ const generateTeams = async () => {
   font-size: 1.1rem;
   font-weight: 500;
   color: var(--text-color);
+}
+
+.name-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--primary-color);
+  font-size: inherit;
+  font-weight: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.name-link:hover {
+  color: var(--primary-dark, var(--primary-color));
+  text-decoration: none;
 }
 
 .team-actions {

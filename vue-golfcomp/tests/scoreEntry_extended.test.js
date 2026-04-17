@@ -23,7 +23,7 @@ import { usePlayersStore } from '@/stores/players';
 import { useScoresStore } from '@/stores/scores';
 import NotificationService from '@/services/NotificationService';
 
-const COURSE_ID = 'course-x';
+const ROUND_ID = 'round-x';
 const TEAMS = [
     { id: 't1', name: 'Eagles' },
     { id: 't2', name: 'Hawks' }
@@ -34,12 +34,12 @@ const PLAYERS = [
     { id: 'p3', name: 'Carol', talentRating: 'C', teamId: null }
 ];
 const SCORES = [
-    { id: 's1', playerId: 'p1', courseId: COURSE_ID, value: 70 },
-    { id: 's2', playerId: 'p2', courseId: COURSE_ID, value: 72 }
+    { id: 's1', playerId: 'p1', roundId: ROUND_ID, value: 70 },
+    { id: 's2', playerId: 'p2', roundId: ROUND_ID, value: 72 }
 ];
 
-const mountEntry = (courseId = COURSE_ID) =>
-    mount(ScoreEntry, { props: { courseId } });
+const mountEntry = (roundId = ROUND_ID) =>
+    mount(ScoreEntry, { props: { roundId } });
 
 beforeEach(() => {
     setActivePinia(createPinia());
@@ -77,19 +77,19 @@ describe('ScoreEntry (extended) - score loading', () => {
         expect(wrapper.vm.scores['p3']).toBe('');
     });
 
-    test('reloads scores when courseId prop changes', async () => {
+    test('reloads scores when roundId prop changes', async () => {
         const playersStore = usePlayersStore();
         const scoresStore = useScoresStore();
         playersStore.players = [PLAYERS[0]];
         scoresStore.scores = [
-            { id: 's1', playerId: 'p1', courseId: COURSE_ID, value: 70 },
-            { id: 's2', playerId: 'p1', courseId: 'course-y', value: 65 }
+            { id: 's1', playerId: 'p1', roundId: ROUND_ID, value: 70 },
+            { id: 's2', playerId: 'p1', roundId: 'round-y', value: 65 }
         ];
 
-        const wrapper = mountEntry(COURSE_ID);
+        const wrapper = mountEntry(ROUND_ID);
         expect(wrapper.vm.scores['p1']).toBe(70);
 
-        await wrapper.setProps({ courseId: 'course-y' });
+        await wrapper.setProps({ roundId: 'round-y' });
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.scores['p1']).toBe(65);
     });
@@ -244,7 +244,7 @@ describe('ScoreEntry (extended) - saveAllScores', () => {
         wrapper.vm.scores['p2'] = 72;
         await wrapper.vm.saveAllScores();
         expect(spy).toHaveBeenCalledTimes(2);
-        expect(spy).toHaveBeenCalledWith({ playerId: 'p1', courseId: COURSE_ID, value: 70 });
+        expect(spy).toHaveBeenCalledWith({ playerId: 'p1', roundId: ROUND_ID, value: 70 });
     });
 
     test('shows success notification when all saves succeed', async () => {

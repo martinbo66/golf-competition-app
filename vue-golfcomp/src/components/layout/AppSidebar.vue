@@ -19,12 +19,13 @@
       
       <div v-if="activeSection === 'scoring'">
         <h3>Scoring</h3>
-        <ul>
-          <li v-for="course in courses" :key="course.roundId || course.id">
+        <p v-if="courses.length === 0" class="no-rounds-msg">No rounds scheduled. Add rounds in Competition Management.</p>
+        <ul v-else>
+          <li v-for="course in courses" :key="course.roundId">
             <router-link
-              :to="`/scoring/${course.roundId || course.id}`"
-              :class="{ active: activeSidebarItem === (course.roundId || course.id) }"
-              @click.native="setActiveSidebarItem(course.roundId || course.id)"
+              :to="`/scoring/${course.roundId}`"
+              :class="{ active: activeSidebarItem === course.roundId }"
+              @click.native="setActiveSidebarItem(course.roundId)"
             >
               <i class="fas fa-flag"></i>
               <span class="course-nav-label">
@@ -92,7 +93,7 @@ const adminItems = [
 
 const activeSection = computed(() => uiStore.activeSection);
 const activeSidebarItem = computed(() => uiStore.activeSidebarItem);
-const courses = computed(() => coursesStore.allCourses);
+const courses = computed(() => coursesStore.allCourses.filter(c => c.roundId !== null));
 
 function formatNavDate(dateStr) {
   if (!dateStr) return '';
@@ -181,6 +182,13 @@ const setActiveSidebarItem = (itemId) => {
   border-left: 3px solid var(--primary-color);
 }
 
+
+.no-rounds-msg {
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
 
 .course-nav-label {
   display: flex;

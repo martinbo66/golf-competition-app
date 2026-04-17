@@ -19,7 +19,10 @@
             <tr>
               <th class="rank">Rank</th>
               <th>Team</th>
-              <th v-for="course in courses" :key="course.id" class="course-score">{{ course.name }}</th>
+              <th v-for="course in courses" :key="course.roundId || course.id" class="course-score">
+                <span class="course-col-name">{{ course.name }}</span>
+                <span v-if="course.playDate" class="course-col-date">{{ formatCourseDate(course.playDate) }}</span>
+              </th>
               <th class="total-score">Total</th>
             </tr>
           </thead>
@@ -37,8 +40,8 @@
                   <span>{{ team.name }}</span>
                 </div>
               </td>
-              <td v-for="course in courses" :key="course.id" class="course-score">
-                {{ team.courseScores[course.name] || '-' }}
+              <td v-for="course in courses" :key="course.roundId || course.id" class="course-score">
+                {{ team.courseScores[course.roundId] ?? '-' }}
               </td>
               <td class="total-score">{{ team.totalScore }}</td>
             </tr>
@@ -84,6 +87,12 @@ const teamLeaderboard = computed(() => scoresStore.teamLeaderboard);
 const hasAnyScores = computed(() => {
   return allScores.value.length > 0;
 });
+
+const formatCourseDate = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
 </script>
 
 <style scoped>
@@ -145,6 +154,17 @@ const hasAnyScores = computed(() => {
 
 .course-score {
   text-align: center;
+}
+
+.course-col-name {
+  display: block;
+}
+
+.course-col-date {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: normal;
+  color: var(--text-muted, #6c757d);
 }
 
 .total-score {

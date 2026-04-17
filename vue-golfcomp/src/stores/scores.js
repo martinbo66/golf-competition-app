@@ -4,6 +4,13 @@ import { usePlayersStore } from './players';
 import { useTeamsStore } from './teams';
 import { useCoursesStore } from './courses';
 
+function playerDisplayName(player) {
+    if (!player.nickname) return player.name;
+    const parts = player.name.trim().split(' ');
+    const lastName = parts[parts.length - 1];
+    return `${player.nickname} ${lastName}`;
+}
+
 export const useScoresStore = defineStore('scores', {
     state: () => ({
         scores: []
@@ -15,6 +22,9 @@ export const useScoresStore = defineStore('scores', {
         scoresByCourse: (state) => (courseId) => state.scores.filter(score => score.courseId === courseId),
         scoreByPlayerAndCourse: (state) => (playerId, courseId) => {
             return state.scores.find(score => score.playerId === playerId && score.courseId === courseId);
+        },
+        scoreByPlayerAndRound: (state) => (playerId, roundId) => {
+            return state.scores.find(score => score.playerId === playerId && score.roundId === roundId);
         },
         playerTotalScore: (state) => (playerId) => {
             return state.scores
@@ -42,8 +52,8 @@ export const useScoresStore = defineStore('scores', {
             return players.map(player => {
                 const courseScores = {};
                 courses.forEach(course => {
-                    const score = state.scores.find(s => s.playerId === player.id && s.courseId === course.id);
-                    courseScores[course.name] = score ? score.value : null;
+                    const score = state.scores.find(s => s.playerId === player.id && s.roundId === course.roundId);
+                    courseScores[course.roundId] = score ? score.value : null;
                 });
 
                 const totalScore = state.scores
@@ -54,7 +64,7 @@ export const useScoresStore = defineStore('scores', {
 
                 return {
                     id: player.id,
-                    name: player.name,
+                    name: playerDisplayName(player),
                     talentRating: player.talentRating,
                     teamId: player.teamId,
                     teamName: team ? team.name : null,
@@ -82,12 +92,12 @@ export const useScoresStore = defineStore('scores', {
                 courses.forEach(course => {
                     let courseTotal = 0;
                     teamPlayers.forEach(player => {
-                        const score = state.scores.find(s => s.playerId === player.id && s.courseId === course.id);
+                        const score = state.scores.find(s => s.playerId === player.id && s.roundId === course.roundId);
                         if (score) {
                             courseTotal += score.value;
                         }
                     });
-                    courseScores[course.name] = courseTotal;
+                    courseScores[course.roundId] = courseTotal;
                 });
 
                 const teamTotalScore = teamPlayers.reduce((total, player) => {
@@ -121,7 +131,7 @@ export const useScoresStore = defineStore('scores', {
                 const team = player.teamId ? teamsStore.teamById(player.teamId) : null;
                 return {
                     id: player.id,
-                    name: player.name,
+                    name: playerDisplayName(player),
                     talentRating: player.talentRating,
                     teamId: player.teamId,
                     teamName: team ? team.name : null,
@@ -171,7 +181,7 @@ export const useScoresStore = defineStore('scores', {
                 return a.name.localeCompare(b.name);
             });
         },
-        courseScoresByTeam: (state) => (courseId) => {
+        courseScoresByTeam: (state) => (roundId) => {
             const teamsStore = useTeamsStore();
             const playersStore = usePlayersStore();
             const teams = teamsStore.allTeams;
@@ -179,10 +189,10 @@ export const useScoresStore = defineStore('scores', {
             return teams.map(team => {
                 const teamPlayers = playersStore.playersByTeam(team.id);
                 const playerScores = teamPlayers.map(player => {
-                    const score = state.scores.find(s => s.playerId === player.id && s.courseId === courseId);
+                    const score = state.scores.find(s => s.playerId === player.id && s.roundId === roundId);
                     return {
                         playerId: player.id,
-                        playerName: player.name,
+                        playerName: playerDisplayName(player),
                         talentRating: player.talentRating,
                         score: score ? score.value : null
                     };
@@ -215,6 +225,7 @@ export const useScoresStore = defineStore('scores', {
                     id: score.id,
                     playerId: score.playerId,
                     courseId: course.id,
+                    roundId: course.roundId,
                     value: score.value,
                     timestamp: score.updatedAt || score.createdAt
                 }));
@@ -224,15 +235,22 @@ export const useScoresStore = defineStore('scores', {
             this.scores = allScores;
         },
 
-        async updateScore({ playerId, courseId, value }) {
+        async updateScore({ playerId, roundId, courseId, value }) {
             const coursesStore = useCoursesStore();
-            const roundId = coursesStore.roundIdByCourseId(courseId);
-            if (!roundId) throw new Error(`No round found for course ${courseId}`);
+            let resolvedRoundId = roundId;
+            let resolvedCourseId = courseId;
+
+            if (resolvedRoundId && !resolvedCourseId) {
+                resolvedCourseId = coursesStore.allCourses.find(c => c.roundId === resolvedRoundId)?.id;
+            } else if (!resolvedRoundId && resolvedCourseId) {
+                resolvedRoundId = coursesStore.roundIdByCourseId(resolvedCourseId);
+                if (!resolvedRoundId) throw new Error(`No round found for course ${resolvedCourseId}`);
+            }
 
             const scoreValue = Number.parseInt(value, 10);
             if (Number.isNaN(scoreValue)) throw new Error('Score must be a valid number');
 
-            const result = await ApiService.put(ApiService.scoresUrl(roundId), {
+            const result = await ApiService.put(ApiService.scoresUrl(resolvedRoundId), {
                 playerId,
                 value: scoreValue
             });
@@ -240,13 +258,14 @@ export const useScoresStore = defineStore('scores', {
             const mappedScore = {
                 id: result.id,
                 playerId: result.playerId,
-                courseId,
+                courseId: resolvedCourseId,
+                roundId: resolvedRoundId,
                 value: result.value,
                 timestamp: result.updatedAt || result.createdAt
             };
 
             const existingIndex = this.scores.findIndex(
-                s => s.playerId === playerId && s.courseId === courseId
+                s => s.playerId === playerId && s.roundId === resolvedRoundId
             );
             if (existingIndex !== -1) {
                 this.scores[existingIndex] = mappedScore;

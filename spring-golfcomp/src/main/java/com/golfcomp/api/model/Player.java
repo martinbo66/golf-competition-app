@@ -51,6 +51,9 @@ public class Player {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    @Column(name = "nickname", nullable = true, length = 50)
+    private String nickname;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "talent_rating", nullable = false, columnDefinition = "varchar(1)")
     private TalentRating talentRating;

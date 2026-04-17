@@ -63,6 +63,7 @@ describe('Players Store', () => {
 
         expect(ApiService.post).toHaveBeenCalledWith('/competitions/c1/players', {
             name: 'Bob',
+            nickname: null,
             talentRating: 'B',
             entryFee: 50,
             winnings: 0

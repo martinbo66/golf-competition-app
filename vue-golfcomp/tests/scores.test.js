@@ -14,6 +14,10 @@ jest.mock('@/stores/courses', () => ({
             { id: 'course1', name: 'Parkland', roundId: 'round1' },
             { id: 'course2', name: 'Heathland', roundId: 'round2' }
         ],
+        courses: [
+            { id: 'course1', name: 'Parkland', roundId: 'round1' },
+            { id: 'course2', name: 'Heathland', roundId: 'round2' }
+        ],
         roundIdByCourseId: mockRoundIdByCourseId
     })
 }));
@@ -30,16 +34,22 @@ describe('Scores Store', () => {
         mockRoundIdByCourseId.mockImplementation((courseId) => (courseId === 'course1' ? 'round1' : courseId === 'course2' ? 'round2' : null));
     });
 
-    test('updateScore maps courseId to roundId and updates local state', async () => {
+    test('updateScore with roundId uses it directly', async () => {
         const scoresStore = useScoresStore();
-        const apiScore = {
-            id: 'score-1',
-            playerId: 'player1',
-            value: 72,
-            updatedAt: '2026-01-01T12:00:00Z',
-            createdAt: '2026-01-01T12:00:00Z'
-        };
-        ApiService.put.mockResolvedValue(apiScore);
+        ApiService.put.mockResolvedValue({ id: 'score-1', playerId: 'player1', value: 72, updatedAt: '2026-01-01T12:00:00Z', createdAt: '2026-01-01T12:00:00Z' });
+
+        await scoresStore.updateScore({ playerId: 'player1', roundId: 'round1', value: 72 });
+
+        expect(ApiService.put).toHaveBeenCalledWith('/competitions/c1/rounds/round1/scores', { playerId: 'player1', value: 72 });
+        const score = scoresStore.scoreByPlayerAndRound('player1', 'round1');
+        expect(score).toBeDefined();
+        expect(score.value).toBe(72);
+        expect(scoresStore.allScores).toHaveLength(1);
+    });
+
+    test('updateScore with courseId falls back to roundId lookup', async () => {
+        const scoresStore = useScoresStore();
+        ApiService.put.mockResolvedValue({ id: 'score-1', playerId: 'player1', value: 72, updatedAt: '2026-01-01T12:00:00Z', createdAt: '2026-01-01T12:00:00Z' });
 
         await scoresStore.updateScore({ playerId: 'player1', courseId: 'course1', value: 72 });
 
@@ -48,26 +58,19 @@ describe('Scores Store', () => {
         const score = scoresStore.scoreByPlayerAndCourse('player1', 'course1');
         expect(score).toBeDefined();
         expect(score.value).toBe(72);
-        expect(scoresStore.allScores).toHaveLength(1);
     });
 
     test('updateScore updates existing score in state after API success', async () => {
         const scoresStore = useScoresStore();
         scoresStore.scores = [
-            { id: 'old', playerId: 'player1', courseId: 'course1', value: 70, timestamp: '' }
+            { id: 'old', playerId: 'player1', courseId: 'course1', roundId: 'round1', value: 70, timestamp: '' }
         ];
-        ApiService.put.mockResolvedValue({
-            id: 'old',
-            playerId: 'player1',
-            value: 75,
-            updatedAt: '2026-01-01',
-            createdAt: '2026-01-01'
-        });
+        ApiService.put.mockResolvedValue({ id: 'old', playerId: 'player1', value: 75, updatedAt: '2026-01-01', createdAt: '2026-01-01' });
 
-        await scoresStore.updateScore({ playerId: 'player1', courseId: 'course1', value: 75 });
+        await scoresStore.updateScore({ playerId: 'player1', roundId: 'round1', value: 75 });
 
         expect(scoresStore.allScores).toHaveLength(1);
-        expect(scoresStore.scoreByPlayerAndCourse('player1', 'course1').value).toBe(75);
+        expect(scoresStore.scoreByPlayerAndRound('player1', 'round1').value).toBe(75);
     });
 
     test('updateScore throws when no round for course', async () => {
@@ -101,7 +104,7 @@ describe('Scores Store', () => {
         expect(ApiService.get).toHaveBeenCalledWith('/competitions/c1/rounds/round1/scores');
         expect(ApiService.get).toHaveBeenCalledWith('/competitions/c1/rounds/round2/scores');
         expect(scoresStore.scores).toHaveLength(2);
-        expect(scoresStore.scores[0]).toMatchObject({ playerId: 'p1', courseId: 'course1', value: 72 });
-        expect(scoresStore.scores[1]).toMatchObject({ playerId: 'p1', courseId: 'course2', value: 74 });
+        expect(scoresStore.scores[0]).toMatchObject({ playerId: 'p1', courseId: 'course1', roundId: 'round1', value: 72 });
+        expect(scoresStore.scores[1]).toMatchObject({ playerId: 'p1', courseId: 'course2', roundId: 'round2', value: 74 });
     });
 });

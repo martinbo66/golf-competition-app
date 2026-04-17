@@ -48,14 +48,14 @@ const routes = [
       try {
         const { useCoursesStore } = require('@/stores/courses');
         const coursesStore = useCoursesStore();
-        const firstCourse = coursesStore.allCourses[0];
-        if (firstCourse) {
-          return `/scoring/${firstCourse.roundId || firstCourse.id}`;
+        const firstRound = coursesStore.allCourses.find(c => c.roundId !== null);
+        if (firstRound) {
+          return `/scoring/${firstRound.roundId}`;
         }
-        return '/admin/players';
+        return '/admin/competitions';
       } catch (e) {
         console.error('Error in scoring redirect:', e);
-        return '/admin/players';
+        return '/admin/competitions';
       }
     }
   },
