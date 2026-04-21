@@ -59,9 +59,6 @@ export default {
 </script>
 
 <style>
-/* Import Font */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-
 /* App-specific styles */
 #app {
   -webkit-font-smoothing: antialiased;
