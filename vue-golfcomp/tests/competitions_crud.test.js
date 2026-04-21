@@ -102,6 +102,26 @@ describe('competitions store - CRUD', () => {
             await store.fetchCompetitions();
             expect(store.allCompetitions).toHaveLength(0);
         });
+
+        test('refreshes activeCompetition from updated list when one is set', async () => {
+            const store = useCompetitionsStore();
+            store.activeCompetition = { id: 'c1', name: 'Old Name' };
+            ApiService.get.mockResolvedValue([makeComp({ id: 'c1', name: 'Refreshed Name' })]);
+
+            await store.fetchCompetitions();
+
+            expect(store.activeCompetition.name).toBe('Refreshed Name');
+        });
+
+        test('clears activeCompetition when it is no longer in the list', async () => {
+            const store = useCompetitionsStore();
+            store.activeCompetition = { id: 'c-gone', name: 'Deleted' };
+            ApiService.get.mockResolvedValue([makeComp({ id: 'c1' })]);
+
+            await store.fetchCompetitions();
+
+            expect(store.activeCompetition).toBeNull();
+        });
     });
 
     describe('createCompetition', () => {
