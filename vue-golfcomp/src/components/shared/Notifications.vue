@@ -46,9 +46,10 @@ const getIconClass = (type) => {
 .notifications-container {
   position: fixed;
   top: 20px;
-  right: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
-  width: 300px;
+  width: 360px;
 }
 
 .notification {
@@ -141,7 +142,7 @@ body.dark-mode .notification-info {
 
 .notification-enter, .notification-leave-to {
   opacity: 0;
-  transform: translateX(30px);
+  transform: translateY(-10px);
 }
 </style>
 
