@@ -142,6 +142,44 @@ describe('Players Store - Getters', () => {
             expect(store.totalWinnings).toBe(0);
         });
     });
+
+    describe('outstanding getters', () => {
+        // eslint-disable-next-line global-require
+        const { usePayoutsStore } = require('../src/stores/payouts');
+
+        test('outstandingByPlayer returns unpaid total for a player', () => {
+            const payoutsStore = usePayoutsStore();
+            payoutsStore.payouts = [
+                { id: 'x1', playerId: 'p1', amount: 30, paid: false },
+                { id: 'x2', playerId: 'p1', amount: 20, paid: true },
+                { id: 'x3', playerId: 'p2', amount: 10, paid: false }
+            ];
+
+            expect(store.outstandingByPlayer('p1')).toBe(30);
+            expect(store.outstandingByPlayer('p2')).toBe(10);
+            expect(store.outstandingByPlayer('ghost')).toBe(0);
+        });
+
+        test('totalOutstandingWinnings sums all unpaid payouts', () => {
+            const payoutsStore = usePayoutsStore();
+            payoutsStore.payouts = [
+                { id: 'x1', playerId: 'p1', amount: 30, paid: false },
+                { id: 'x2', playerId: 'p1', amount: 20, paid: true },
+                { id: 'x3', playerId: 'p2', amount: 10, paid: false }
+            ];
+
+            expect(store.totalOutstandingWinnings).toBe(40);
+        });
+
+        test('totalOutstandingWinnings is 0 when all paid', () => {
+            const payoutsStore = usePayoutsStore();
+            payoutsStore.payouts = [
+                { id: 'x1', playerId: 'p1', amount: 30, paid: true }
+            ];
+
+            expect(store.totalOutstandingWinnings).toBe(0);
+        });
+    });
 });
 
 describe('Players Store - unassignAllPlayers', () => {

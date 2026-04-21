@@ -326,6 +326,64 @@ class PayoutServiceTest {
             () -> payoutService.delete(otherId, payoutId));
     }
 
+    // ─── setPaid ─────────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("setPaid(true) - stamps paidAt and recalculates winnings")
+    void setPaid_true_stampsPaidAt() {
+        when(payoutRepository.findById(payoutId)).thenReturn(Optional.of(payout));
+        when(payoutRepository.save(payout)).thenReturn(payout);
+        when(payoutRepository.sumByCompetitionAndPlayer(competitionId, playerId))
+            .thenReturn(BigDecimal.valueOf(25));
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+
+        PayoutResponse result = payoutService.setPaid(competitionId, payoutId, true);
+
+        assertTrue(payout.isPaid());
+        assertNotNull(payout.getPaidAt());
+        assertTrue(result.paid());
+        assertNotNull(result.paidAt());
+        verify(playerRepository).save(any(Player.class));
+    }
+
+    @Test
+    @DisplayName("setPaid(false) - clears paidAt and recalculates winnings")
+    void setPaid_false_clearsPaidAt() {
+        payout.setPaid(true);
+        payout.setPaidAt(Instant.now());
+        when(payoutRepository.findById(payoutId)).thenReturn(Optional.of(payout));
+        when(payoutRepository.save(payout)).thenReturn(payout);
+        when(payoutRepository.sumByCompetitionAndPlayer(competitionId, playerId))
+            .thenReturn(BigDecimal.ZERO);
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+
+        PayoutResponse result = payoutService.setPaid(competitionId, payoutId, false);
+
+        assertFalse(payout.isPaid());
+        assertNull(payout.getPaidAt());
+        assertFalse(result.paid());
+        assertNull(result.paidAt());
+    }
+
+    @Test
+    @DisplayName("setPaid - throws when payout not found")
+    void setPaid_throwsWhenNotFound() {
+        when(payoutRepository.findById(payoutId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> payoutService.setPaid(competitionId, payoutId, true));
+    }
+
+    @Test
+    @DisplayName("setPaid - throws when payout belongs to different competition")
+    void setPaid_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(payoutRepository.findById(payoutId)).thenReturn(Optional.of(payout));
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> payoutService.setPaid(otherId, payoutId, true));
+    }
+
     // ─── recordTeamWin ───────────────────────────────────────────────────────
 
     @Test

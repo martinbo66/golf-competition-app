@@ -37,7 +37,7 @@ const section = computed(() => {
     const parts = [course.name];
     if (course.playDate) {
       const d = new Date(course.playDate + 'T00:00:00');
-      parts.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
+      parts.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }));
     }
     return { title: 'Score entry and payouts', subtitle: parts.join(' · ') };
   }

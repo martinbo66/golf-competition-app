@@ -14,6 +14,8 @@ function mapPayoutResponse(response) {
         type: response.type,
         amount: Number.parseFloat(response.amount) || 0,
         note: response.note || '',
+        paid: response.paid === true,
+        paidAt: response.paidAt || null,
         createdAt: response.createdAt,
         updatedAt: response.updatedAt
     };
@@ -31,8 +33,23 @@ export const usePayoutsStore = defineStore('payouts', {
         roundTotal: (state) => (roundId) => state.payouts
             .filter(p => p.roundId === roundId)
             .reduce((sum, p) => sum + (p.amount || 0), 0),
+        roundPaidTotal: (state) => (roundId) => state.payouts
+            .filter(p => p.roundId === roundId && p.paid)
+            .reduce((sum, p) => sum + (p.amount || 0), 0),
+        roundUnpaidTotal: (state) => (roundId) => state.payouts
+            .filter(p => p.roundId === roundId && !p.paid)
+            .reduce((sum, p) => sum + (p.amount || 0), 0),
         roundPayoutsByType: (state) => (roundId, type) => state.payouts
-            .filter(p => p.roundId === roundId && p.type === type)
+            .filter(p => p.roundId === roundId && p.type === type),
+        paidTotalByPlayer: (state) => (playerId) => state.payouts
+            .filter(p => p.playerId === playerId && p.paid)
+            .reduce((sum, p) => sum + (p.amount || 0), 0),
+        unpaidTotalByPlayer: (state) => (playerId) => state.payouts
+            .filter(p => p.playerId === playerId && !p.paid)
+            .reduce((sum, p) => sum + (p.amount || 0), 0),
+        competitionUnpaidTotal: (state) => state.payouts
+            .filter(p => !p.paid)
+            .reduce((sum, p) => sum + (p.amount || 0), 0)
     },
 
     actions: {
@@ -87,6 +104,16 @@ export const usePayoutsStore = defineStore('payouts', {
             return mapped;
         },
 
+        async setPayoutPaid({ id, paid }) {
+            const updated = await ApiService.patch(ApiService.markPayoutPaidUrl(id), { paid });
+            const mapped = mapPayoutResponse(updated);
+            const idx = this.payouts.findIndex(p => p.id === id);
+            if (idx !== -1) this.payouts[idx] = mapped;
+            else this.payouts.push(mapped);
+            await this._refreshPlayerWinnings(mapped.playerId);
+            return mapped;
+        },
+
         async deletePayout(id) {
             const existing = this.payouts.find(p => p.id === id);
             await ApiService.delete(ApiService.payoutsUrl(id));
@@ -100,8 +127,9 @@ export const usePayoutsStore = defineStore('payouts', {
             const playersStore = usePlayersStore();
             const player = playersStore.playerById(playerId);
             if (!player) return;
+            // Winnings reflect money actually received: paid payouts only.
             const newTotal = this.payouts
-                .filter(p => p.playerId === playerId)
+                .filter(p => p.playerId === playerId && p.paid)
                 .reduce((sum, p) => sum + (p.amount || 0), 0);
             player.winnings = newTotal;
         }

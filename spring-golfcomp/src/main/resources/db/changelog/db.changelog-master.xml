@@ -40,5 +40,6 @@
 
     <!-- Money / payouts -->
     <include file="changes/015-create-payouts-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/016-add-paid-to-payouts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

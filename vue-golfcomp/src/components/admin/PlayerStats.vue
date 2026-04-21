@@ -17,9 +17,14 @@
         
         <div class="stat-item">
           <div class="stat-value">{{ formatCurrency(totalWinnings) }}</div>
-          <div class="stat-label">Total Winnings</div>
+          <div class="stat-label">Total Paid</div>
         </div>
-        
+
+        <div class="stat-item" :class="{ 'stat-item-warning': totalOutstanding > 0 }">
+          <div class="stat-value">{{ formatCurrency(totalOutstanding) }}</div>
+          <div class="stat-label">Outstanding Payouts</div>
+        </div>
+
         <div class="stat-item">
           <div class="stat-value">{{ unassignedPlayerCount }}</div>
           <div class="stat-label">Unassigned Players</div>
@@ -89,6 +94,7 @@ const playerCount = computed(() => playersStore.playerCount);
 const unassignedPlayerCount = computed(() => playersStore.unassignedPlayers.length);
 const totalEntryFees = computed(() => playersStore.totalEntryFees);
 const totalWinnings = computed(() => playersStore.totalWinnings);
+const totalOutstanding = computed(() => playersStore.totalOutstandingWinnings);
 
 const talentCounts = computed(() => ({
   A: playersStore.playersByTalentRating('A').length,
@@ -133,6 +139,10 @@ const talentPercentage = (rating) => {
 .stat-label {
   font-size: 0.9rem;
   color: var(--text-muted);
+}
+
+.stat-item-warning .stat-value {
+  color: var(--danger-color, #dc3545);
 }
 
 .talent-distribution {

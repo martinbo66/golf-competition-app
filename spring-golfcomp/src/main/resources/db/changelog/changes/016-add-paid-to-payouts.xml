@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="016-add-paid-to-payouts" author="golfcomp">
+        <comment>Add paid flag and paid_at timestamp to payouts so admins can track which winnings have been disbursed. After this change, player.winnings is defined as the sum of paid payouts only.</comment>
+
+        <addColumn tableName="payouts">
+            <column name="paid" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="paid_at" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <createIndex indexName="idx_payouts_competition_paid" tableName="payouts">
+            <column name="competition_id"/>
+            <column name="paid"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex indexName="idx_payouts_competition_paid" tableName="payouts"/>
+            <dropColumn tableName="payouts" columnName="paid_at"/>
+            <dropColumn tableName="payouts" columnName="paid"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

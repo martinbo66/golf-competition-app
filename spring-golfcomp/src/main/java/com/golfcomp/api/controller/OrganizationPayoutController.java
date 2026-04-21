@@ -1,6 +1,7 @@
 package com.golfcomp.api.controller;
 
 import com.golfcomp.api.dto.request.CreatePayoutRequest;
+import com.golfcomp.api.dto.request.MarkPayoutPaidRequest;
 import com.golfcomp.api.dto.request.TeamWinPayoutRequest;
 import com.golfcomp.api.dto.request.UpdatePayoutRequest;
 import com.golfcomp.api.dto.response.ApiResponse;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -81,6 +83,17 @@ public class OrganizationPayoutController {
             @RequestBody @Valid UpdatePayoutRequest request) {
         competitionService.verifyOrganizationOwnership(orgId, competitionId);
         return ResponseEntity.ok(ApiResponse.success(payoutService.update(competitionId, payoutId, request)));
+    }
+
+    @PatchMapping("/payouts/{payoutId}/paid")
+    public ResponseEntity<ApiResponse<PayoutResponse>> setPaid(
+            @PathVariable UUID orgId,
+            @PathVariable UUID competitionId,
+            @PathVariable UUID payoutId,
+            @RequestBody @Valid MarkPayoutPaidRequest request) {
+        competitionService.verifyOrganizationOwnership(orgId, competitionId);
+        return ResponseEntity.ok(ApiResponse.success(
+            payoutService.setPaid(competitionId, payoutId, request.paid())));
     }
 
     @DeleteMapping("/payouts/{payoutId}")

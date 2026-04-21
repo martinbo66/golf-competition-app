@@ -44,7 +44,7 @@ const courses = computed(() => coursesStore.allCourses.filter(c => c.roundId !==
 function formatNavDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 const navGroups = computed(() => [
