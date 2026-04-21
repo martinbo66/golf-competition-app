@@ -33,7 +33,13 @@ const section = computed(() => {
 
   if (p.startsWith('/scoring/')) {
     const course = coursesStore.allCourses.find(c => c.roundId === route.params.roundId);
-    return { title: 'Score entry', subtitle: course?.name ?? null };
+    if (!course) return { title: 'Score entry', subtitle: null };
+    const parts = [course.name];
+    if (course.playDate) {
+      const d = new Date(course.playDate + 'T00:00:00');
+      parts.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
+    }
+    return { title: 'Score entry', subtitle: parts.join(' · ') };
   }
 
   if (p === '/leaderboards' || p === '/money-leaderboards') {
