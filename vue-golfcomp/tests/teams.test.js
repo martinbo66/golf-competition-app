@@ -118,4 +118,26 @@ describe('Teams Store', () => {
 
         expect(ApiService.put).toHaveBeenCalledWith('/competitions/c1/teams/t1', { name: 'T1', logoUrl: 'data:base64' });
     });
+
+    test('updateTeam preserves logoUrl from updates when server response omits it', async () => {
+        const store = useTeamsStore();
+        store.teams = [{ id: 't1', name: 'T1', logoUrl: null, createdAt: '', updatedAt: '' }];
+        // Server returns null logoUrl (stripped in serialization)
+        ApiService.put.mockResolvedValue({ id: 't1', name: 'T1', logoUrl: null, createdAt: '', updatedAt: '' });
+
+        await store.updateTeam({ id: 't1', updates: { logoUrl: 'data:image/png;base64,abc' } });
+
+        expect(store.teams[0].logoUrl).toBe('data:image/png;base64,abc');
+    });
+
+    test('updateTeam pushes to state when team not found after update', async () => {
+        const store = useTeamsStore();
+        store.teams = [];
+        ApiService.put.mockResolvedValue({ id: 't-new', name: 'New', logoUrl: null, createdAt: '', updatedAt: '' });
+
+        await store.updateTeam({ id: 't-new', updates: { name: 'New' } });
+
+        expect(store.teams).toHaveLength(1);
+        expect(store.teams[0].id).toBe('t-new');
+    });
 });

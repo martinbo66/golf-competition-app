@@ -44,7 +44,7 @@ public class PlayerService {
             .nickname(request.nickname())
             .talentRating(request.talentRating())
             .entryFee(request.entryFee() != null ? request.entryFee() : BigDecimal.ZERO)
-            .winnings(request.winnings() != null ? request.winnings() : BigDecimal.ZERO)
+            .winnings(BigDecimal.ZERO)
             .build();
         return PlayerResponse.from(playerRepository.save(player));
     }
@@ -79,9 +79,6 @@ public class PlayerService {
         player.setTalentRating(request.talentRating());
         if (request.entryFee() != null) {
             player.setEntryFee(request.entryFee());
-        }
-        if (request.winnings() != null) {
-            player.setWinnings(request.winnings());
         }
         return PlayerResponse.from(playerRepository.save(player));
     }

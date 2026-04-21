@@ -296,4 +296,111 @@ describe('Scores Store - Getters', () => {
             expect(scoresStore.allScores).toHaveLength(1); // only p1/course2 remains
         });
     });
+
+    describe('playerDisplayName via leaderboard', () => {
+        test('uses nickname + last name when player has nickname', () => {
+            playersStore.players = [
+                { id: 'p1', name: 'Robert Johnson', nickname: 'Bobby', talentRating: 'A', teamId: null, entryFee: 0, winnings: 0, createdAt: '', updatedAt: '' }
+            ];
+            scoresStore.scores = [];
+            const lb = scoresStore.playerLeaderboard;
+            expect(lb[0].name).toBe('Bobby Johnson');
+        });
+
+        test('uses full name when player has no nickname', () => {
+            playersStore.players = [
+                { id: 'p1', name: 'Alice Smith', nickname: null, talentRating: 'A', teamId: null, entryFee: 0, winnings: 0, createdAt: '', updatedAt: '' }
+            ];
+            scoresStore.scores = [];
+            const lb = scoresStore.playerLeaderboard;
+            expect(lb[0].name).toBe('Alice Smith');
+        });
+
+        test('courseScoresByTeam uses nickname display name', () => {
+            teamsStore.teams = [{ id: 't1', name: 'Eagles', logoUrl: null }];
+            playersStore.players = [
+                { id: 'p1', name: 'Robert Johnson', nickname: 'Bobby', talentRating: 'A', teamId: 't1' }
+            ];
+            scoresStore.scores = [];
+            const result = scoresStore.courseScoresByTeam('round1');
+            expect(result[0].playerScores[0].playerName).toBe('Bobby Johnson');
+        });
+    });
+
+    describe('leaderboard sort tiebreakers', () => {
+        test('playerLeaderboard breaks ties alphabetically by name', () => {
+            playersStore.players = [
+                { id: 'px', name: 'Zara', nickname: null, talentRating: 'A', teamId: null, entryFee: 0, winnings: 0 },
+                { id: 'py', name: 'Anna', nickname: null, talentRating: 'B', teamId: null, entryFee: 0, winnings: 0 }
+            ];
+            scoresStore.scores = [
+                { id: 'sx', playerId: 'px', courseId: 'course1', roundId: 'round1', value: 50 },
+                { id: 'sy', playerId: 'py', courseId: 'course1', roundId: 'round1', value: 50 }
+            ];
+            const lb = scoresStore.playerLeaderboard;
+            expect(lb[0].name).toBe('Anna');
+            expect(lb[1].name).toBe('Zara');
+        });
+
+        test('teamLeaderboard breaks ties alphabetically by name', () => {
+            teamsStore.teams = [
+                { id: 'ta', name: 'Zebras', logoUrl: null },
+                { id: 'tb', name: 'Alphas', logoUrl: null }
+            ];
+            playersStore.players = [];
+            scoresStore.scores = [];
+            const lb = scoresStore.teamLeaderboard;
+            expect(lb[0].name).toBe('Alphas');
+            expect(lb[1].name).toBe('Zebras');
+        });
+
+        test('playerMoneyLeaderboard breaks winnings tie by netWinnings', () => {
+            playersStore.players = [
+                { id: 'px', name: 'A', nickname: null, talentRating: 'A', teamId: null, entryFee: 100, winnings: 200 },
+                { id: 'py', name: 'B', nickname: null, talentRating: 'B', teamId: null, entryFee: 50,  winnings: 200 }
+            ];
+            const lb = scoresStore.playerMoneyLeaderboard;
+            // Same winnings (200), but B has higher net (150 vs 100)
+            expect(lb[0].name).toBe('B');
+            expect(lb[1].name).toBe('A');
+        });
+
+        test('playerMoneyLeaderboard breaks equal winnings and netWinnings by name', () => {
+            playersStore.players = [
+                { id: 'px', name: 'Zara', nickname: null, talentRating: 'A', teamId: null, entryFee: 50, winnings: 100 },
+                { id: 'py', name: 'Anna', nickname: null, talentRating: 'B', teamId: null, entryFee: 50, winnings: 100 }
+            ];
+            const lb = scoresStore.playerMoneyLeaderboard;
+            expect(lb[0].name).toBe('Anna');
+        });
+
+        test('teamMoneyLeaderboard breaks winnings tie by netWinnings', () => {
+            teamsStore.teams = [
+                { id: 'ta', name: 'Tigers', logoUrl: null },
+                { id: 'tb', name: 'Lions',  logoUrl: null }
+            ];
+            playersStore.players = [
+                { id: 'pa', name: 'A', teamId: 'ta', entryFee: 100, winnings: 200 },
+                { id: 'pb', name: 'B', teamId: 'tb', entryFee: 50,  winnings: 200 }
+            ];
+            scoresStore.scores = [];
+            const lb = scoresStore.teamMoneyLeaderboard;
+            // Same winnings, Lions net=150 > Tigers net=100
+            expect(lb[0].name).toBe('Lions');
+        });
+
+        test('teamMoneyLeaderboard breaks equal winnings and netWinnings by name', () => {
+            teamsStore.teams = [
+                { id: 'ta', name: 'Zebras', logoUrl: null },
+                { id: 'tb', name: 'Alphas', logoUrl: null }
+            ];
+            playersStore.players = [
+                { id: 'pa', name: 'A', teamId: 'ta', entryFee: 50, winnings: 100 },
+                { id: 'pb', name: 'B', teamId: 'tb', entryFee: 50, winnings: 100 }
+            ];
+            scoresStore.scores = [];
+            const lb = scoresStore.teamMoneyLeaderboard;
+            expect(lb[0].name).toBe('Alphas');
+        });
+    });
 });

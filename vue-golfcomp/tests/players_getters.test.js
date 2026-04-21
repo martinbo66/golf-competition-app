@@ -199,3 +199,32 @@ describe('Players Store - updatePlayer edge cases', () => {
         expect(store.players[0].id).toBe('p-new');
     });
 });
+
+describe('Players Store - assign/unassign edge cases', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+        ApiService.put.mockReset();
+    });
+
+    test('assignPlayerToTeam pushes player when not in state', async () => {
+        const store = usePlayersStore();
+        store.players = [];
+        ApiService.put.mockResolvedValue(makePlayer({ id: 'p1', teamId: 't1' }));
+
+        await store.assignPlayerToTeam({ playerId: 'p1', teamId: 't1' });
+
+        expect(store.players).toHaveLength(1);
+        expect(store.players[0].teamId).toBe('t1');
+    });
+
+    test('unassignPlayerFromTeam pushes player when not in state', async () => {
+        const store = usePlayersStore();
+        store.players = [];
+        ApiService.put.mockResolvedValue(makePlayer({ id: 'p1', teamId: null }));
+
+        await store.unassignPlayerFromTeam('p1');
+
+        expect(store.players).toHaveLength(1);
+        expect(store.players[0].teamId).toBeNull();
+    });
+});

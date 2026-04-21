@@ -9,6 +9,7 @@ import { useCoursesStore } from '@/stores/courses';
 import { usePlayersStore } from '@/stores/players';
 import { useTeamsStore } from '@/stores/teams';
 import { useScoresStore } from '@/stores/scores';
+import { usePayoutsStore } from '@/stores/payouts';
 
 jest.mock('@/services/ApiService', () => ({
   __esModule: true,
@@ -21,12 +22,13 @@ jest.mock('@/services/ApiService', () => ({
     put: jest.fn(),
     delete: jest.fn(),
     competitionsUrl: jest.fn(id => (id ? `/competitions/${id}` : '/competitions')),
-    roundsUrl: jest.fn(id => (id ? `/competitions/comp/rounds/${id}` : '/competitions/comp/rounds'))
+    roundsUrl: jest.fn(id => (id ? `/competitions/comp/rounds/${id}` : '/competitions/comp/rounds')),
+    payoutsUrl: jest.fn(id => (id ? `/competitions/comp/payouts/${id}` : '/competitions/comp/payouts'))
   }
 }));
 
 describe('competitions store', () => {
-  let mockUiStore, mockCoursesStore, mockPlayersStore, mockTeamsStore, mockScoresStore;
+  let mockUiStore, mockCoursesStore, mockPlayersStore, mockTeamsStore, mockScoresStore, mockPayoutsStore;
 
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -41,12 +43,14 @@ describe('competitions store', () => {
     mockPlayersStore = usePlayersStore();
     mockTeamsStore = useTeamsStore();
     mockScoresStore = useScoresStore();
+    mockPayoutsStore = usePayoutsStore();
 
     jest.spyOn(mockUiStore, 'setLoading');
     jest.spyOn(mockCoursesStore, 'fetchCourses').mockResolvedValue();
     jest.spyOn(mockPlayersStore, 'fetchPlayers').mockResolvedValue();
     jest.spyOn(mockTeamsStore, 'fetchTeams').mockResolvedValue();
     jest.spyOn(mockScoresStore, 'fetchScores').mockResolvedValue();
+    jest.spyOn(mockPayoutsStore, 'fetchPayouts').mockResolvedValue();
   });
 
   describe('setActiveCompetition', () => {

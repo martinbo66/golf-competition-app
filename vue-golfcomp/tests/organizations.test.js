@@ -32,7 +32,8 @@ jest.mock('@/services/ApiService', () => ({
     playersUrl: jest.fn(id => (id ? `/players/${id}` : '/players')),
     teamsUrl: jest.fn(id => (id ? `/teams/${id}` : '/teams')),
     roundsUrl: jest.fn(id => (id ? `/rounds/${id}` : '/rounds')),
-    scoresUrl: jest.fn(roundId => `/rounds/${roundId}/scores`)
+    scoresUrl: jest.fn(roundId => `/rounds/${roundId}/scores`),
+    payoutsUrl: jest.fn(id => (id ? `/payouts/${id}` : '/payouts'))
   }
 }));
 
