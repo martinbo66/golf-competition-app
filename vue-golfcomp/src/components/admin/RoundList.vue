@@ -2,7 +2,7 @@
   <div v-if="activeCompetition" class="round-list">
     <hr class="round-list__divider" />
     <div class="round-list__section">
-      <h2 class="round-list__heading">Rounds — {{ activeCompetition.name }}</h2>
+
 
       <div class="round-list__table-wrap">
         <table class="round-list__table">

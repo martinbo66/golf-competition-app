@@ -2,7 +2,7 @@
   <div class="competition-list">
     <div class="card">
       <div class="card-header">
-        <h2>Competitions</h2>
+
         <div class="card-actions">
           <button class="btn btn-primary" @click="openCreateForm">+ New Competition</button>
         </div>

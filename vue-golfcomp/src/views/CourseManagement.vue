@@ -1,6 +1,6 @@
 <template>
   <div class="course-management">
-    <h1>Course Management</h1>
+
     <course-list></course-list>
   </div>
 </template>

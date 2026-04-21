@@ -1,11 +1,5 @@
 <template>
     <div class="course-scoring">
-        <div class="page-header" v-if="currentCourse">
-            <h1>
-                Scoring: {{ courseName }}
-                <span v-if="currentCourse.playDate" class="round-date">{{ formatRoundDate(currentCourse.playDate) }}</span>
-            </h1>
-        </div>
 
         <div v-if="courseId" class="scoring-content">
             <div class="main-column">
@@ -78,18 +72,12 @@ const currentCourse = computed(() => {
 
 const courseId = computed(() => currentCourse.value?.id || null);
 
-const courseName = computed(() => currentCourse.value?.name || 'Unknown Course');
 
 const courseScoresByTeam = computed(() => {
     if (!currentCourse.value?.roundId) return [];
     return scoresStore.courseScoresByTeam(currentCourse.value.roundId);
 });
 
-function formatRoundDate(dateStr) {
-    if (!dateStr) return '';
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-}
 
 onMounted(() => {
     const paramId = route.params.roundId;

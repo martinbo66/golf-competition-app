@@ -2,7 +2,7 @@
   <div class="player-list">
     <div class="card">
       <div class="card-header">
-        <h2>Players</h2>
+
         <div class="card-actions">
           <button class="btn btn-secondary" @click="showCopyModal = true">Copy from Competition</button>
           <button class="btn" @click="showAddPlayerForm = true">Add Player</button>

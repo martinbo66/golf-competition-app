@@ -53,7 +53,6 @@ describe('RoundList', () => {
     });
 
     expect(wrapper.find('.round-list').exists()).toBe(true);
-    expect(wrapper.text()).toContain('Rounds — Summer Cup');
   });
 
   test('shows add-round row with course select, date input, next round #, Add button', () => {

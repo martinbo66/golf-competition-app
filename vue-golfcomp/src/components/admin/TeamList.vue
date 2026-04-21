@@ -2,7 +2,7 @@
   <div class="team-list">
     <div class="card">
       <div class="card-header">
-        <h2>Teams</h2>
+
         <div class="card-actions">
           <button class="btn" @click="showAddTeamForm = true">Add Team</button>
           <button class="btn" @click="showGenerateTeamsModal = true">Generate Teams</button>
