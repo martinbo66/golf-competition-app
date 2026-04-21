@@ -65,8 +65,7 @@ describe('Players Store', () => {
             name: 'Bob',
             nickname: null,
             talentRating: 'B',
-            entryFee: 50,
-            winnings: 0
+            entryFee: 50
         });
         expect(id).toBe('p-new');
         expect(store.players).toHaveLength(1);
@@ -168,7 +167,7 @@ describe('Players Store', () => {
             expect(store.players).toHaveLength(2);
         });
 
-        test('resets entryFee and winnings to 0 regardless of source values', async () => {
+        test('resets entryFee to 0 regardless of source values', async () => {
             const store = usePlayersStore();
             ApiService.get.mockResolvedValue([
                 { id: 'src-p1', name: 'Alice', talentRating: 'A', entryFee: 999, winnings: 500, teamId: null }
@@ -179,7 +178,7 @@ describe('Players Store', () => {
 
             expect(ApiService.post).toHaveBeenCalledWith(
                 '/competitions/c1/players',
-                expect.objectContaining({ entryFee: 0, winnings: 0 })
+                expect.objectContaining({ entryFee: 0 })
             );
         });
 

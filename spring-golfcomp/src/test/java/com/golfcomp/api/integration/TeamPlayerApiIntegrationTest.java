@@ -125,7 +125,7 @@ class TeamPlayerApiIntegrationTest {
         String playerBody = mockMvc.perform(post("/api/v1/competitions/{id}/players", competitionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
-                    new CreatePlayerRequest("Erik Bathe", null, TalentRating.A, null, null))))
+                    new CreatePlayerRequest("Erik Bathe", null, TalentRating.A, null))))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.data.teamId").doesNotExist())
             .andReturn().getResponse().getContentAsString();

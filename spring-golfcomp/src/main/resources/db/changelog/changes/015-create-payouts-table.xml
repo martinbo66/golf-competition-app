@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="015-create-payouts-table" author="golfcomp">
+        <comment>Create payouts table. Each payout records money awarded to a player during a round (team-win share or greenie). player.winnings is the aggregate of payouts per competition.</comment>
+
+        <createTable tableName="payouts">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="competition_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="round_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="player_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payout_type" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="varchar(200)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="payouts"
+            baseColumnNames="competition_id"
+            constraintName="fk_payouts_competition"
+            referencedTableName="competitions"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+            baseTableName="payouts"
+            baseColumnNames="round_id"
+            constraintName="fk_payouts_round"
+            referencedTableName="rounds"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+            baseTableName="payouts"
+            baseColumnNames="player_id"
+            constraintName="fk_payouts_player"
+            referencedTableName="players"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <createIndex indexName="idx_payouts_round" tableName="payouts">
+            <column name="round_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_payouts_competition_player" tableName="payouts">
+            <column name="competition_id"/>
+            <column name="player_id"/>
+        </createIndex>
+
+        <sql dbms="postgresql">
+            ALTER TABLE payouts ADD CONSTRAINT chk_payouts_amount CHECK (amount &gt;= 0);
+        </sql>
+
+        <rollback>
+            <dropTable tableName="payouts"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

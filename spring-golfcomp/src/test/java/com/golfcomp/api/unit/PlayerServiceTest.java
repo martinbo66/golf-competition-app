@@ -90,7 +90,7 @@ class PlayerServiceTest {
     void create_savesPlayerWithDefaults() {
         when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
         when(playerRepository.save(any(Player.class))).thenReturn(player);
-        CreatePlayerRequest request = new CreatePlayerRequest("Erik Bathe", null, TalentRating.A, null, null);
+        CreatePlayerRequest request = new CreatePlayerRequest("Erik Bathe", null, TalentRating.A, null);
 
         PlayerResponse response = playerService.create(competitionId, request);
 
@@ -104,7 +104,7 @@ class PlayerServiceTest {
     void create_throwsWhenCompetitionNotFound() {
         when(competitionRepository.findById(competitionId)).thenReturn(Optional.empty());
 
-        CreatePlayerRequest request = new CreatePlayerRequest("Erik", null, TalentRating.B, null, null);
+        CreatePlayerRequest request = new CreatePlayerRequest("Erik", null, TalentRating.B, null);
         assertThrows(ResourceNotFoundException.class,
             () -> playerService.create(competitionId, request));
     }
@@ -226,27 +226,28 @@ class PlayerServiceTest {
     }
 
     @Test
-    @DisplayName("create - uses provided entryFee and winnings when non-null")
-    void create_usesProvidedEntryFeeAndWinnings() {
+    @DisplayName("create - uses provided entryFee and defaults winnings to zero")
+    void create_usesProvidedEntryFee() {
         when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
         when(playerRepository.save(any(Player.class))).thenReturn(player);
         CreatePlayerRequest request = new CreatePlayerRequest(
-            "Erik Bathe", null, TalentRating.A, BigDecimal.valueOf(150), BigDecimal.valueOf(50));
+            "Erik Bathe", null, TalentRating.A, BigDecimal.valueOf(150));
 
         playerService.create(competitionId, request);
 
         verify(playerRepository).save(argThat(p ->
             p.getEntryFee().compareTo(BigDecimal.valueOf(150)) == 0
-            && p.getWinnings().compareTo(BigDecimal.valueOf(50)) == 0));
+            && p.getWinnings().compareTo(BigDecimal.ZERO) == 0));
     }
 
     @Test
-    @DisplayName("update - updates player fields and returns response")
+    @DisplayName("update - updates player fields and does not touch winnings")
     void update_updatesPlayerFields() {
+        BigDecimal originalWinnings = player.getWinnings();
         when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
         when(playerRepository.save(player)).thenReturn(player);
         UpdatePlayerRequest request = new UpdatePlayerRequest(
-            "Updated Name", null, TalentRating.B, BigDecimal.valueOf(200), BigDecimal.valueOf(75));
+            "Updated Name", null, TalentRating.B, BigDecimal.valueOf(200));
 
         PlayerResponse response = playerService.update(competitionId, playerId, request);
 
@@ -254,19 +255,19 @@ class PlayerServiceTest {
         assertEquals("Updated Name", player.getName());
         assertEquals(TalentRating.B, player.getTalentRating());
         assertEquals(BigDecimal.valueOf(200), player.getEntryFee());
-        assertEquals(BigDecimal.valueOf(75), player.getWinnings());
+        assertEquals(originalWinnings, player.getWinnings());
         verify(playerRepository).save(player);
     }
 
     @Test
-    @DisplayName("update - skips null entryFee and winnings")
+    @DisplayName("update - skips null entryFee")
     void update_skipsNullOptionalFields() {
         BigDecimal originalFee = player.getEntryFee();
         BigDecimal originalWinnings = player.getWinnings();
         when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
         when(playerRepository.save(player)).thenReturn(player);
         UpdatePlayerRequest request = new UpdatePlayerRequest(
-            "Updated Name", null, TalentRating.C, null, null);
+            "Updated Name", null, TalentRating.C, null);
 
         playerService.update(competitionId, playerId, request);
 
@@ -279,7 +280,7 @@ class PlayerServiceTest {
     void update_throwsWhenNotFound() {
         when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
         UpdatePlayerRequest request = new UpdatePlayerRequest(
-            "Name", null, TalentRating.A, null, null);
+            "Name", null, TalentRating.A, null);
 
         assertThrows(ResourceNotFoundException.class,
             () -> playerService.update(competitionId, playerId, request));
@@ -291,7 +292,7 @@ class PlayerServiceTest {
         UUID otherId = UUID.randomUUID();
         when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
         UpdatePlayerRequest request = new UpdatePlayerRequest(
-            "Name", null, TalentRating.A, null, null);
+            "Name", null, TalentRating.A, null);
 
         assertThrows(ResourceNotFoundException.class,
             () -> playerService.update(otherId, playerId, request));

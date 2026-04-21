@@ -58,20 +58,14 @@
       <div v-if="errors.entryFee" class="invalid-feedback">{{ errors.entryFee }}</div>
     </div>
     
-    <div class="form-group">
-      <label for="winnings">Winnings ($)</label>
-      <input 
-        type="number" 
-        id="winnings" 
-        v-model="form.winnings" 
-        class="form-control"
-        :class="{ 'is-invalid': errors.winnings }"
-        min="0"
-        step="0.01"
-      >
-      <div v-if="errors.winnings" class="invalid-feedback">{{ errors.winnings }}</div>
+    <div v-if="player" class="form-group">
+      <label>Winnings</label>
+      <div class="winnings-readonly">
+        ${{ (player.winnings || 0).toFixed(2) }}
+        <span class="hint">— calculated from recorded payouts; edit payouts on the round scoring page.</span>
+      </div>
     </div>
-    
+
     <div class="form-actions">
       <button type="button" class="btn btn-secondary" @click="cancel" :disabled="loading">Cancel</button>
       <button type="submit" class="btn" :disabled="loading">{{ player ? 'Update' : 'Add' }} Player</button>
@@ -100,8 +94,7 @@ export default {
         name: '',
         nickname: '',
         talentRating: '',
-        entryFee: 60,
-        winnings: 0
+        entryFee: 60
       },
       errors: {}
     };
@@ -121,8 +114,7 @@ export default {
           name: this.player.name,
           nickname: this.player.nickname || '',
           talentRating: this.player.talentRating,
-          entryFee: this.player.entryFee,
-          winnings: this.player.winnings
+          entryFee: this.player.entryFee
         };
       } else {
         // Add mode - reset form with default entry fee of $60
@@ -130,8 +122,7 @@ export default {
           name: '',
           nickname: '',
           talentRating: '',
-          entryFee: 60,
-          winnings: 0
+          entryFee: 60
         };
       }
       this.errors = {};
@@ -192,6 +183,12 @@ export default {
   font-size: 0.8rem;
   color: var(--text-muted, #888);
   font-weight: normal;
+}
+
+.winnings-readonly {
+  font-size: 1rem;
+  padding: 0.375rem 0;
+  color: var(--text-color, #212529);
 }
 </style>
 

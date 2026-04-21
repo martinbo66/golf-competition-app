@@ -38,4 +38,7 @@
     <!-- Player enhancements -->
     <include file="changes/014-add-nickname-to-players.xml" relativeToChangelogFile="true"/>
 
+    <!-- Money / payouts -->
+    <include file="changes/015-create-payouts-table.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

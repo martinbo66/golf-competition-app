@@ -43,8 +43,7 @@ export const usePlayersStore = defineStore('players', {
                 name: player.name,
                 nickname: player.nickname || null,
                 talentRating: player.talentRating,
-                entryFee: Number.parseFloat(player.entryFee) || 0,
-                winnings: Number.parseFloat(player.winnings) || 0
+                entryFee: Number.parseFloat(player.entryFee) || 0
             });
             const mapped = mapPlayerResponse(created);
             this.players.push(mapped);
@@ -56,8 +55,7 @@ export const usePlayersStore = defineStore('players', {
                 name: updates.name !== undefined ? updates.name : this.playerById(id)?.name,
                 nickname: updates.nickname !== undefined ? (updates.nickname || null) : (this.playerById(id)?.nickname ?? null),
                 talentRating: updates.talentRating !== undefined ? updates.talentRating : this.playerById(id)?.talentRating,
-                entryFee: updates.entryFee !== undefined ? (Number.parseFloat(updates.entryFee) || 0) : (this.playerById(id)?.entryFee ?? 0),
-                winnings: updates.winnings !== undefined ? (Number.parseFloat(updates.winnings) || 0) : (this.playerById(id)?.winnings ?? 0)
+                entryFee: updates.entryFee !== undefined ? (Number.parseFloat(updates.entryFee) || 0) : (this.playerById(id)?.entryFee ?? 0)
             });
             const mapped = mapPlayerResponse(updated);
             const index = this.players.findIndex(p => p.id === id);
@@ -109,8 +107,7 @@ export const usePlayersStore = defineStore('players', {
                 await this.addPlayer({
                     name: player.name,
                     talentRating: player.talentRating,
-                    entryFee: 0,
-                    winnings: 0
+                    entryFee: 0
                 });
                 copied++;
             }

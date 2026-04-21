@@ -8,12 +8,12 @@ import PlayerForm from '../src/components/admin/PlayerForm.vue';
 const mountForm = (props = {}) => mount(PlayerForm, { props });
 
 describe('PlayerForm — add mode (no player prop)', () => {
-    test('starts with default values: empty name/talent, entryFee=60, winnings=0', () => {
+    test('starts with default values: empty name/talent, entryFee=60', () => {
         const wrapper = mountForm();
         expect(wrapper.vm.form.name).toBe('');
         expect(wrapper.vm.form.talentRating).toBe('');
         expect(wrapper.vm.form.entryFee).toBe(60);
-        expect(wrapper.vm.form.winnings).toBe(0);
+        expect(wrapper.vm.form.winnings).toBeUndefined();
     });
 
     test('submit button shows "Add Player"', () => {
@@ -35,7 +35,6 @@ describe('PlayerForm — edit mode (player prop provided)', () => {
         expect(wrapper.vm.form.name).toBe('Alice');
         expect(wrapper.vm.form.talentRating).toBe('A');
         expect(wrapper.vm.form.entryFee).toBe(100);
-        expect(wrapper.vm.form.winnings).toBe(50);
     });
 
     test('submit button shows "Update Player"', () => {
@@ -104,7 +103,6 @@ describe('PlayerForm — submit', () => {
         await wrapper.find('#name').setValue('Bob');
         await wrapper.find('#talentRating').setValue('B');
         await wrapper.find('#entryFee').setValue('75');
-        await wrapper.find('#winnings').setValue('25');
         await wrapper.find('form').trigger('submit');
         expect(wrapper.emitted('save')).toBeTruthy();
         const emitted = wrapper.emitted('save')[0][0];

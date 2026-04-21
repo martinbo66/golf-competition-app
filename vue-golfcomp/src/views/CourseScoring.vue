@@ -3,6 +3,8 @@
 
         <div v-if="courseId" class="scoring-content">
             <div class="main-column">
+                    <RoundPayouts :roundId="currentCourse.roundId" />
+
                     <ScoreEntry :roundId="currentCourse.roundId" />
 
                     <!-- Team Score Cards -->
@@ -58,6 +60,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useCoursesStore } from '@/stores/courses';
 import { useScoresStore } from '@/stores/scores';
 import ScoreEntry from '@/components/scoring/ScoreEntry.vue';
+import RoundPayouts from '@/components/scoring/RoundPayouts.vue';
 
 const route = useRoute();
 const router = useRouter();

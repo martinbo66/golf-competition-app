@@ -92,7 +92,7 @@ class MultiTenantEndToEndTest {
     }
 
     private UUID createPlayer(UUID orgId, UUID compId, String name, TalentRating rating) throws Exception {
-        CreatePlayerRequest req = new CreatePlayerRequest(name, null, rating, null, null);
+        CreatePlayerRequest req = new CreatePlayerRequest(name, null, rating, null);
         String body = mockMvc.perform(post("/api/v1/organizations/{orgId}/competitions/{compId}/players", orgId, compId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))

@@ -50,7 +50,7 @@ class PlayerControllerTest {
     @DisplayName("POST /players - returns 201 with player")
     void create_returns201() throws Exception {
         when(playerService.create(eq(competitionId), any())).thenReturn(samplePlayer());
-        CreatePlayerRequest req = new CreatePlayerRequest("Erik Bathe", null, TalentRating.A, null, null);
+        CreatePlayerRequest req = new CreatePlayerRequest("Erik Bathe", null, TalentRating.A, null);
 
         mockMvc.perform(post("/api/v1/competitions/{id}/players", competitionId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -63,7 +63,7 @@ class PlayerControllerTest {
     @Test
     @DisplayName("POST /players - returns 400 on blank name")
     void create_returns400OnBlankName() throws Exception {
-        CreatePlayerRequest req = new CreatePlayerRequest("", null, TalentRating.A, null, null);
+        CreatePlayerRequest req = new CreatePlayerRequest("", null, TalentRating.A, null);
 
         mockMvc.perform(post("/api/v1/competitions/{id}/players", competitionId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -145,7 +145,7 @@ class PlayerControllerTest {
         UUID playerId = UUID.randomUUID();
         when(playerService.update(eq(competitionId), eq(playerId), any())).thenReturn(samplePlayer());
         UpdatePlayerRequest req = new UpdatePlayerRequest(
-            "Updated Name", null, TalentRating.B, null, null);
+            "Updated Name", null, TalentRating.B, null);
 
         mockMvc.perform(put("/api/v1/competitions/{cId}/players/{pId}", competitionId, playerId)
                 .contentType(MediaType.APPLICATION_JSON)

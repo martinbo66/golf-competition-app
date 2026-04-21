@@ -31,6 +31,10 @@ jest.mock('@/services/ApiService', () => ({
         scoresUrl(roundId) {
             const cid = this._competitionId || 'unknown';
             return `/competitions/${cid}/rounds/${roundId}/scores`;
+        },
+        payoutsUrl(id) {
+            const cid = this._competitionId || 'unknown';
+            return id ? `/competitions/${cid}/payouts/${id}` : `/competitions/${cid}/payouts`;
         }
     }
 }));

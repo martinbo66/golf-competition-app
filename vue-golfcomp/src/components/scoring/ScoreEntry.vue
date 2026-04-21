@@ -1,5 +1,8 @@
 <template>
   <div class="score-entry card">
+    <div class="card-header">
+      <h3>Scores</h3>
+    </div>
     <div class="card-body">
       <div v-if="!players.length" class="empty-state">
         <p>No players available. Add players in the Player Management section first.</p>
@@ -416,6 +419,13 @@ const clearScore = async (playerId) => {
 
 .talent-d {
   background-color: var(--danger-color);
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--primary-color, #007bff);
 }
 
 .score-summary {

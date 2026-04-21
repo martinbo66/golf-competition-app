@@ -12,6 +12,5 @@ public record UpdatePlayerRequest(
     @NotBlank @Size(max = 100) String name,
     @Size(max = 50) String nickname,
     @NotNull TalentRating talentRating,
-    @DecimalMin("0.00") BigDecimal entryFee,
-    @DecimalMin("0.00") BigDecimal winnings
+    @DecimalMin("0.00") BigDecimal entryFee
 ) {}

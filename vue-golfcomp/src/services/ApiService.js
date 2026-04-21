@@ -65,6 +65,9 @@ class ApiService {
   roundsUrl(id) { return `${this.orgCompUrl}/rounds${id ? '/' + id : ''}`; }
   scoresUrl(roundId) { return `${this.orgCompUrl}/rounds/${roundId}/scores`; }
   leaderboardsUrl(type) { return `${this.orgCompUrl}/leaderboards/${type}`; }
+  payoutsUrl(id) { return `${this.orgCompUrl}/payouts${id ? '/' + id : ''}`; }
+  roundPayoutsUrl(roundId) { return `${this.orgCompUrl}/rounds/${roundId}/payouts`; }
+  teamWinPayoutUrl(roundId) { return `${this.orgCompUrl}/rounds/${roundId}/payouts/team-win`; }
 
   async get(url) { return this.client.get(url); }
   async post(url, data) { return this.client.post(url, data); }
