@@ -4,6 +4,7 @@
 import { setActivePinia, createPinia } from 'pinia';
 import ApiService from '@/services/ApiService';
 import { useOrganizationsStore } from '@/stores/organizations';
+import { usePlayersStore } from '@/stores/players';
 
 jest.mock('@/services/ApiService', () => ({
   __esModule: true,
@@ -27,7 +28,11 @@ jest.mock('@/services/ApiService', () => ({
           : `/organizations/${oid}/competitions`;
       }
       return id ? `/competitions/${id}` : '/competitions';
-    })
+    }),
+    playersUrl: jest.fn(id => (id ? `/players/${id}` : '/players')),
+    teamsUrl: jest.fn(id => (id ? `/teams/${id}` : '/teams')),
+    roundsUrl: jest.fn(id => (id ? `/rounds/${id}` : '/rounds')),
+    scoresUrl: jest.fn(roundId => `/rounds/${roundId}/scores`)
   }
 }));
 
@@ -101,6 +106,37 @@ describe('organizations store', () => {
 
       expect(store.activeOrganization.id).toBe('org-1');
       expect(ApiService.organizationId).toBe('org-1');
+    });
+
+    test('clears competition context and player state when new org has no competitions', async () => {
+      const org = { id: 'org-2', name: 'Empty Club', slug: 'empty-club', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z' };
+      ApiService._competitionId = 'old-comp-id';
+      ApiService.get.mockResolvedValue([]);
+
+      const playersStore = usePlayersStore();
+      playersStore.players = [{ id: 'p1', name: 'Stale Player', talentRating: 'A', entryFee: 0, winnings: 0, teamId: null, teamName: null }];
+
+      const store = useOrganizationsStore();
+      await store.setActiveOrganization(org);
+
+      expect(ApiService.competitionId).toBeNull();
+      expect(playersStore.players).toHaveLength(0);
+    });
+
+    test('activates the best competition when new org has competitions', async () => {
+      const org = { id: 'org-3', name: 'Active Club', slug: 'active-club', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z' };
+      const mockCompetitions = [
+        { id: 'comp-1', name: 'Spring 2026', startDate: '2026-04-01', endDate: '2026-04-30', location: null, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z' }
+      ];
+      ApiService.get.mockImplementation(url => {
+        if (url.includes('/competitions')) return Promise.resolve(mockCompetitions);
+        return Promise.resolve([]);
+      });
+
+      const store = useOrganizationsStore();
+      await store.setActiveOrganization(org);
+
+      expect(ApiService.competitionId).toBe('comp-1');
     });
   });
 
