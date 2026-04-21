@@ -2,7 +2,7 @@
   <header class="app-header">
     <div class="header-left">
       <router-link to="/" class="logo-link">
-        <img src="@/assets/logo.png" alt="Logo" class="logo-img" />
+        <img :src="headerLogoSrc" alt="Logo" class="logo-img" />
       </router-link>
       <div class="header-identity">
         <div class="header-org-name">{{ orgName }}</div>
@@ -93,6 +93,11 @@ const competitionsStore = useCompetitionsStore();
 
 const orgName = computed(() => organizationsStore.activeOrganization?.name ?? 'Golf Competition');
 const activeCompetitionName = computed(() => competitionsStore.activeCompetition?.name ?? null);
+const headerLogoSrc = computed(() => {
+  const activeOrgName = organizationsStore.activeOrganization?.name ?? '';
+  const isBatheOrg = activeOrgName.trim().toLowerCase().startsWith('bathe');
+  return isBatheOrg ? require('@/assets/bathe-logo.png') : require('@/assets/logo.png');
+});
 
 const showExportModal = ref(false);
 const showImportModal = ref(false);
