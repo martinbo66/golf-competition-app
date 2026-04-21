@@ -49,6 +49,8 @@ export const useOrganizationsStore = defineStore('organizations', {
             const best = pickDefaultCompetition(competitionsStore.competitions);
             if (best) {
                 await competitionsStore.setActiveCompetition(best);
+            } else {
+                competitionsStore.clearCompetitionContext();
             }
         },
 
