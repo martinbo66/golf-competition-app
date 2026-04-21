@@ -1,6 +1,6 @@
 <template>
   <div class="team-management">
-    <h1>Team Management</h1>
+
     
     <div class="team-management-grid">
       <div class="main-column">

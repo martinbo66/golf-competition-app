@@ -2,7 +2,7 @@
   <div class="organization-list">
     <div class="card">
       <div class="card-header">
-        <h2>Organizations</h2>
+
         <div class="card-actions">
           <button class="btn btn-primary" @click="openCreateForm">+ New Organization</button>
         </div>

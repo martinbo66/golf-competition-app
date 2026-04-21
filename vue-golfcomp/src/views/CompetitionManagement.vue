@@ -1,6 +1,6 @@
 <template>
   <div class="competition-management">
-    <h1>Competition Management</h1>
+
     <p v-if="orgsStore.activeOrganization" class="org-context">
       <i class="fas fa-building"></i> {{ orgsStore.activeOrganization.name }}
     </p>

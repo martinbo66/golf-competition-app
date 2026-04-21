@@ -2,7 +2,7 @@
   <div class="course-list">
     <div class="card">
       <div class="card-header">
-        <h2>Courses</h2>
+
         <div class="card-actions">
           <button class="btn" @click="showAddForm = true">Add Course</button>
         </div>

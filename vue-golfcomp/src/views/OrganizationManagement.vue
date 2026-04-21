@@ -1,6 +1,6 @@
 <template>
   <div class="organization-management">
-    <h1>Organization Management</h1>
+
     <OrganizationList />
   </div>
 </template>

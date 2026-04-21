@@ -1,6 +1,6 @@
 <template>
   <div class="player-management">
-    <h1>Player Management</h1>
+
     <player-stats></player-stats>
     <player-list></player-list>
   </div>

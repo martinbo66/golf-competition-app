@@ -1,6 +1,6 @@
 <template>
   <div class="money-leaderboards">
-    <h1>Money Leaderboards</h1>
+
     
     <div class="leaderboards-grid">
       <div class="main-column">

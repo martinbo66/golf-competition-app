@@ -1,56 +1,33 @@
 <template>
   <header class="app-header">
-    <!-- Header Image and Logo Section -->
-    <div class="header-main-section" v-if="currentHeaderImage">
-      <div class="logo-section">
-        <router-link to="/" class="logo-link">
-          <img src="@/assets/logo.png" :alt="appTitle" class="logo-img" />
-        </router-link>
-      </div>
-      <div class="header-image-section">
-        <img :src="currentHeaderImage" :alt="currentSection" class="header-image" />
+    <div class="header-left">
+      <router-link to="/" class="logo-link">
+        <img src="@/assets/logo.png" alt="Logo" class="logo-img" />
+      </router-link>
+      <div class="header-identity">
+        <div class="header-org-name">{{ orgName }}</div>
+        <div class="header-tagline">Golf Competition Tracking</div>
       </div>
     </div>
-    
-    <div class="header-content">
-      <div class="header-left">
-        <div class="site-title">
-          <router-link to="/">
-            <h1>{{ appTitle }}</h1>
-          </router-link>
-        </div>
-        <OrganizationSelector />
-        <CompetitionBadge />
-      </div>
-      <nav class="top-nav">
-        <ul>
-          <li v-for="item in navItems" :key="item.id">
-            <router-link
-              :to="item.route"
-              :class="{ active: activeSection === item.id }"
-              @click.native="setActiveSection(item.id)"
-            >
-              <i :class="item.icon"></i>
-              {{ item.label }}
-            </router-link>
-          </li>
-        </ul>
-      </nav>
-      <div class="user-menu">
-        <button class="btn-icon" @click="toggleTheme">
-          <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
-        </button>
-        <button class="btn-icon" @click="showExportModal = true">
-          <i class="fas fa-download"></i>
-        </button>
-        <button class="btn-icon" @click="showImportModal = true">
-          <i class="fas fa-upload"></i>
-        </button>
-      </div>
+
+    <div class="header-right">
+      <OrganizationSelector />
+      <router-link v-if="activeCompetitionName" to="/admin/competitions" class="header-competition">
+        {{ activeCompetitionName }}
+      </router-link>
+      <button class="btn-icon btn-icon--bordered" @click="toggleTheme" :aria-label="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+        <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+      </button>
+      <button class="btn-icon" @click="showExportModal = true" aria-label="Export data">
+        <i class="fas fa-download"></i>
+      </button>
+      <button class="btn-icon" @click="showImportModal = true" aria-label="Import data">
+        <i class="fas fa-upload"></i>
+      </button>
     </div>
-    
+
     <!-- Export Modal -->
-    <div v-if="showExportModal" class="modal">
+    <div v-if="showExportModal" class="modal" @click.self="showExportModal = false">
       <div class="modal-content">
         <div class="modal-header">
           <h3>Export Data</h3>
@@ -66,9 +43,9 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Import Modal -->
-    <div v-if="showImportModal" class="modal">
+    <div v-if="showImportModal" class="modal" @click.self="closeImportModal">
       <div class="modal-content">
         <div class="modal-header">
           <h3>Import Data</h3>
@@ -83,9 +60,9 @@
             {{ importProgress }}
           </div>
           <div class="import-options">
-            <textarea 
-              v-model="importData" 
-              class="form-control" 
+            <textarea
+              v-model="importData"
+              class="form-control"
               placeholder="Paste JSON data here"
               rows="10"
               :disabled="isImporting"
@@ -104,34 +81,18 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useUiStore } from '@/stores/ui';
-import { useCoursesStore } from '@/stores/courses';
 import { useOrganizationsStore } from '@/stores/organizations';
+import { useCompetitionsStore } from '@/stores/competitions';
 import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
 import { getUserFriendlyErrorMessage } from '@/utils';
-import CompetitionBadge from '@/components/layout/CompetitionBadge.vue';
 import OrganizationSelector from '@/components/layout/OrganizationSelector.vue';
 
-const uiStore = useUiStore();
-const coursesStore = useCoursesStore();
 const organizationsStore = useOrganizationsStore();
+const competitionsStore = useCompetitionsStore();
 
-const appTitle = computed(() => {
-  const orgName = organizationsStore.activeOrganization?.name;
-  return orgName ? `${orgName} Golf Competition` : 'Golf Competition';
-});
-
-const scoringRoute = computed(() => {
-  const firstCourse = coursesStore.allCourses[0];
-  return firstCourse ? `/scoring/${firstCourse.id}` : '/scoring';
-});
-
-const navItems = computed(() => [
-  { id: 'administration', label: 'Administration', route: '/admin/players', icon: 'fas fa-users-cog' },
-  { id: 'scoring', label: 'Scoring', route: scoringRoute.value, icon: 'fas fa-golf-ball' },
-  { id: 'leaderboards', label: 'Leaderboards', route: '/leaderboards', icon: 'fas fa-trophy' }
-]);
+const orgName = computed(() => organizationsStore.activeOrganization?.name ?? 'Golf Competition');
+const activeCompetitionName = computed(() => competitionsStore.activeCompetition?.name ?? null);
 
 const showExportModal = ref(false);
 const showImportModal = ref(false);
@@ -140,36 +101,16 @@ const importProgress = ref('');
 const isImporting = ref(false);
 const isDarkMode = ref(false);
 
-const activeSection = computed(() => uiStore.activeSection);
-
-const currentHeaderImage = computed(() => {
-  const imageMap = {
-    'administration': require('@/assets/parkland-header.png'),
-    'scoring': require('@/assets/heathland-header.png'),
-    'leaderboards': require('@/assets/moorland-header.png')
-  };
-  return imageMap[activeSection.value] || null;
-});
-
-const currentSection = computed(() => activeSection.value || 'administration');
-
-const setActiveSection = (sectionId) => {
-  uiStore.setActiveSection(sectionId);
-};
-
 const toggleTheme = () => {
   isDarkMode.value = !isDarkMode.value;
   document.body.classList.toggle('dark-mode', isDarkMode.value);
   localStorage.setItem('darkMode', isDarkMode.value ? 'true' : 'false');
-  
   NotificationService.info(`${isDarkMode.value ? 'Dark' : 'Light'} mode activated`);
 };
 
 const exportData = () => {
   try {
     const data = DataService.exportData();
-    
-    // Create a download link
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -179,7 +120,6 @@ const exportData = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
     showExportModal.value = false;
     NotificationService.success('Data exported successfully');
   } catch (error) {
@@ -224,7 +164,6 @@ const importDataFromJson = async () => {
 };
 
 onMounted(() => {
-  // Check for saved theme preference
   const savedTheme = localStorage.getItem('darkMode');
   if (savedTheme === 'true') {
     isDarkMode.value = true;
@@ -235,141 +174,108 @@ onMounted(() => {
 
 <style scoped>
 .app-header {
+  height: 72px;
   background-color: var(--header-bg);
   color: var(--header-text);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.header-main-section {
-  display: flex;
-  align-items: stretch;
-  height: 120px;
-}
-
-.logo-section {
-  width: auto;
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding: 10px;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
 }
 
 .logo-link {
   display: flex;
   align-items: center;
-  justify-content: center;
   text-decoration: none;
-  color: var(--header-text);
+  flex-shrink: 0;
 }
 
 .logo-img {
-  height: 120px;
+  height: 64px;
   width: auto;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s;
 }
 
 .logo-img:hover {
   transform: scale(1.05);
 }
 
-.header-image-section {
-  flex: 1;
-  height: 120px;
+.header-identity {
+  min-width: 0;
+}
+
+.header-org-name {
+  font-size: 22px;
+  font-weight: 500;
+  white-space: nowrap;
   overflow: hidden;
-  position: relative;
+  text-overflow: ellipsis;
+  color: var(--header-text);
 }
 
-.header-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+.header-tagline {
+  font-size: 12px;
+  opacity: 0.7;
+  white-space: nowrap;
 }
 
-.header-content {
+.header-right {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  padding: 0 20px;
-  min-height: 60px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-}
-
-.site-title {
+  gap: 10px;
   flex-shrink: 0;
 }
 
-.site-title a {
-  text-decoration: none;
-  color: var(--header-text);
-}
-
-.site-title h1 {
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin: 0;
-}
-
-.top-nav ul {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.top-nav li {
-  margin: 0 5px;
-}
-
-.top-nav a {
+.header-competition {
+  font-size: 13px;
+  opacity: 0.8;
+  white-space: nowrap;
   color: var(--header-text);
   text-decoration: none;
-  padding: 8px 12px;
+  padding: 4px 10px;
   border-radius: 4px;
-  transition: background-color 0.3s;
-  display: flex;
-  align-items: center;
+  transition: background-color 0.15s;
 }
 
-.top-nav a i {
-  margin-right: 8px;
-}
-
-.top-nav a:hover {
+.header-competition:hover {
   background-color: var(--header-hover);
-}
-
-.top-nav a.active {
-  background-color: var(--header-active);
-  font-weight: 500;
-}
-
-.user-menu {
-  display: flex;
-  align-items: center;
+  opacity: 1;
 }
 
 .btn-icon {
-  background: none;
+  background: transparent;
   border: none;
   color: var(--header-text);
-  font-size: 1.1rem;
-  padding: 8px;
-  margin-left: 5px;
+  font-size: 14px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
   cursor: pointer;
   border-radius: 4px;
-  transition: background-color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
 }
 
 .btn-icon:hover {
   background-color: var(--header-hover);
+}
+
+.btn-icon--bordered {
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .modal {
@@ -419,13 +325,15 @@ onMounted(() => {
   font-size: 1.5rem;
   cursor: pointer;
   color: var(--text-muted);
+  line-height: 1;
 }
 
 .close-btn:hover {
   color: var(--text-color);
 }
 
-.export-options, .import-options {
+.export-options,
+.import-options {
   margin-top: 20px;
 }
 
@@ -449,63 +357,17 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .header-main-section {
-    flex-direction: column;
-    height: auto;
+  .app-header {
+    padding: 0 16px;
+    gap: 12px;
   }
-  
-  .logo-section {
-    width: 100%;
-    height: 80px;
-    padding: 15px;
-    justify-content: center;
+
+  .header-tagline {
+    display: none;
   }
-  
-  .logo-img {
-    height: 70px;
-  }
-  
-  .header-image-section {
-    height: 80px;
-  }
-  
-  .header-content {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 10px;
-  }
-  
-  .site-title {
-    margin-bottom: 10px;
-    width: 100%;
-    text-align: center;
-  }
-  
-  .top-nav {
-    order: 3;
-    width: 100%;
-    margin-top: 10px;
-  }
-  
-  .top-nav ul {
-    justify-content: space-around;
-  }
-  
-  .top-nav a {
-    flex-direction: column;
-    font-size: 0.8rem;
-    padding: 8px;
-  }
-  
-  .top-nav a i {
-    margin-right: 0;
-    margin-bottom: 5px;
-    font-size: 1.2rem;
-  }
-  
-  .user-menu {
-    order: 2;
+
+  .header-competition {
+    display: none;
   }
 }
 </style>
-
