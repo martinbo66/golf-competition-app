@@ -143,6 +143,21 @@ export const useCompetitionsStore = defineStore('competitions', {
             } finally {
                 uiStore.setLoading(false);
             }
+        },
+
+        clearCompetitionContext() {
+            this.activeCompetition = null;
+            ApiService.competitionId = null;
+
+            const coursesStore = useCoursesStore();
+            const playersStore = usePlayersStore();
+            const teamsStore = useTeamsStore();
+            const scoresStore = useScoresStore();
+
+            coursesStore.clearForCompetition();
+            playersStore.players = [];
+            teamsStore.teams = [];
+            scoresStore.scores = [];
         }
     }
 });
