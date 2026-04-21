@@ -154,7 +154,7 @@ export const useCompetitionsStore = defineStore('competitions', {
             const teamsStore = useTeamsStore();
             const scoresStore = useScoresStore();
 
-            coursesStore.$reset();
+            coursesStore.clearForCompetition();
             playersStore.players = [];
             teamsStore.teams = [];
             scoresStore.scores = [];

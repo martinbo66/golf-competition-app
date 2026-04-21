@@ -65,6 +65,12 @@ export const useCoursesStore = defineStore('courses', {
             this.allCoursesCache = this.allCoursesCache.filter(c => c.id !== id);
         },
 
+        clearForCompetition() {
+            this.courses = [...FALLBACK_COURSES];
+            this.rounds = [];
+            this.loaded = false;
+        },
+
         async fetchCourses() {
             try {
                 const rounds = await ApiService.get(ApiService.roundsUrl());
