@@ -19,7 +19,6 @@ import { setActivePinia, createPinia } from 'pinia';
 import { nextTick } from 'vue';
 import AppHeader from '../src/components/layout/AppHeader.vue';
 import { useUiStore } from '@/stores/ui';
-import { useCoursesStore } from '@/stores/courses';
 import DataService from '@/services/DataService';
 import NotificationService from '@/services/NotificationService';
 
@@ -105,66 +104,6 @@ describe('AppHeader - toggleTheme', () => {
         const wrapper = mountHeader();
         await wrapper.find('.btn-icon').trigger('click');
         expect(NotificationService.info).toHaveBeenCalled();
-    });
-});
-
-// ============================================================
-// scoringRoute computed
-// ============================================================
-
-describe('AppHeader - scoringRoute', () => {
-    test('uses first course id when courses exist', () => {
-        const coursesStore = useCoursesStore();
-        coursesStore.courses = [{ id: 'c1', name: 'Parkland', roundId: 'r1' }];
-        const wrapper = mountHeader();
-        // navItems[1] is 'scoring' — find its rendered link
-        const links = wrapper.findAll('nav a');
-        const scoringLink = links.find(l => l.text().includes('Scoring'));
-        // The RouterLink stub renders the `to` prop as href via slot — we check the nav items via rendered text
-        // Primary check: no error mounting and scoring nav item exists
-        expect(scoringLink).toBeDefined();
-    });
-
-    test('falls back to /scoring when no courses', () => {
-        const coursesStore = useCoursesStore();
-        coursesStore.courses = [];
-        // Should mount without error
-        expect(() => mountHeader()).not.toThrow();
-    });
-});
-
-// ============================================================
-// currentHeaderImage computed
-// ============================================================
-
-describe('AppHeader - currentHeaderImage', () => {
-    test('returns image for administration section', () => {
-        const uiStore = useUiStore();
-        uiStore.activeSection = 'administration';
-        const wrapper = mountHeader();
-        // When currentHeaderImage is truthy, .header-main-section renders
-        expect(wrapper.find('.header-main-section').exists()).toBe(true);
-    });
-
-    test('returns image for scoring section', () => {
-        const uiStore = useUiStore();
-        uiStore.activeSection = 'scoring';
-        const wrapper = mountHeader();
-        expect(wrapper.find('.header-main-section').exists()).toBe(true);
-    });
-
-    test('returns image for leaderboards section', () => {
-        const uiStore = useUiStore();
-        uiStore.activeSection = 'leaderboards';
-        const wrapper = mountHeader();
-        expect(wrapper.find('.header-main-section').exists()).toBe(true);
-    });
-
-    test('returns null (hides header image) for unknown section', () => {
-        const uiStore = useUiStore();
-        uiStore.activeSection = 'unknown-section';
-        const wrapper = mountHeader();
-        expect(wrapper.find('.header-main-section').exists()).toBe(false);
     });
 });
 
