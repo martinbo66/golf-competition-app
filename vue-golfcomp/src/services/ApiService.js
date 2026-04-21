@@ -68,10 +68,12 @@ class ApiService {
   payoutsUrl(id) { return `${this.orgCompUrl}/payouts${id ? '/' + id : ''}`; }
   roundPayoutsUrl(roundId) { return `${this.orgCompUrl}/rounds/${roundId}/payouts`; }
   teamWinPayoutUrl(roundId) { return `${this.orgCompUrl}/rounds/${roundId}/payouts/team-win`; }
+  markPayoutPaidUrl(id) { return `${this.orgCompUrl}/payouts/${id}/paid`; }
 
   async get(url) { return this.client.get(url); }
   async post(url, data) { return this.client.post(url, data); }
   async put(url, data) { return this.client.put(url, data); }
+  async patch(url, data) { return this.client.patch(url, data); }
   async delete(url) { return this.client.delete(url); }
 }
 

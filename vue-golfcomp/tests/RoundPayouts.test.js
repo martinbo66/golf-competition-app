@@ -8,10 +8,12 @@ jest.mock('@/services/ApiService', () => ({
     default: {
         post: jest.fn(),
         put: jest.fn(),
+        patch: jest.fn(),
         delete: jest.fn(),
         payoutsUrl: jest.fn(id => id ? `/competitions/c1/payouts/${id}` : '/competitions/c1/payouts'),
         roundPayoutsUrl: jest.fn(roundId => `/competitions/c1/rounds/${roundId}/payouts`),
-        teamWinPayoutUrl: jest.fn(roundId => `/competitions/c1/rounds/${roundId}/payouts/team-win`)
+        teamWinPayoutUrl: jest.fn(roundId => `/competitions/c1/rounds/${roundId}/payouts/team-win`),
+        markPayoutPaidUrl: jest.fn(id => `/competitions/c1/payouts/${id}/paid`)
     }
 }));
 
@@ -48,6 +50,8 @@ const makePayout = (overrides = {}) => ({
     type: 'GREENIE',
     amount: 25,
     note: 'Hole 5',
+    paid: false,
+    paidAt: null,
     ...overrides
 });
 
@@ -418,5 +422,88 @@ describe('RoundPayouts - remove payout', () => {
 
         const wrapper = mountComponent();
         expect(wrapper.find('.btn-danger').exists()).toBe(true);
+    });
+});
+
+// ─── Paid toggle ─────────────────────────────────────────────────────────────
+
+describe('RoundPayouts - paid toggle', () => {
+    test('renders Unpaid badge and unchecked checkbox for unpaid payouts', () => {
+        const payoutsStore = usePayoutsStore();
+        payoutsStore.payouts = [makePayout({ type: 'GREENIE', paid: false })];
+
+        const wrapper = mountComponent();
+        expect(wrapper.find('.unpaid-badge').exists()).toBe(true);
+        expect(wrapper.find('.paid-badge').exists()).toBe(false);
+        const checkbox = wrapper.find('.paid-toggle input[type="checkbox"]');
+        expect(checkbox.exists()).toBe(true);
+        expect(checkbox.element.checked).toBe(false);
+    });
+
+    test('renders Paid badge and checked checkbox for paid payouts', () => {
+        const payoutsStore = usePayoutsStore();
+        payoutsStore.payouts = [makePayout({ type: 'GREENIE', paid: true, paidAt: '2026-06-02T12:00:00Z' })];
+
+        const wrapper = mountComponent();
+        expect(wrapper.find('.paid-badge').exists()).toBe(true);
+        expect(wrapper.find('.unpaid-badge').exists()).toBe(false);
+        expect(wrapper.find('.paid-toggle input[type="checkbox"]').element.checked).toBe(true);
+        expect(wrapper.find('tr.paid-row').exists()).toBe(true);
+    });
+
+    test('clicking the toggle calls setPayoutPaid with the flipped value', async () => {
+        const payoutsStore = usePayoutsStore();
+        payoutsStore.payouts = [makePayout({ id: 'payout-1', type: 'GREENIE', paid: false })];
+        jest.spyOn(payoutsStore, 'setPayoutPaid').mockResolvedValue(makePayout({ id: 'payout-1', paid: true }));
+
+        const wrapper = mountComponent();
+        await wrapper.find('.paid-toggle input[type="checkbox"]').trigger('change');
+        await wrapper.vm.$nextTick();
+
+        expect(payoutsStore.setPayoutPaid).toHaveBeenCalledWith({ id: 'payout-1', paid: true });
+        expect(NotificationService.success).toHaveBeenCalledWith('Marked paid');
+    });
+
+    test('flipping a paid payout back calls setPayoutPaid with false', async () => {
+        const payoutsStore = usePayoutsStore();
+        payoutsStore.payouts = [makePayout({ id: 'payout-1', type: 'GREENIE', paid: true, paidAt: 'now' })];
+        jest.spyOn(payoutsStore, 'setPayoutPaid').mockResolvedValue(makePayout({ id: 'payout-1', paid: false }));
+
+        const wrapper = mountComponent();
+        await wrapper.find('.paid-toggle input[type="checkbox"]').trigger('change');
+        await wrapper.vm.$nextTick();
+
+        expect(payoutsStore.setPayoutPaid).toHaveBeenCalledWith({ id: 'payout-1', paid: false });
+        expect(NotificationService.success).toHaveBeenCalledWith('Marked unpaid');
+    });
+
+    test('shows error notification when setPayoutPaid fails', async () => {
+        const payoutsStore = usePayoutsStore();
+        payoutsStore.payouts = [makePayout({ id: 'payout-1', type: 'GREENIE', paid: false })];
+        jest.spyOn(payoutsStore, 'setPayoutPaid').mockRejectedValue(new Error('Network error'));
+
+        const wrapper = mountComponent();
+        await wrapper.find('.paid-toggle input[type="checkbox"]').trigger('change');
+        await wrapper.vm.$nextTick();
+
+        expect(NotificationService.error).toHaveBeenCalled();
+    });
+
+    test('header shows Paid/Outstanding chips when there are payouts', () => {
+        const payoutsStore = usePayoutsStore();
+        payoutsStore.payouts = [
+            makePayout({ id: 'p1', type: 'GREENIE', amount: 25, paid: true }),
+            makePayout({ id: 'p2', type: 'TEAM_WIN', amount: 40, paid: false })
+        ];
+
+        const wrapper = mountComponent();
+        expect(wrapper.find('.paid-chip').text()).toContain('$25.00');
+        expect(wrapper.find('.outstanding-chip').text()).toContain('$40.00');
+        expect(wrapper.find('.outstanding-chip').classes()).toContain('has-outstanding');
+    });
+
+    test('header hides Paid/Outstanding chips when round total is zero', () => {
+        const wrapper = mountComponent();
+        expect(wrapper.find('.paid-summary').exists()).toBe(false);
     });
 });

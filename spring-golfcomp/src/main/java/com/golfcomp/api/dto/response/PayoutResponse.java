@@ -18,6 +18,8 @@ public record PayoutResponse(
     PayoutType type,
     BigDecimal amount,
     String note,
+    boolean paid,
+    Instant paidAt,
     Instant createdAt,
     Instant updatedAt
 ) {
@@ -33,6 +35,8 @@ public record PayoutResponse(
             payout.getType(),
             payout.getAmount(),
             payout.getNote(),
+            payout.isPaid(),
+            payout.getPaidAt(),
             payout.getCreatedAt(),
             payout.getUpdatedAt()
         );

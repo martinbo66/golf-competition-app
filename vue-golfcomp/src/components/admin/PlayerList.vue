@@ -31,8 +31,12 @@
                 <span v-if="sortKey === 'entryFee'" :class="sortDirection === 'asc' ? 'sort-asc' : 'sort-desc'"></span>
               </th>
               <th @click="sortBy('winnings')">
-                Winnings
+                Paid
                 <span v-if="sortKey === 'winnings'" :class="sortDirection === 'asc' ? 'sort-asc' : 'sort-desc'"></span>
+              </th>
+              <th @click="sortBy('outstanding')">
+                Outstanding
+                <span v-if="sortKey === 'outstanding'" :class="sortDirection === 'asc' ? 'sort-asc' : 'sort-desc'"></span>
               </th>
               <th @click="sortBy('teamName')">
                 Team
@@ -48,6 +52,7 @@
               <td>{{ player.talentRating }}</td>
               <td>{{ formatCurrency(player.entryFee) }}</td>
               <td>{{ formatCurrency(player.winnings) }}</td>
+              <td :class="{ 'outstanding-cell': player.outstanding > 0 }">{{ formatCurrency(player.outstanding) }}</td>
               <td>{{ player.teamName || 'Unassigned' }}</td>
               <td class="action-cell">
                 <button class="icon-btn" title="Edit player" @click="editPlayer(player)">
@@ -66,6 +71,9 @@
               <td></td>
               <td><strong>{{ formatCurrency(totalEntryFees) }}</strong></td>
               <td><strong>{{ formatCurrency(totalWinnings) }}</strong></td>
+              <td :class="{ 'outstanding-cell': totalOutstanding > 0 }">
+                <strong>{{ formatCurrency(totalOutstanding) }}</strong>
+              </td>
               <td></td>
               <td></td>
             </tr>
@@ -146,6 +154,7 @@ import { ref, computed } from 'vue';
 import { usePlayersStore } from '@/stores/players';
 import { useTeamsStore } from '@/stores/teams';
 import { useCompetitionsStore } from '@/stores/competitions';
+import { usePayoutsStore } from '@/stores/payouts';
 import { formatCurrency, getUserFriendlyErrorMessage } from '@/utils';
 import NotificationService from '@/services/NotificationService';
 import PlayerForm from './PlayerForm.vue';
@@ -154,6 +163,7 @@ import ConfirmationDialog from '@/components/shared/ConfirmationDialog.vue';
 const playersStore = usePlayersStore();
 const teamsStore = useTeamsStore();
 const competitionsStore = useCompetitionsStore();
+const payoutsStore = usePayoutsStore();
 
 const showAddPlayerForm = ref(false);
 const editingPlayer = ref(null);
@@ -170,12 +180,14 @@ const isCopying = ref(false);
 const players = computed(() => {
   return playersStore.allPlayers.map(player => ({
     ...player,
-    teamName: player.teamId ? teamsStore.teamById(player.teamId)?.name : null
+    teamName: player.teamId ? teamsStore.teamById(player.teamId)?.name : null,
+    outstanding: payoutsStore.unpaidTotalByPlayer(player.id)
   }));
 });
 
 const totalEntryFees = computed(() => playersStore.totalEntryFees);
 const totalWinnings = computed(() => playersStore.totalWinnings);
+const totalOutstanding = computed(() => playersStore.totalOutstandingWinnings);
 const otherCompetitions = computed(() =>
   competitionsStore.allCompetitions.filter(c => c.id !== competitionsStore.activeCompetitionId)
 );
@@ -443,6 +455,11 @@ th:hover {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.outstanding-cell {
+  color: var(--danger-color, #dc3545);
+  font-weight: 600;
 }
 </style>
 

@@ -1,5 +1,7 @@
 /**
  * Payouts store tests.
+ * Note: player.winnings reflects PAID payouts only (semantic change introduced
+ * alongside the paid/paidAt fields). Unpaid payouts do not bump winnings.
  */
 jest.mock('@/services/ApiService', () => ({
     __esModule: true,
@@ -7,10 +9,12 @@ jest.mock('@/services/ApiService', () => ({
         get: jest.fn(),
         post: jest.fn(),
         put: jest.fn(),
+        patch: jest.fn(),
         delete: jest.fn(),
         payoutsUrl: jest.fn(id => id ? `/competitions/c1/payouts/${id}` : '/competitions/c1/payouts'),
         roundPayoutsUrl: jest.fn(roundId => `/competitions/c1/rounds/${roundId}/payouts`),
-        teamWinPayoutUrl: jest.fn(roundId => `/competitions/c1/rounds/${roundId}/payouts/team-win`)
+        teamWinPayoutUrl: jest.fn(roundId => `/competitions/c1/rounds/${roundId}/payouts/team-win`),
+        markPayoutPaidUrl: jest.fn(id => `/competitions/c1/payouts/${id}/paid`)
     }
 }));
 
@@ -30,6 +34,8 @@ const makePayout = (overrides = {}) => ({
     type: 'GREENIE',
     amount: 25,
     note: 'Hole 5',
+    paid: false,
+    paidAt: null,
     createdAt: '2026-06-01T10:00:00Z',
     updatedAt: '2026-06-01T10:00:00Z',
     ...overrides
@@ -44,6 +50,7 @@ describe('payouts store', () => {
         ApiService.get.mockReset();
         ApiService.post.mockReset();
         ApiService.put.mockReset();
+        ApiService.patch.mockReset();
         ApiService.delete.mockReset();
     });
 
@@ -69,14 +76,29 @@ describe('payouts store', () => {
             expect(store.payouts[0].amount).toBe(33.5);
         });
 
+        test('maps paid and paidAt fields', async () => {
+            ApiService.get.mockResolvedValue([
+                makePayout({ paid: true, paidAt: '2026-06-02T12:00:00Z' }),
+                makePayout({ id: 'p2', paid: false })
+            ]);
+
+            await store.fetchPayouts();
+
+            expect(store.payouts[0].paid).toBe(true);
+            expect(store.payouts[0].paidAt).toBe('2026-06-02T12:00:00Z');
+            expect(store.payouts[1].paid).toBe(false);
+            expect(store.payouts[1].paidAt).toBeNull();
+        });
+
         test('handles null/missing optional fields', async () => {
-            ApiService.get.mockResolvedValue([makePayout({ teamId: null, teamName: null, note: null })]);
+            ApiService.get.mockResolvedValue([makePayout({ teamId: null, teamName: null, note: null, paid: undefined })]);
 
             await store.fetchPayouts();
 
             expect(store.payouts[0].teamId).toBeNull();
             expect(store.payouts[0].teamName).toBeNull();
             expect(store.payouts[0].note).toBe('');
+            expect(store.payouts[0].paid).toBe(false);
         });
 
         test('handles empty response', async () => {
@@ -93,9 +115,9 @@ describe('payouts store', () => {
     describe('getters', () => {
         beforeEach(() => {
             store.payouts = [
-                makePayout({ id: 'p1', roundId: 'r1', playerId: 'player-1', type: 'GREENIE', amount: 25 }),
-                makePayout({ id: 'p2', roundId: 'r1', playerId: 'player-2', type: 'TEAM_WIN', amount: 40 }),
-                makePayout({ id: 'p3', roundId: 'r2', playerId: 'player-1', type: 'GREENIE', amount: 10 })
+                makePayout({ id: 'p1', roundId: 'r1', playerId: 'player-1', type: 'GREENIE', amount: 25, paid: true }),
+                makePayout({ id: 'p2', roundId: 'r1', playerId: 'player-2', type: 'TEAM_WIN', amount: 40, paid: false }),
+                makePayout({ id: 'p3', roundId: 'r2', playerId: 'player-1', type: 'GREENIE', amount: 10, paid: false })
             ];
         });
 
@@ -110,10 +132,34 @@ describe('payouts store', () => {
             expect(store.payoutsByPlayer('player-2')).toHaveLength(1);
         });
 
-        test('roundTotal sums amounts for a round', () => {
+        test('roundTotal sums all amounts for a round regardless of paid', () => {
             expect(store.roundTotal('r1')).toBe(65);
             expect(store.roundTotal('r2')).toBe(10);
             expect(store.roundTotal('r99')).toBe(0);
+        });
+
+        test('roundPaidTotal sums only paid payouts for a round', () => {
+            expect(store.roundPaidTotal('r1')).toBe(25);
+            expect(store.roundPaidTotal('r2')).toBe(0);
+        });
+
+        test('roundUnpaidTotal sums only unpaid payouts for a round', () => {
+            expect(store.roundUnpaidTotal('r1')).toBe(40);
+            expect(store.roundUnpaidTotal('r2')).toBe(10);
+        });
+
+        test('paidTotalByPlayer sums paid payouts for a player', () => {
+            expect(store.paidTotalByPlayer('player-1')).toBe(25);
+            expect(store.paidTotalByPlayer('player-2')).toBe(0);
+        });
+
+        test('unpaidTotalByPlayer sums unpaid payouts for a player', () => {
+            expect(store.unpaidTotalByPlayer('player-1')).toBe(10);
+            expect(store.unpaidTotalByPlayer('player-2')).toBe(40);
+        });
+
+        test('competitionUnpaidTotal sums all unpaid payouts', () => {
+            expect(store.competitionUnpaidTotal).toBe(50);
         });
 
         test('roundPayoutsByType filters by round and type', () => {
@@ -161,10 +207,20 @@ describe('payouts store', () => {
             );
         });
 
-        test('updates player winnings after create', async () => {
+        test('does not bump winnings when new payout is unpaid (default)', async () => {
             const playersStore = usePlayersStore();
             playersStore.players = [{ id: 'player-1', name: 'Alice', winnings: 0 }];
-            ApiService.post.mockResolvedValue(makePayout({ playerId: 'player-1', amount: 30 }));
+            ApiService.post.mockResolvedValue(makePayout({ playerId: 'player-1', amount: 30, paid: false }));
+
+            await store.createPayout({ roundId: 'r1', playerId: 'player-1', type: 'GREENIE', amount: 30 });
+
+            expect(playersStore.players[0].winnings).toBe(0);
+        });
+
+        test('bumps winnings when new payout is already paid', async () => {
+            const playersStore = usePlayersStore();
+            playersStore.players = [{ id: 'player-1', name: 'Alice', winnings: 0 }];
+            ApiService.post.mockResolvedValue(makePayout({ playerId: 'player-1', amount: 30, paid: true }));
 
             await store.createPayout({ roundId: 'r1', playerId: 'player-1', type: 'GREENIE', amount: 30 });
 
@@ -196,21 +252,21 @@ describe('payouts store', () => {
             expect(result).toHaveLength(2);
         });
 
-        test('updates winnings for each unique player', async () => {
+        test('does not bump winnings when team-win splits are unpaid', async () => {
             const playersStore = usePlayersStore();
             playersStore.players = [
                 { id: 'p1', name: 'Alice', winnings: 0 },
                 { id: 'p2', name: 'Bob', winnings: 0 }
             ];
             ApiService.post.mockResolvedValue([
-                makePayout({ id: 'tw-1', playerId: 'p1', type: 'TEAM_WIN', amount: 40 }),
-                makePayout({ id: 'tw-2', playerId: 'p2', type: 'TEAM_WIN', amount: 40 })
+                makePayout({ id: 'tw-1', playerId: 'p1', type: 'TEAM_WIN', amount: 40, paid: false }),
+                makePayout({ id: 'tw-2', playerId: 'p2', type: 'TEAM_WIN', amount: 40, paid: false })
             ]);
 
             await store.recordTeamWin({ roundId: 'r1', teamId: 'team-1', teamAmount: 80 });
 
-            expect(playersStore.players[0].winnings).toBe(40);
-            expect(playersStore.players[1].winnings).toBe(40);
+            expect(playersStore.players[0].winnings).toBe(0);
+            expect(playersStore.players[1].winnings).toBe(0);
         });
 
         test('handles null response gracefully', async () => {
@@ -266,19 +322,61 @@ describe('payouts store', () => {
         });
 
         test('recalculates winnings for previous player when player changes', async () => {
+            // previous player had a PAID payout of $25; winnings should drop to 0 after reassignment
+            store.payouts = [makePayout({ id: 'payout-1', playerId: 'player-1', amount: 25, paid: true })];
             const playersStore = usePlayersStore();
             playersStore.players = [
                 { id: 'player-1', name: 'Alice', winnings: 25 },
                 { id: 'player-2', name: 'Bob', winnings: 0 }
             ];
-            const updated = makePayout({ id: 'payout-1', playerId: 'player-2', amount: 25 });
+            const updated = makePayout({ id: 'payout-1', playerId: 'player-2', amount: 25, paid: true });
             ApiService.put.mockResolvedValue(updated);
 
             await store.updatePayout({ id: 'payout-1', updates: { playerId: 'player-2' } });
 
-            // player-1 had the payout removed, player-2 gained it
             expect(playersStore.players[0].winnings).toBe(0);
             expect(playersStore.players[1].winnings).toBe(25);
+        });
+    });
+
+    // ─── setPayoutPaid ───────────────────────────────────────────────────────
+
+    describe('setPayoutPaid', () => {
+        test('PATCHes the paid URL and updates state', async () => {
+            store.payouts = [makePayout({ id: 'payout-1', paid: false })];
+            ApiService.patch.mockResolvedValue(makePayout({ id: 'payout-1', paid: true, paidAt: '2026-06-02T12:00:00Z' }));
+
+            const result = await store.setPayoutPaid({ id: 'payout-1', paid: true });
+
+            expect(ApiService.patch).toHaveBeenCalledWith(
+                '/competitions/c1/payouts/payout-1/paid',
+                { paid: true }
+            );
+            expect(store.payouts[0].paid).toBe(true);
+            expect(store.payouts[0].paidAt).toBe('2026-06-02T12:00:00Z');
+            expect(result.paid).toBe(true);
+        });
+
+        test('bumps player winnings when flipped to paid', async () => {
+            const playersStore = usePlayersStore();
+            playersStore.players = [{ id: 'player-1', name: 'Alice', winnings: 0 }];
+            store.payouts = [makePayout({ id: 'payout-1', playerId: 'player-1', amount: 25, paid: false })];
+            ApiService.patch.mockResolvedValue(makePayout({ id: 'payout-1', playerId: 'player-1', amount: 25, paid: true, paidAt: 'now' }));
+
+            await store.setPayoutPaid({ id: 'payout-1', paid: true });
+
+            expect(playersStore.players[0].winnings).toBe(25);
+        });
+
+        test('drops player winnings when flipped back to unpaid', async () => {
+            const playersStore = usePlayersStore();
+            playersStore.players = [{ id: 'player-1', name: 'Alice', winnings: 25 }];
+            store.payouts = [makePayout({ id: 'payout-1', playerId: 'player-1', amount: 25, paid: true, paidAt: 'now' })];
+            ApiService.patch.mockResolvedValue(makePayout({ id: 'payout-1', playerId: 'player-1', amount: 25, paid: false, paidAt: null }));
+
+            await store.setPayoutPaid({ id: 'payout-1', paid: false });
+
+            expect(playersStore.players[0].winnings).toBe(0);
         });
     });
 
@@ -295,10 +393,10 @@ describe('payouts store', () => {
             expect(store.payouts).toHaveLength(0);
         });
 
-        test('updates player winnings after delete', async () => {
+        test('updates player winnings after delete of a PAID payout', async () => {
             const playersStore = usePlayersStore();
             playersStore.players = [{ id: 'player-1', name: 'Alice', winnings: 25 }];
-            store.payouts = [makePayout({ id: 'payout-1', playerId: 'player-1', amount: 25 })];
+            store.payouts = [makePayout({ id: 'payout-1', playerId: 'player-1', amount: 25, paid: true })];
             ApiService.delete.mockResolvedValue(undefined);
 
             await store.deletePayout('payout-1');
@@ -319,18 +417,18 @@ describe('payouts store', () => {
     // ─── _refreshPlayerWinnings ──────────────────────────────────────────────
 
     describe('_refreshPlayerWinnings', () => {
-        test('sums all payouts for the player across all rounds', async () => {
+        test('sums only paid payouts for the player across all rounds', async () => {
             const playersStore = usePlayersStore();
             playersStore.players = [{ id: 'p1', name: 'Alice', winnings: 0 }];
             store.payouts = [
-                makePayout({ id: 'a', playerId: 'p1', amount: 25 }),
-                makePayout({ id: 'b', playerId: 'p1', amount: 40 }),
-                makePayout({ id: 'c', playerId: 'p2', amount: 100 })
+                makePayout({ id: 'a', playerId: 'p1', amount: 25, paid: true }),
+                makePayout({ id: 'b', playerId: 'p1', amount: 40, paid: false }),
+                makePayout({ id: 'c', playerId: 'p2', amount: 100, paid: true })
             ];
 
             await store._refreshPlayerWinnings('p1');
 
-            expect(playersStore.players[0].winnings).toBe(65);
+            expect(playersStore.players[0].winnings).toBe(25);
         });
 
         test('does nothing when player not found in players store', async () => {

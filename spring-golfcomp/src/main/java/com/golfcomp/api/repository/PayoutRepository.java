@@ -22,8 +22,13 @@ public interface PayoutRepository extends JpaRepository<Payout, UUID> {
 
     List<Payout> findByCompetitionIdAndPlayerId(UUID competitionId, UUID playerId);
 
+    /**
+     * Sum of paid payouts for a player in a competition. Unpaid payouts are excluded
+     * because {@code player.winnings} represents money actually disbursed.
+     */
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payout p " +
-           "WHERE p.competition.id = :competitionId AND p.player.id = :playerId")
+           "WHERE p.competition.id = :competitionId AND p.player.id = :playerId " +
+           "AND p.paid = true")
     BigDecimal sumByCompetitionAndPlayer(@Param("competitionId") UUID competitionId,
                                          @Param("playerId") UUID playerId);
 }

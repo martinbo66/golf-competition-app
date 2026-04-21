@@ -61,6 +61,12 @@ public class Payout {
     @Column(name = "note", length = 200)
     private String note;
 
+    @Column(name = "paid", nullable = false)
+    private boolean paid;
+
+    @Column(name = "paid_at")
+    private Instant paidAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

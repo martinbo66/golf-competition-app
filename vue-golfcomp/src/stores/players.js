@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import ApiService from '@/services/ApiService';
+import { usePayoutsStore } from './payouts';
 
 function mapPlayerResponse(response) {
     return {
@@ -29,7 +30,15 @@ export const usePlayersStore = defineStore('players', {
         playerCount: (state) => state.players.length,
         playersByTalentRating: (state) => (rating) => state.players.filter(player => player.talentRating === rating),
         totalEntryFees: (state) => state.players.reduce((total, player) => total + (Number.parseFloat(player.entryFee) || 0), 0),
-        totalWinnings: (state) => state.players.reduce((total, player) => total + (Number.parseFloat(player.winnings) || 0), 0)
+        totalWinnings: (state) => state.players.reduce((total, player) => total + (Number.parseFloat(player.winnings) || 0), 0),
+        outstandingByPlayer: () => (playerId) => {
+            const payoutsStore = usePayoutsStore();
+            return payoutsStore.unpaidTotalByPlayer(playerId);
+        },
+        totalOutstandingWinnings: () => {
+            const payoutsStore = usePayoutsStore();
+            return payoutsStore.competitionUnpaidTotal;
+        }
     },
 
     actions: {

@@ -3,6 +3,7 @@ package com.golfcomp.api.unit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golfcomp.api.controller.OrganizationPayoutController;
 import com.golfcomp.api.dto.request.CreatePayoutRequest;
+import com.golfcomp.api.dto.request.MarkPayoutPaidRequest;
 import com.golfcomp.api.dto.request.TeamWinPayoutRequest;
 import com.golfcomp.api.dto.request.UpdatePayoutRequest;
 import com.golfcomp.api.dto.response.PayoutResponse;
@@ -55,6 +56,7 @@ class PayoutControllerTest {
             UUID.randomUUID(), competitionId, roundId, playerId,
             "Alice Smith", null, null,
             type, amount, "note",
+            false, null,
             Instant.now(), Instant.now());
     }
 
@@ -196,6 +198,57 @@ class PayoutControllerTest {
             playerId, PayoutType.GREENIE, BigDecimal.TEN, null);
 
         mockMvc.perform(put(BASE + "/payouts/{payoutId}", orgId, competitionId, payoutId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andExpect(status().isNotFound());
+    }
+
+    // ─── PATCH /payouts/{payoutId}/paid ───────────────────────────────────────
+
+    @Test
+    @DisplayName("PATCH /payouts/{payoutId}/paid - returns 200 with updated payout")
+    void setPaid_returns200() throws Exception {
+        doNothing().when(competitionService).verifyOrganizationOwnership(orgId, competitionId);
+        PayoutResponse updated = new PayoutResponse(
+            payoutId, competitionId, roundId, playerId,
+            "Alice Smith", null, null,
+            PayoutType.GREENIE, BigDecimal.valueOf(25), "note",
+            true, Instant.now(),
+            Instant.now(), Instant.now());
+        when(payoutService.setPaid(eq(competitionId), eq(payoutId), eq(true))).thenReturn(updated);
+
+        MarkPayoutPaidRequest req = new MarkPayoutPaidRequest(true);
+
+        mockMvc.perform(patch(BASE + "/payouts/{payoutId}/paid", orgId, competitionId, payoutId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.paid").value(true))
+            .andExpect(jsonPath("$.data.paidAt").exists());
+    }
+
+    @Test
+    @DisplayName("PATCH /payouts/{payoutId}/paid - returns 400 when paid field missing")
+    void setPaid_returns400OnMissingPaid() throws Exception {
+        doNothing().when(competitionService).verifyOrganizationOwnership(any(), any());
+        String invalidJson = "{}";
+
+        mockMvc.perform(patch(BASE + "/payouts/{payoutId}/paid", orgId, competitionId, payoutId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("PATCH /payouts/{payoutId}/paid - returns 404 when payout not found")
+    void setPaid_returns404() throws Exception {
+        doNothing().when(competitionService).verifyOrganizationOwnership(orgId, competitionId);
+        when(payoutService.setPaid(eq(competitionId), eq(payoutId), eq(true)))
+            .thenThrow(new ResourceNotFoundException("Payout not found with id: " + payoutId));
+
+        MarkPayoutPaidRequest req = new MarkPayoutPaidRequest(true);
+
+        mockMvc.perform(patch(BASE + "/payouts/{payoutId}/paid", orgId, competitionId, payoutId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
             .andExpect(status().isNotFound());

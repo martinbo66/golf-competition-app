@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -91,6 +92,25 @@ public class PayoutService {
         if (!previousPlayerId.equals(player.getId())) {
             recalculatePlayerWinnings(competitionId, previousPlayerId);
         }
+        return PayoutResponse.from(saved);
+    }
+
+    /**
+     * Toggle the paid flag on a payout. Sets {@code paidAt} when transitioning to paid,
+     * clears it when transitioning back to unpaid. Recalculates the player's winnings
+     * because winnings is defined as the sum of paid payouts only.
+     */
+    @Transactional
+    public PayoutResponse setPaid(UUID competitionId, UUID payoutId, boolean paid) {
+        Payout payout = payoutRepository.findById(payoutId)
+            .orElseThrow(() -> new ResourceNotFoundException("Payout not found with id: " + payoutId));
+        if (!payout.getCompetition().getId().equals(competitionId)) {
+            throw new ResourceNotFoundException("Payout not found with id: " + payoutId);
+        }
+        payout.setPaid(paid);
+        payout.setPaidAt(paid ? Instant.now() : null);
+        Payout saved = payoutRepository.save(payout);
+        recalculatePlayerWinnings(competitionId, payout.getPlayer().getId());
         return PayoutResponse.from(saved);
     }
 

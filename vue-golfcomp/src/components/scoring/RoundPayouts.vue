@@ -4,6 +4,12 @@
       <h3>Payouts</h3>
       <div class="round-total">
         Round total: <strong>${{ roundTotal.toFixed(2) }}</strong>
+        <span v-if="roundTotal > 0" class="paid-summary">
+          <span class="paid-chip">Paid ${{ roundPaidTotal.toFixed(2) }}</span>
+          <span class="outstanding-chip" :class="{ 'has-outstanding': roundUnpaidTotal > 0 }">
+            Outstanding ${{ roundUnpaidTotal.toFixed(2) }}
+          </span>
+        </span>
       </div>
     </div>
     <div class="card-body">
@@ -61,14 +67,27 @@
               <th>Player</th>
               <th>Team</th>
               <th class="col-amount">Amount</th>
+              <th class="col-paid">Paid</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="p in teamWinPayouts" :key="p.id">
+            <tr v-for="p in teamWinPayouts" :key="p.id" :class="{ 'paid-row': p.paid }">
               <td>{{ p.playerName }}</td>
               <td>{{ p.teamName || '—' }}</td>
               <td class="col-amount">${{ p.amount.toFixed(2) }}</td>
+              <td class="col-paid">
+                <label class="paid-toggle">
+                  <input
+                    type="checkbox"
+                    :checked="p.paid"
+                    :disabled="togglingIds.includes(p.id)"
+                    @change="togglePaid(p)"
+                  >
+                  <span v-if="p.paid" class="paid-badge">Paid</span>
+                  <span v-else class="unpaid-badge">Unpaid</span>
+                </label>
+              </td>
               <td>
                 <button class="btn btn-sm btn-danger" @click="removePayout(p.id)">Remove</button>
               </td>
@@ -90,14 +109,27 @@
               <th>Player</th>
               <th>Note</th>
               <th class="col-amount">Amount</th>
+              <th class="col-paid">Paid</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="p in greenies" :key="p.id">
+            <tr v-for="p in greenies" :key="p.id" :class="{ 'paid-row': p.paid }">
               <td>{{ p.playerName }}</td>
               <td>{{ p.note || '—' }}</td>
               <td class="col-amount">${{ p.amount.toFixed(2) }}</td>
+              <td class="col-paid">
+                <label class="paid-toggle">
+                  <input
+                    type="checkbox"
+                    :checked="p.paid"
+                    :disabled="togglingIds.includes(p.id)"
+                    @change="togglePaid(p)"
+                  >
+                  <span v-if="p.paid" class="paid-badge">Paid</span>
+                  <span v-else class="unpaid-badge">Unpaid</span>
+                </label>
+              </td>
               <td>
                 <button class="btn btn-sm btn-danger" @click="removePayout(p.id)">Remove</button>
               </td>
@@ -165,11 +197,14 @@ const teamWinForm = ref({ teamId: '', teamAmount: null });
 const greenieForm = ref({ playerId: '', amount: null, note: '' });
 const isSavingTeamWin = ref(false);
 const isSavingGreenie = ref(false);
+const togglingIds = ref([]);
 
 const roundPayouts = computed(() => payoutsStore.payoutsByRound(props.roundId));
 const teamWinPayouts = computed(() => roundPayouts.value.filter(p => p.type === 'TEAM_WIN'));
 const greenies = computed(() => roundPayouts.value.filter(p => p.type === 'GREENIE'));
 const roundTotal = computed(() => payoutsStore.roundTotal(props.roundId));
+const roundPaidTotal = computed(() => payoutsStore.roundPaidTotal(props.roundId));
+const roundUnpaidTotal = computed(() => payoutsStore.roundUnpaidTotal(props.roundId));
 
 const teamsWithScores = computed(() => {
   const scoresByTeam = scoresStore.courseScoresByTeam(props.roundId) || [];
@@ -178,7 +213,12 @@ const teamsWithScores = computed(() => {
     .sort((a, b) => b.totalScore - a.totalScore);
 });
 
-const leadingTeam = computed(() => teamsWithScores.value[0] || null);
+const leadingTeam = computed(() => {
+  const teams = teamsWithScores.value;
+  if (!teams.length) return null;
+  if (teams.length < 2) return teams[0];
+  return teams[0].totalScore === teams[1].totalScore ? null : teams[0];
+});
 
 const selectedTeamPlayerCount = computed(() => {
   if (!teamWinForm.value.teamId) return 0;
@@ -256,6 +296,19 @@ const removePayout = async (id) => {
     NotificationService.success('Payout removed');
   } catch (err) {
     NotificationService.error(getUserFriendlyErrorMessage(err));
+  }
+};
+
+const togglePaid = async (payout) => {
+  const nextPaid = !payout.paid;
+  togglingIds.value = [...togglingIds.value, payout.id];
+  try {
+    await payoutsStore.setPayoutPaid({ id: payout.id, paid: nextPaid });
+    NotificationService.success(nextPaid ? 'Marked paid' : 'Marked unpaid');
+  } catch (err) {
+    NotificationService.error(getUserFriendlyErrorMessage(err));
+  } finally {
+    togglingIds.value = togglingIds.value.filter(id => id !== payout.id);
   }
 };
 </script>
@@ -367,6 +420,74 @@ const removePayout = async (id) => {
 .payout-table .col-amount {
   text-align: right;
   width: 120px;
+}
+
+.payout-table .col-paid {
+  width: 110px;
+  text-align: center;
+}
+
+.paid-summary {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: 8px;
+  font-size: 0.85rem;
+}
+
+.paid-chip,
+.outstanding-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--background-color, #f8f9fa);
+  border: 1px solid var(--border-color, #e9ecef);
+  color: var(--text-muted, #6c757d);
+}
+
+.outstanding-chip.has-outstanding {
+  color: var(--danger-color, #dc3545);
+  border-color: var(--danger-color, #dc3545);
+}
+
+.paid-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.paid-toggle input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.paid-badge,
+.unpaid-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.paid-badge {
+  background: var(--success-color, #28a745);
+  color: #fff;
+}
+
+.unpaid-badge {
+  background: transparent;
+  color: var(--danger-color, #dc3545);
+  border: 1px solid var(--danger-color, #dc3545);
+}
+
+.paid-row td {
+  opacity: 0.65;
+}
+
+.paid-row td:has(.paid-toggle) {
+  opacity: 1;
 }
 
 @media (max-width: 640px) {
