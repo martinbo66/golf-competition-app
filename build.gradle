@@ -44,7 +44,7 @@ sonar {
         property 'sonar.javascript.lcov.reportPaths', 'vue-golfcomp/coverage/lcov.info'
 
         // Exclusions
-        property 'sonar.exclusions', '**/node_modules/**,**/dist/**,**/build/**,**/static/**'
+        property 'sonar.exclusions', '**/node_modules/**,**/dist/**,**/build/**,**/static/**,**/*.png,**/*.jpg,**/*.jpeg,**/*.gif,**/*.svg,**/*.ico,**/*.webp,**/*.woff,**/*.woff2,**/*.ttf,**/*.eot'
         property 'sonar.coverage.exclusions', '**/*.test.js,**/*.spec.js'
 
         // Include JavaScript analysis
