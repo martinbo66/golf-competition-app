@@ -52,6 +52,8 @@ jobs:
 
       - name: Start backend and wait for readiness
         if: env.TARGET_URL == ''
+        env:
+          SPRING_PROFILES_ACTIVE: test
         run: |
           java -jar spring-golfcomp/build/libs/*.jar > backend.log 2>&1 &
           echo $! > backend.pid
