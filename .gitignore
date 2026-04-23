@@ -46,6 +46,8 @@ tasks.json
 tasks/ 
 coverage/
 test-results/
+playwright-report/
+**/playwright/.cache/
 .claude/settings.local.json
 spring-golfcomp/bin/
 .playwright-mcp/**

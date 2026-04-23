@@ -1,0 +1,90 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target base URL (leave blank to build & run locally on the runner). Example: https://golfcomp.example.com'
+        required: false
+        default: ''
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      TARGET_URL: ${{ inputs.target_url }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: vue-golfcomp/package-lock.json
+
+      - name: Install frontend deps and Playwright
+        working-directory: vue-golfcomp
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      # ---- Local mode (no target_url): build the app, start it on the runner ----
+      - name: Set up Java 25
+        if: env.TARGET_URL == ''
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+
+      - name: Setup Gradle
+        if: env.TARGET_URL == ''
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Build app (skip tests)
+        if: env.TARGET_URL == ''
+        run: ./gradlew build -x test
+
+      - name: Start backend and wait for readiness
+        if: env.TARGET_URL == ''
+        run: |
+          java -jar spring-golfcomp/build/libs/*.jar > backend.log 2>&1 &
+          echo $! > backend.pid
+          npx --yes wait-on http://localhost:8080 -t 90000
+
+      # ---- Remote mode (target_url provided): just verify it's reachable ----
+      - name: Verify remote target reachable
+        if: env.TARGET_URL != ''
+        run: npx --yes wait-on "${TARGET_URL}" -t 60000
+
+      - name: Run Playwright tests
+        working-directory: vue-golfcomp
+        env:
+          E2E_BASE_URL: ${{ inputs.target_url || 'http://localhost:8080' }}
+        run: npx playwright test
+
+      - name: Stop backend
+        if: always() && env.TARGET_URL == ''
+        run: |
+          if [ -f backend.pid ]; then
+            kill "$(cat backend.pid)" || true
+          fi
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: playwright-report
+          path: vue-golfcomp/playwright-report/
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v7
+        if: failure() && env.TARGET_URL == ''
+        with:
+          name: backend-log
+          path: backend.log
+          retention-days: 14
