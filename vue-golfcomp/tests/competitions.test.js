@@ -23,7 +23,8 @@ jest.mock('@/services/ApiService', () => ({
     delete: jest.fn(),
     competitionsUrl: jest.fn(id => (id ? `/competitions/${id}` : '/competitions')),
     roundsUrl: jest.fn(id => (id ? `/competitions/comp/rounds/${id}` : '/competitions/comp/rounds')),
-    payoutsUrl: jest.fn(id => (id ? `/competitions/comp/payouts/${id}` : '/competitions/comp/payouts'))
+    payoutsUrl: jest.fn(id => (id ? `/competitions/comp/payouts/${id}` : '/competitions/comp/payouts')),
+    eventsUrl: jest.fn(id => (id ? `/competitions/comp/events/${id}` : '/competitions/comp/events'))
   }
 }));
 

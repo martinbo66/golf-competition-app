@@ -63,6 +63,8 @@ class ApiService {
   playersUrl(id) { return `${this.orgCompUrl}/players${id ? '/' + id : ''}`; }
   teamsUrl(id) { return `${this.orgCompUrl}/teams${id ? '/' + id : ''}`; }
   roundsUrl(id) { return `${this.orgCompUrl}/rounds${id ? '/' + id : ''}`; }
+  eventsUrl(id) { return `${this.orgCompUrl}/events${id ? '/' + id : ''}`; }
+  eventPayoutsUrl(eventId) { return `${this.orgCompUrl}/events/${eventId}/payouts`; }
   scoresUrl(roundId) { return `${this.orgCompUrl}/rounds/${roundId}/scores`; }
   leaderboardsUrl(type) { return `${this.orgCompUrl}/leaderboards/${type}`; }
   payoutsUrl(id) { return `${this.orgCompUrl}/payouts${id ? '/' + id : ''}`; }

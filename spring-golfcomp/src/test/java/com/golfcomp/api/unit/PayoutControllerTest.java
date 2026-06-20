@@ -53,7 +53,7 @@ class PayoutControllerTest {
 
     private PayoutResponse samplePayout(PayoutType type, BigDecimal amount) {
         return new PayoutResponse(
-            UUID.randomUUID(), competitionId, roundId, playerId,
+            UUID.randomUUID(), competitionId, roundId, null, null, playerId,
             "Alice Smith", null, null,
             type, amount, "note",
             false, null,
@@ -210,7 +210,7 @@ class PayoutControllerTest {
     void setPaid_returns200() throws Exception {
         doNothing().when(competitionService).verifyOrganizationOwnership(orgId, competitionId);
         PayoutResponse updated = new PayoutResponse(
-            payoutId, competitionId, roundId, playerId,
+            payoutId, competitionId, roundId, null, null, playerId,
             "Alice Smith", null, null,
             PayoutType.GREENIE, BigDecimal.valueOf(25), "note",
             true, Instant.now(),

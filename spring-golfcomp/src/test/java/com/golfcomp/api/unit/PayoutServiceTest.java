@@ -6,12 +6,14 @@ import com.golfcomp.api.dto.request.UpdatePayoutRequest;
 import com.golfcomp.api.dto.response.PayoutResponse;
 import com.golfcomp.api.exception.ResourceNotFoundException;
 import com.golfcomp.api.model.Competition;
+import com.golfcomp.api.model.Event;
 import com.golfcomp.api.model.Payout;
 import com.golfcomp.api.model.PayoutType;
 import com.golfcomp.api.model.Player;
 import com.golfcomp.api.model.Round;
 import com.golfcomp.api.model.TalentRating;
 import com.golfcomp.api.model.Team;
+import com.golfcomp.api.repository.EventRepository;
 import com.golfcomp.api.repository.PayoutRepository;
 import com.golfcomp.api.repository.PlayerRepository;
 import com.golfcomp.api.repository.RoundRepository;
@@ -42,6 +44,7 @@ class PayoutServiceTest {
 
     @Mock private PayoutRepository payoutRepository;
     @Mock private RoundRepository roundRepository;
+    @Mock private EventRepository eventRepository;
     @Mock private PlayerRepository playerRepository;
 
     @InjectMocks
@@ -49,12 +52,14 @@ class PayoutServiceTest {
 
     private UUID competitionId;
     private UUID roundId;
+    private UUID eventId;
     private UUID playerId;
     private UUID teamId;
     private UUID payoutId;
 
     private Competition competition;
     private Round round;
+    private Event event;
     private Player player;
     private Team team;
     private Payout payout;
@@ -63,6 +68,7 @@ class PayoutServiceTest {
     void setUp() {
         competitionId = UUID.randomUUID();
         roundId = UUID.randomUUID();
+        eventId = UUID.randomUUID();
         playerId = UUID.randomUUID();
         teamId = UUID.randomUUID();
         payoutId = UUID.randomUUID();
@@ -101,6 +107,15 @@ class PayoutServiceTest {
             .competition(competition)
             .roundNumber(1)
             .playDate(LocalDate.of(2026, 6, 2))
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
+
+        event = Event.builder()
+            .id(eventId)
+            .competition(competition)
+            .name("Putting Competition")
+            .eventDate(LocalDate.of(2026, 6, 3))
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
             .build();
@@ -209,6 +224,88 @@ class PayoutServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
             () -> payoutService.create(competitionId, roundId, request));
+    }
+
+    // ─── createForEvent ──────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("createForEvent - links payout to event, uses EVENT type, recalculates winnings")
+    void createForEvent_savesEventPayout() {
+        Payout eventPayout = Payout.builder()
+            .id(payoutId)
+            .competition(competition)
+            .event(event)
+            .player(player)
+            .type(PayoutType.EVENT)
+            .amount(BigDecimal.valueOf(20))
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+        when(payoutRepository.save(any(Payout.class))).thenReturn(eventPayout);
+        when(payoutRepository.sumByCompetitionAndPlayer(competitionId, playerId))
+            .thenReturn(BigDecimal.valueOf(20));
+
+        CreatePayoutRequest request = new CreatePayoutRequest(
+            playerId, PayoutType.EVENT, BigDecimal.valueOf(20), "1st place");
+
+        PayoutResponse result = payoutService.createForEvent(competitionId, eventId, request);
+
+        assertNotNull(result);
+        assertEquals(eventId, result.eventId());
+        assertNull(result.roundId());
+        verify(payoutRepository).save(argThat(p ->
+            p.getType() == PayoutType.EVENT
+            && p.getEvent() != null
+            && p.getRound() == null
+            && p.getAmount().compareTo(BigDecimal.valueOf(20)) == 0));
+        verify(playerRepository, atLeastOnce()).save(any(Player.class));
+    }
+
+    @Test
+    @DisplayName("createForEvent - throws when event not found")
+    void createForEvent_throwsWhenEventNotFound() {
+        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+
+        CreatePayoutRequest request = new CreatePayoutRequest(
+            playerId, PayoutType.EVENT, BigDecimal.valueOf(20), null);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> payoutService.createForEvent(competitionId, eventId, request));
+    }
+
+    @Test
+    @DisplayName("createForEvent - throws when event belongs to different competition")
+    void createForEvent_throwsWhenWrongCompetition() {
+        UUID otherId = UUID.randomUUID();
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+
+        CreatePayoutRequest request = new CreatePayoutRequest(
+            playerId, PayoutType.EVENT, BigDecimal.valueOf(20), null);
+
+        assertThrows(ResourceNotFoundException.class,
+            () -> payoutService.createForEvent(otherId, eventId, request));
+    }
+
+    // ─── findByEvent ─────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("findByEvent - returns payouts for the event")
+    void findByEvent_returnsList() {
+        Payout eventPayout = Payout.builder()
+            .id(payoutId).competition(competition).event(event).player(player)
+            .type(PayoutType.EVENT).amount(BigDecimal.valueOf(20))
+            .createdAt(Instant.now()).updatedAt(Instant.now()).build();
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(payoutRepository.findByEventId(eventId)).thenReturn(List.of(eventPayout));
+
+        List<PayoutResponse> result = payoutService.findByEvent(competitionId, eventId);
+
+        assertEquals(1, result.size());
+        assertEquals(PayoutType.EVENT, result.get(0).type());
+        assertEquals(eventId, result.get(0).eventId());
     }
 
     // ─── update ──────────────────────────────────────────────────────────────

@@ -5,10 +5,12 @@ import com.golfcomp.api.dto.request.TeamWinPayoutRequest;
 import com.golfcomp.api.dto.request.UpdatePayoutRequest;
 import com.golfcomp.api.dto.response.PayoutResponse;
 import com.golfcomp.api.exception.ResourceNotFoundException;
+import com.golfcomp.api.model.Event;
 import com.golfcomp.api.model.Payout;
 import com.golfcomp.api.model.PayoutType;
 import com.golfcomp.api.model.Player;
 import com.golfcomp.api.model.Round;
+import com.golfcomp.api.repository.EventRepository;
 import com.golfcomp.api.repository.PayoutRepository;
 import com.golfcomp.api.repository.PlayerRepository;
 import com.golfcomp.api.repository.RoundRepository;
@@ -30,19 +32,29 @@ public class PayoutService {
 
     private final PayoutRepository payoutRepository;
     private final RoundRepository roundRepository;
+    private final EventRepository eventRepository;
     private final PlayerRepository playerRepository;
 
     public PayoutService(PayoutRepository payoutRepository,
                          RoundRepository roundRepository,
+                         EventRepository eventRepository,
                          PlayerRepository playerRepository) {
         this.payoutRepository = payoutRepository;
         this.roundRepository = roundRepository;
+        this.eventRepository = eventRepository;
         this.playerRepository = playerRepository;
     }
 
     public List<PayoutResponse> findByRound(UUID competitionId, UUID roundId) {
         Round round = loadRoundInCompetition(competitionId, roundId);
         return payoutRepository.findByRoundId(round.getId()).stream()
+            .map(PayoutResponse::from)
+            .toList();
+    }
+
+    public List<PayoutResponse> findByEvent(UUID competitionId, UUID eventId) {
+        Event event = loadEventInCompetition(competitionId, eventId);
+        return payoutRepository.findByEventId(event.getId()).stream()
             .map(PayoutResponse::from)
             .toList();
     }
@@ -63,6 +75,28 @@ public class PayoutService {
             .round(round)
             .player(player)
             .type(request.type())
+            .amount(request.amount())
+            .note(request.note())
+            .build();
+        Payout saved = payoutRepository.save(payout);
+        recalculatePlayerWinnings(competitionId, player.getId());
+        return PayoutResponse.from(saved);
+    }
+
+    /**
+     * Creates a payout awarded to a player for winning a non-round competition event.
+     * The payout is linked to the event (not a round) and always uses {@link PayoutType#EVENT}.
+     */
+    @Transactional
+    public PayoutResponse createForEvent(UUID competitionId, UUID eventId, CreatePayoutRequest request) {
+        Event event = loadEventInCompetition(competitionId, eventId);
+        Player player = loadPlayerInCompetition(competitionId, request.playerId());
+
+        Payout payout = Payout.builder()
+            .competition(event.getCompetition())
+            .event(event)
+            .player(player)
+            .type(PayoutType.EVENT)
             .amount(request.amount())
             .note(request.note())
             .build();
@@ -175,6 +209,15 @@ public class PayoutService {
             throw ResourceNotFoundException.round(roundId);
         }
         return round;
+    }
+
+    private Event loadEventInCompetition(UUID competitionId, UUID eventId) {
+        Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> ResourceNotFoundException.event(eventId));
+        if (!event.getCompetition().getId().equals(competitionId)) {
+            throw ResourceNotFoundException.event(eventId);
+        }
+        return event;
     }
 
     private Player loadPlayerInCompetition(UUID competitionId, UUID playerId) {

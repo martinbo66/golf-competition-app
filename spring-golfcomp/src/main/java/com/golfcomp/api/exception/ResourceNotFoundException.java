@@ -36,4 +36,8 @@ public class ResourceNotFoundException extends RuntimeException {
     public static ResourceNotFoundException organization(UUID id) {
         return new ResourceNotFoundException("Organization not found with id: " + id);
     }
+
+    public static ResourceNotFoundException event(UUID id) {
+        return new ResourceNotFoundException("Event not found with id: " + id);
+    }
 }

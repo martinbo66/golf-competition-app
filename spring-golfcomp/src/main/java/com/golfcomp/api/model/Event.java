@@ -2,8 +2,6 @@ package com.golfcomp.api.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,21 +16,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * Entity representing a dollar payout awarded to a player during a round.
- * Player winnings are the aggregate sum of all payouts for that player in a competition.
+ * Entity representing a non-round component of a competition, such as a putting
+ * competition or a longest-drive contest. An event has a name and a date, carries
+ * no course or per-hole scoring, and may award money to players via payouts.
  */
 @Entity
-@Table(name = "payouts")
+@Table(name = "events")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Payout {
+public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -43,33 +42,14 @@ public class Payout {
     @JoinColumn(name = "competition_id", nullable = false)
     private Competition competition;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "round_id")
-    private Round round;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id")
-    private Event event;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "player_id", nullable = false)
-    private Player player;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payout_type", nullable = false, length = 20)
-    private PayoutType type;
-
-    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
+    @Column(name = "event_date", nullable = false)
+    private LocalDate eventDate;
 
     @Column(name = "note", length = 200)
     private String note;
-
-    @Column(name = "paid", nullable = false)
-    private boolean paid;
-
-    @Column(name = "paid_at")
-    private Instant paidAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

@@ -6,12 +6,14 @@
     </p>
     <CompetitionList />
     <RoundList />
+    <EventList />
   </div>
 </template>
 
 <script setup>
 import CompetitionList from '@/components/admin/CompetitionList.vue';
 import RoundList from '@/components/admin/RoundList.vue';
+import EventList from '@/components/admin/EventList.vue';
 import { useOrganizationsStore } from '@/stores/organizations';
 
 const orgsStore = useOrganizationsStore();

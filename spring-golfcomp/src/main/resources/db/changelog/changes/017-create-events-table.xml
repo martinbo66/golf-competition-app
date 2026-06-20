@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="017-create-events-table" author="golfcomp">
+        <comment>Create events table. An event is a non-round component of a competition (e.g. a putting competition) that can award money to players via payouts.</comment>
+
+        <createTable tableName="events">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="competition_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="varchar(200)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="events"
+            baseColumnNames="competition_id"
+            constraintName="fk_events_competition"
+            referencedTableName="competitions"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <createIndex indexName="idx_events_competition" tableName="events">
+            <column name="competition_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="events"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
