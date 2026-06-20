@@ -18,6 +18,8 @@ public interface PayoutRepository extends JpaRepository<Payout, UUID> {
 
     List<Payout> findByRoundId(UUID roundId);
 
+    List<Payout> findByEventId(UUID eventId);
+
     List<Payout> findByCompetitionId(UUID competitionId);
 
     List<Payout> findByCompetitionIdAndPlayerId(UUID competitionId, UUID playerId);

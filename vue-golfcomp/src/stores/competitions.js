@@ -5,6 +5,7 @@ import { usePlayersStore } from '@/stores/players';
 import { useTeamsStore } from '@/stores/teams';
 import { useScoresStore } from '@/stores/scores';
 import { usePayoutsStore } from '@/stores/payouts';
+import { useEventsStore } from '@/stores/events';
 import { useUiStore } from '@/stores/ui';
 
 function mapCompetitionResponse(response) {
@@ -133,6 +134,7 @@ export const useCompetitionsStore = defineStore('competitions', {
             const teamsStore = useTeamsStore();
             const scoresStore = useScoresStore();
             const payoutsStore = usePayoutsStore();
+            const eventsStore = useEventsStore();
 
             uiStore.setLoading(true);
             try {
@@ -143,7 +145,8 @@ export const useCompetitionsStore = defineStore('competitions', {
                 ]);
                 await Promise.all([
                     scoresStore.fetchScores(),
-                    payoutsStore.fetchPayouts()
+                    payoutsStore.fetchPayouts(),
+                    eventsStore.fetchEvents()
                 ]);
             } finally {
                 uiStore.setLoading(false);
@@ -159,12 +162,14 @@ export const useCompetitionsStore = defineStore('competitions', {
             const teamsStore = useTeamsStore();
             const scoresStore = useScoresStore();
             const payoutsStore = usePayoutsStore();
+            const eventsStore = useEventsStore();
 
             coursesStore.clearForCompetition();
             playersStore.players = [];
             teamsStore.teams = [];
             scoresStore.scores = [];
             payoutsStore.payouts = [];
+            eventsStore.events = [];
         }
     }
 });

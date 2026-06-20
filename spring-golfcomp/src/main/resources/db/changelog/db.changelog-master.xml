@@ -42,4 +42,8 @@
     <include file="changes/015-create-payouts-table.xml" relativeToChangelogFile="true"/>
     <include file="changes/016-add-paid-to-payouts.xml" relativeToChangelogFile="true"/>
 
+    <!-- Events (non-round competition components) -->
+    <include file="changes/017-create-events-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/018-alter-payouts-add-event.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

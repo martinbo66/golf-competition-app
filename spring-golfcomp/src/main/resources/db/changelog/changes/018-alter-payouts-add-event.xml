@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="018-alter-payouts-add-event" author="golfcomp">
+        <comment>Generalize payouts so a payout belongs to either a round or an event. Make round_id nullable, add nullable event_id FK, and require exactly one of the two to be set.</comment>
+
+        <dropNotNullConstraint tableName="payouts" columnName="round_id" columnDataType="uuid"/>
+
+        <addColumn tableName="payouts">
+            <column name="event_id" type="uuid">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint
+            baseTableName="payouts"
+            baseColumnNames="event_id"
+            constraintName="fk_payouts_event"
+            referencedTableName="events"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <createIndex indexName="idx_payouts_event" tableName="payouts">
+            <column name="event_id"/>
+        </createIndex>
+
+        <sql dbms="postgresql">
+            ALTER TABLE payouts ADD CONSTRAINT chk_payouts_round_xor_event
+                CHECK ((round_id IS NOT NULL) &lt;&gt; (event_id IS NOT NULL));
+        </sql>
+
+        <rollback>
+            <sql dbms="postgresql">
+                ALTER TABLE payouts DROP CONSTRAINT chk_payouts_round_xor_event;
+            </sql>
+            <dropIndex indexName="idx_payouts_event" tableName="payouts"/>
+            <dropForeignKeyConstraint baseTableName="payouts" constraintName="fk_payouts_event"/>
+            <dropColumn tableName="payouts" columnName="event_id"/>
+            <addNotNullConstraint tableName="payouts" columnName="round_id" columnDataType="uuid"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

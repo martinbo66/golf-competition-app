@@ -75,6 +75,25 @@ public class OrganizationPayoutController {
         return ResponseEntity.ok(ApiResponse.success(payoutService.recordTeamWin(competitionId, roundId, request)));
     }
 
+    @GetMapping("/events/{eventId}/payouts")
+    public ResponseEntity<ApiResponse<List<PayoutResponse>>> findByEvent(
+            @PathVariable UUID orgId,
+            @PathVariable UUID competitionId,
+            @PathVariable UUID eventId) {
+        competitionService.verifyOrganizationOwnership(orgId, competitionId);
+        return ResponseEntity.ok(ApiResponse.success(payoutService.findByEvent(competitionId, eventId)));
+    }
+
+    @PostMapping("/events/{eventId}/payouts")
+    public ResponseEntity<ApiResponse<PayoutResponse>> createForEvent(
+            @PathVariable UUID orgId,
+            @PathVariable UUID competitionId,
+            @PathVariable UUID eventId,
+            @RequestBody @Valid CreatePayoutRequest request) {
+        competitionService.verifyOrganizationOwnership(orgId, competitionId);
+        return ResponseEntity.ok(ApiResponse.success(payoutService.createForEvent(competitionId, eventId, request)));
+    }
+
     @PutMapping("/payouts/{payoutId}")
     public ResponseEntity<ApiResponse<PayoutResponse>> update(
             @PathVariable UUID orgId,

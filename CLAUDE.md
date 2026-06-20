@@ -21,7 +21,8 @@ Vue 3 SPA + Spring Boot REST API for managing golf team competitions with:
 - Hash-based routing for static hosting compatibility
 - All state is server-side; frontend fetches via REST API
 - Monorepo: Vue frontend in `vue-golfcomp/`, Spring backend in `spring-golfcomp/`
-- **Domain model:** Organization is the top-level tenant container. Competitions belong to an Organization. Players, teams, rounds, and scores are all scoped under a Competition. The API nests competitions under organizations: `/api/v1/organizations/{orgId}/competitions`.
+- **Domain model:** Organization is the top-level tenant container. Competitions belong to an Organization. Players, teams, rounds, scores, and events are all scoped under a Competition. The API nests competitions under organizations: `/api/v1/organizations/{orgId}/competitions`.
+- **Events:** A competition can also have non-round **events** (e.g. a putting competition won by an individual). Events are a sibling of rounds under a competition (`/events`). Money won at an event is recorded as a `Payout` linked to the event instead of a round — a payout belongs to **either** a round **or** an event (`PayoutType.EVENT`), and event prizes flow into `player.winnings` and the money leaderboard through the same payout pipeline as round payouts.
 
 ---
 
@@ -491,10 +492,13 @@ Before finalizing changes:
 | Teams Store | `vue-golfcomp/src/stores/teams.js` |
 | Scores Store | `vue-golfcomp/src/stores/scores.js` |
 | Courses Store | `vue-golfcomp/src/stores/courses.js` |
+| Events Store | `vue-golfcomp/src/stores/events.js` |
 | API Service | `vue-golfcomp/src/services/ApiService.js` |
 | Competition CRUD | `vue-golfcomp/src/components/admin/CompetitionList.vue` |
 | Competition Form | `vue-golfcomp/src/components/admin/CompetitionForm.vue` |
 | Round Management | `vue-golfcomp/src/components/admin/RoundList.vue` |
+| Event Management | `vue-golfcomp/src/components/admin/EventList.vue` |
+| Event Winners Editor | `vue-golfcomp/src/components/admin/EventPayouts.vue` |
 | Player CRUD | `vue-golfcomp/src/components/admin/PlayerList.vue` |
 | Player Form | `vue-golfcomp/src/components/admin/PlayerForm.vue` |
 | Player Stats | `vue-golfcomp/src/components/admin/PlayerStats.vue` |

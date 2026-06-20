@@ -82,7 +82,7 @@ class PayoutTest {
         Round round = Round.builder().roundNumber(1).playDate(LocalDate.now()).build();
         Player player = Player.builder().name("Alice").talentRating(TalentRating.A).build();
 
-        Payout payout = new Payout(id, comp, round, player,
+        Payout payout = new Payout(id, comp, round, null, player,
                 PayoutType.GREENIE, BigDecimal.valueOf(30), "Hole 7", false, null, now, now);
 
         assertEquals(id, payout.getId());

@@ -6,7 +6,9 @@ function mapPayoutResponse(response) {
     return {
         id: response.id,
         competitionId: response.competitionId,
-        roundId: response.roundId,
+        roundId: response.roundId || null,
+        eventId: response.eventId || null,
+        eventName: response.eventName || null,
         playerId: response.playerId,
         playerName: response.playerName,
         teamId: response.teamId || null,
@@ -29,6 +31,13 @@ export const usePayoutsStore = defineStore('payouts', {
     getters: {
         allPayouts: (state) => state.payouts,
         payoutsByRound: (state) => (roundId) => state.payouts.filter(p => p.roundId === roundId),
+        payoutsByEvent: (state) => (eventId) => state.payouts.filter(p => p.eventId === eventId),
+        eventTotal: (state) => (eventId) => state.payouts
+            .filter(p => p.eventId === eventId)
+            .reduce((sum, p) => sum + (p.amount || 0), 0),
+        eventPaidTotal: (state) => (eventId) => state.payouts
+            .filter(p => p.eventId === eventId && p.paid)
+            .reduce((sum, p) => sum + (p.amount || 0), 0),
         payoutsByPlayer: (state) => (playerId) => state.payouts.filter(p => p.playerId === playerId),
         roundTotal: (state) => (roundId) => state.payouts
             .filter(p => p.roundId === roundId)
@@ -62,6 +71,19 @@ export const usePayoutsStore = defineStore('payouts', {
             const created = await ApiService.post(ApiService.roundPayoutsUrl(roundId), {
                 playerId,
                 type,
+                amount: Number.parseFloat(amount) || 0,
+                note: note || null
+            });
+            const mapped = mapPayoutResponse(created);
+            this.payouts.push(mapped);
+            await this._refreshPlayerWinnings(mapped.playerId);
+            return mapped;
+        },
+
+        async createEventPayout({ eventId, playerId, amount, note }) {
+            const created = await ApiService.post(ApiService.eventPayoutsUrl(eventId), {
+                playerId,
+                type: 'EVENT',
                 amount: Number.parseFloat(amount) || 0,
                 note: note || null
             });
