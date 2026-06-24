@@ -7,18 +7,36 @@ on:
         description: 'Target base URL (leave blank to build & run locally on the runner). Example: https://golfcomp.example.com'
         required: false
         default: ''
+  workflow_run:
+    workflows: ['Deploy to Digital Ocean']
+    types: [completed]
 
 jobs:
   playwright:
+    # Run on manual dispatch, OR when the deploy workflow finished successfully.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
+    # Bind to the production environment so vars.E2E_URL resolves to the prod value.
+    # Future: parameterize this for staging/dev environments.
+    environment: production
     timeout-minutes: 20
     permissions:
       contents: read
     env:
-      TARGET_URL: ${{ inputs.target_url }}
+      # On workflow_run (post-deploy), target the URL from the bound environment's vars.
+      # On workflow_dispatch, honor the input (blank = local mode).
+      TARGET_URL: ${{ github.event_name == 'workflow_run' && vars.E2E_URL || inputs.target_url }}
 
     steps:
       - uses: actions/checkout@v6
+
+      - name: Require E2E_URL on post-deploy runs
+        if: github.event_name == 'workflow_run' && env.TARGET_URL == ''
+        run: |
+          echo "::error::E2E_URL is not set in the 'production' environment; cannot run post-deploy E2E tests."
+          exit 1
 
       - uses: actions/setup-node@v6
         with:
@@ -52,6 +70,8 @@ jobs:
 
       - name: Start backend and wait for readiness
         if: env.TARGET_URL == ''
+        env:
+          SPRING_PROFILES_ACTIVE: test
         run: |
           java -jar spring-golfcomp/build/libs/*.jar > backend.log 2>&1 &
           echo $! > backend.pid
@@ -65,7 +85,7 @@ jobs:
       - name: Run Playwright tests
         working-directory: vue-golfcomp
         env:
-          E2E_BASE_URL: ${{ inputs.target_url || 'http://localhost:8080' }}
+          E2E_BASE_URL: ${{ env.TARGET_URL || 'http://localhost:8080' }}
         run: npx playwright test
 
       - name: Stop backend
